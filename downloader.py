@@ -18,6 +18,7 @@
 import requests
 import os
 import config
+import zipfile
 
 def get_token(username, password, server_url):
 	response = requests.get(server_url + '/login/token.php', params={'username': username, 'password': password, 'service': 'moodle_mobile_app'})
@@ -33,6 +34,9 @@ def process_file(f, working_dir, token):
 	filename = f['filename']
 	download_url = f['fileurl'] + "?token=" + token
 	
+	if not os.path.exists(working_dir):
+		os.makedirs(working_dir)
+
 	if not os.path.exists(os.path.join(working_dir, filename)):	# TODO: checksum testing
 		print(f"\t\tDownloading file: {filename}")
 		r = requests.get(download_url)
@@ -40,13 +44,16 @@ def process_file(f, working_dir, token):
 			with open(os.path.join(working_dir, filename), 'wb') as f:
 				f.write(r.content)
 
+			# unzip zip files into the current dir -- TODO: make it more generic, this is ad hoc
+			if filename.endswith('.zip'):
+				with zipfile.ZipFile(os.path.join(working_dir, filename), "r") as zip_ref:
+					zip_ref.extractall(working_dir)
+
 def process_submission(submission, working_dir, token):
 	user_id = str(submission['userid'])
 	print(f"\tProcessing user: {user_id}")
 	
 	dir = os.path.join(working_dir, user_id)
-	if not os.path.exists(dir):
-		os.makedirs(dir)
 
 	for plugin in submission['plugins']:    # need to find attached files
 		if 'fileareas' in plugin:
