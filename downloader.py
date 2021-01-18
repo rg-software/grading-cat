@@ -77,6 +77,10 @@ token = get_token(config.username, config.password, config.server_url)
 courses = call_service(config.server_url, token, 'core_course_get_courses_by_field', {'field': 'shortname', 'value': config.course_shortname}) # list of all matching courses
 course_id = courses['courses'][0]['id'] # we presume that only one course matches the given shortname
 
+users = call_service(config.server_url, token, 'core_enrol_get_enrolled_users', {'courseid': course_id})
+for user in users:
+	print(f"{user['id']}: {user['email']}")
+
 assignments_full = call_service(config.server_url, token, 'mod_assign_get_assignments', params={'courseids[0]': course_id}) # matching assignments with ext info
 assignments = assignments_full['courses'][0]['assignments'] # assignments only
 
