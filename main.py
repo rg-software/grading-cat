@@ -34,8 +34,8 @@ def updateDiagram():
     config.CHESS = window.chess.isChecked()
 
     config.RANGE_PLAG = window.rangeSlider.value()
-    rengeLabel = "Renge:  > " + str(config.RANGE_PLAG) + "%"
-    window.label_Range.setText(rengeLabel)
+    rangeLabel = "Range:  > " + str(config.RANGE_PLAG) + "%"
+    window.label_Range.setText(rangeLabel)
 
     if len(config.STUDENTS_LIST) > 0:
         studentList()
@@ -64,8 +64,9 @@ def selectedStudent(item):
     
     student = item.text().split()[0]
     config.SELECTED_STUDENT = student
-    updateList(student)
+    #updateList(student)
     window.lineEdit.setText(student)
+    updateDiagram()
     pass
 
 def updateLinkedStudents(student):
@@ -997,8 +998,8 @@ if __name__ == "__main__":
         #window.actionSave_as.unclickable()
         
     window.rangeSlider.valueChanged.connect(updateDiagram)
-    rengeLabel = "Renge:  > " + str(window.rangeSlider.value()) + "%"
-    window.label_Range.setText(rengeLabel)
+    rangeLabel = "Range:  > " + str(window.rangeSlider.value()) + "%"
+    window.label_Range.setText(rangeLabel)
       
     window.showNames.stateChanged.connect(updateDiagram)
     window.showLinkless.stateChanged.connect(updateDiagram)
