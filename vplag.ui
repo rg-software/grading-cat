@@ -1,0 +1,1055 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>980</width>
+    <height>620</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>980</width>
+    <height>620</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>980</width>
+    <height>620</height>
+   </size>
+  </property>
+  <property name="font">
+   <font>
+    <family>Consolas</family>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Grading Cat</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow{
+	color: #f5eae9;
+	background-color: rgba(138, 140, 152, 255)
+
+}
+
+Line{
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(252, 232, 227, 155), stop:1 rgba(123, 209, 201, 85));
+	border: none;
+	
+
+	
+}
+QToolButton{
+	border-style: outset;
+	border-width: 2px;
+	border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(81, 84, 100, 255), stop:1 rgba(45, 60, 75, 255));
+	border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(81, 84, 100, 255), stop:1 rgba(45, 60, 75, 255));
+	border-left-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(81, 84, 100, 255), stop:1 rgba(45, 60, 75, 255));
+	border-bottom-color: rgb(43, 54, 70);
+	border-bottom-width: 1px;
+	border-style: solid;
+	color: rgb(255, 255, 255);
+	padding: 2px;
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(95, 97, 106, 255), stop:1 rgba(80, 95, 110, 255));
+	border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(123, 209, 201, 255), stop:1 rgba(205, 177, 168, 220));
+}
+QToolButton:hover{
+	border-style: outset;
+	border-width: 2px;
+	border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(233, 209, 201, 255), stop:1 rgba(205, 177, 168, 90));
+	border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(123, 209, 201, 255), stop:1 rgba(205, 177, 168, 90));
+	border-left-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(233, 209, 201, 255), stop:1 rgba(205, 177, 168, 90));
+	border-bottom-color: rgb(165, 115, 115);
+	border-bottom-width: 1px;
+	border-style: solid;
+	color: rgb(255, 255, 255);
+	padding: 2px;
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(228, 206, 196, 90), stop:1 rgba(191, 163, 157, 90));
+}
+QToolButton:pressed{
+	border-style: outset;
+	border-width: 2px;
+	border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(53, 64, 80, 255), stop:1 rgba(22, 22, 22, 255));
+	border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(233, 209, 201, 255), stop:1 rgba(50, 65, 80, 255));
+	border-left-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(233, 209, 201, 255), stop:1 rgba(50, 65, 80, 255));
+	border-bottom-color: rgb(50, 65, 80);
+	border-bottom-width: 1px;
+	border-style: solid;
+	color: rgb(255, 255, 255);
+	padding: 2px;
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(45, 60, 75, 255), stop:1 rgba(40, 55, 70, 255));
+}
+QToolButton:disabled{
+	border-style: outset;
+	border-width: 2px;
+	border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(88, 97, 112, 255), stop:1 rgba(50, 65, 80, 255));
+	border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(88, 97, 112, 255), stop:1 rgba(50, 65, 80, 255));
+	border-left-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(88, 97, 112, 255), stop:1 rgba(50, 65, 80, 255));
+	border-bottom-color: rgb(40, 55, 70);
+	border-bottom-width: 1px;
+	border-style: solid;
+	color: rgb(0, 0, 0);
+	padding: 2px;
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(60, 55, 69, 255), stop:1 rgba(50, 66, 87, 255));
+}
+QAbstractButton:hover{
+	border-style: outset;
+	border-width: 2px;
+	border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(233, 209, 201, 255), stop:1 rgba(205, 177, 168, 90));
+	border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(123, 209, 201, 255), stop:1 rgba(205, 177, 168, 90));
+	border-left-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(233, 209, 201, 255), stop:1 rgba(205, 177, 168, 90));
+	border-bottom-color: rgb(165, 115, 115);
+	border-bottom-width: 1px;
+	border-style: solid;
+	color: rgb(255, 255, 255);
+	padding: 2px;
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(228, 206, 196, 90), stop:1 rgba(191, 163, 157, 90));
+} 
+
+QAbstractButton:pressed{
+	border-style: outset;
+	border-width: 2px;
+	border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(53, 64, 80, 255), stop:1 rgba(22, 22, 22, 255));
+	border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(233, 209, 201, 255), stop:1 rgba(50, 65, 80, 255));
+	border-left-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(233, 209, 201, 255), stop:1 rgba(50, 65, 80, 255));
+	border-bottom-color: rgb(50, 65, 80);
+	border-bottom-width: 1px;
+	border-style: solid;
+	color: rgb(255, 255, 255);
+	padding: 2px;
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(45, 60, 75, 255), stop:1 rgba(40, 55, 70, 255));
+}
+QAbstractButton:disabled{
+	border-style: outset;
+	border-width: 2px;
+	border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(88, 97, 112, 255), stop:1 rgba(50, 65, 80, 255));
+	border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(88, 97, 112, 255), stop:1 rgba(50, 65, 80, 255));
+	border-left-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(88, 97, 112, 255), stop:1 rgba(50, 65, 80, 255));
+	border-bottom-color: rgb(40, 55, 70);
+	border-bottom-width: 1px;
+	border-style: solid;
+	color: rgb(0, 0, 0);
+	padding: 2px;
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(60, 55, 69, 255), stop:1 rgba(50, 66, 87, 255));
+}
+QLineEdit {
+	border-width: 1px; border-radius: 2px;
+	border-color: rgba(50, 65, 80, 180);
+	border-style: inset;
+	padding: 0 6px;
+	color: rgb(255, 255, 255);
+	background:rgb(70, 83, 100);
+	selection-background-color: rgb(187, 187, 187);
+	selection-color: rgb(55, 70, 90);
+}
+QListWidget {
+	border-width: 1px; 
+	border-radius: 2px;
+	border-color: rgba(50, 65, 80, 180);
+	border-style: inset;
+	padding: 6px;
+	color: rgb(255, 255, 255);
+	background:rgb(70, 83, 100);
+	selection-background-color: rgb(187, 187, 187);
+	selection-color: rgb(55, 70, 90);
+	border-right-color: rgba(123, 209, 201, 195);
+}
+QListWidget::item:selected:active:hover{
+    background-color:rgb(254, 113, 105); 
+	color: rgb(254, 238, 237);
+}
+QListWidget::item:selected:active:!hover{
+    background-color:rgb(95, 97, 106);
+	color: rgb(254, 238, 237);
+}
+QListWidget::item:selected:!active{
+    background-color:rgb(95, 97, 106);
+	color: rgb(254, 238, 237);
+}
+QListWidget::item:!selected:hover{
+    background-color:rgb(254, 159, 156);
+	color: rgb(254, 238, 237);
+}
+
+
+QLabel {
+	color:rgb(222, 210, 205);	
+	font: bold large &quot;Consolas&quot;
+	
+}
+
+QCheckBox {
+	color: rgb(254, 238, 237);
+	padding: 2px;
+}
+QCheckBox:hover {
+	border-radius:4px;
+	border-style:solid;
+	padding-left: 1px;
+	padding-right: 1px;
+	padding-bottom: 1px;
+	padding-top: 1px;
+	border-width:1px;
+	border-color: rgb(87, 97, 106);
+	background-color:qlineargradient(spread:pad, x1:0.5, y1:0.7, x2:0.5, y2:0.3, stop:0 rgba(87, 97, 106, 80), stop:1 rgba(93, 103, 113, 80));
+}
+QCheckBox::indicator:checked {
+	border-radius:4px;
+	border-style:solid;
+	border-width:1px;
+	border-color: rgb(254, 229, 224);
+  	background-color:rgb(254, 159, 156);
+}
+QCheckBox::indicator:unchecked {
+	border-radius:4px;
+	border-style:solid;
+	border-width:1px;
+	border-color: rgb(167, 175, 180);
+	background-color:qlineargradient(spread:pad, x1:0.5, y1:0.7, x2:0.5, y2:0.3, stop:0 rgba(93, 103, 113, 255), stop:1 rgba(95, 97, 106, 255));
+  	
+}
+QSlider {	
+	border: none;
+}
+
+QSlider::groove:horizontal {
+	height: 5px;
+	margin: 4px 0px 4px 0px;	
+}
+
+QSlider::groove:vertical {
+	width: 5px;
+	margin: 0px 4px 0px 4px;
+}
+
+QSlider::handle {
+	border: 1px solid #a7afb4;
+	background: rgb(95, 97, 106);
+	border-left-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(123, 209, 201, 255), stop:1 rgba(205, 177, 168, 120));
+}
+
+QSlider::handle:horizontal {
+	width: 15px;
+	margin: -4px 0px -4px 0px;
+}
+
+QSlider::handle:vertical {
+	height: 15px;
+	margin: 0px -4px 0px -4px;
+}
+
+QSlider::add-page:vertical, QSlider::sub-page:horizontal {
+	background: #2d3c4b;
+}
+
+QSlider::sub-page:vertical, QSlider::add-page:horizontal {
+	background: #fe9f9c;
+}
+
+
+QMenuBar {
+	background:#faf1ec;
+	font: bold large &quot;Consolas&quot;
+}
+QMenuBar::item {
+	color:rgb(95, 97, 106);
+	spacing: 3px;
+	padding: 1px 4px;
+	background: transparent;
+}
+
+QMenuBar::item:selected {
+	background:rgb(254, 159, 156);
+}
+QMenu::item:selected {
+	color:rgb(138, 140, 152);
+	border-width:2px;
+	border-style:solid;
+	background:rgb(235, 229, 229);
+	border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(233, 209, 201, 255), stop:1 rgba(205, 177, 168, 90));
+	border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(233, 209, 201, 180), stop:1 rgba(50, 65, 80, 180));	
+	border-left-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(233, 209, 201, 255), stop:1 rgba(205, 177, 168, 90));
+	border-bottom-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(123, 209, 201, 255), stop:1 rgba(205, 177, 168, 120));
+	border-bottom-width: 1px;
+}
+QMenu::item {
+	color:rgb(254, 229, 224);
+	background-color:rgb(138, 140, 152);
+	padding-left:20px;
+	padding-top:4px;
+	padding-bottom:4px;
+	padding-right:10px;
+}
+QMenu{
+	background-color:#faf1ec
+}
+
+
+QTabWidget { 
+	color: #656270;
+	background-color: #faf1ec
+}
+
+QTabWidget::pane {
+	border-color:rgba(95, 97, 106, 80);
+	color: rgb(250, 241, 236);
+	border-style: solid;
+	border-width: 1px;
+
+}
+QTabBar::tab {
+	padding:1px;
+	color:rgb(95, 97, 106);
+	background-color:rgb(250, 240, 236);
+	border-style: solid;
+	border-width: 1px;
+	border-bottom-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(95, 97, 106, 85), stop:1 rgba(118, 125, 143, 80));
+	border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(254, 229, 224, 155), stop:1 rgba(254, 243, 238, 90));
+	border-left-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(254, 229, 224, 255), stop:1 rgba(254, 223, 216, 220));
+	border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(123, 209, 201, 255), stop:1 rgba(205, 177, 168, 220));
+	border-right-width: 2px;
+
+}
+QTabBar::tab:selected, QTabBar::tab:last:selected, QTabBar::tab:hover {
+  	background-color:#fe9f9c;
+	color:rgb(255, 245, 235);
+	margin-left: 0px;
+	margin-right: 1px;
+	border-color: rgb(255, 245, 235);
+	border-width: 2px;
+}
+QTabBar::tab:!selected {
+    	margin-top: 1px;
+		margin-right: 1px
+}
+border: none;
+    background: red;</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="World"/>
+  </property>
+  <widget class="QWidget" name="VPlagWidget">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="font">
+    <font>
+     <family>Consolas</family>
+    </font>
+   </property>
+   <property name="toolTip">
+    <string notr="true"/>
+   </property>
+   <property name="statusTip">
+    <string/>
+   </property>
+   <property name="whatsThis">
+    <string/>
+   </property>
+   <property name="accessibleName">
+    <string/>
+   </property>
+   <property name="accessibleDescription">
+    <string/>
+   </property>
+   <widget class="QWidget" name="horizontalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>10</y>
+      <width>981</width>
+      <height>571</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0,4,0">
+     <property name="spacing">
+      <number>3</number>
+     </property>
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
+     <property name="leftMargin">
+      <number>2</number>
+     </property>
+     <property name="topMargin">
+      <number>2</number>
+     </property>
+     <property name="rightMargin">
+      <number>2</number>
+     </property>
+     <property name="bottomMargin">
+      <number>1</number>
+     </property>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>15</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayoutMenu" stretch="1,0,0,5,0,1,1,0,0,0,0,0,2,0">
+       <item>
+        <widget class="QLabel" name="label_Grading_Cat">
+         <property name="font">
+          <font>
+           <family>Consolas</family>
+           <pointsize>-1</pointsize>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">
+   font-size: 22px;
+	font-weight: bold;
+    color: #fe9f9c;</string>
+         </property>
+         <property name="text">
+          <string>Grading Cat</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line_2">
+         <property name="minimumSize">
+          <size>
+           <width>2</width>
+           <height>2</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>0</width>
+           <height>2</height>
+          </size>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <property name="midLineWidth">
+          <number>3</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="font">
+          <font>
+           <family>Consolas</family>
+           <pointsize>11</pointsize>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Students</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="listStudents">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: #656270;
+      background-color: #faf1ec</string>
+         </property>
+        </widget>
+       </item>
+
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0">
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetDefaultConstraint</enum>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="lineEdit">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">color: #656270;
+background-color: #faf1ec</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="toolButton_cancel">
+           <property name="text">
+            <string>X</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>icons/cancel.png</normaloff>icons/cancel.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>16</width>
+             <height>16</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="toolButton_delete">
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>icons/delete.png</normaloff>icons/delete.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>16</width>
+             <height>16</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="toolButton_closeEye">
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>icons/closeEye.png</normaloff>icons/closeEye.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>16</width>
+             <height>16</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="toolButton_openEye">
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>icons/openEye.png</normaloff>icons/openEye.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>16</width>
+             <height>16</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QCommandLinkButton" name="Show">
+         <property name="font">
+          <font>
+           <family>Segoe UI</family>
+           <pointsize>16</pointsize>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: #f5eae9;</string>
+         </property>
+         <property name="text">
+          <string>Show</string>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>icons/Arrow.ico</normaloff>icons/Arrow.ico</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>2</height>
+          </size>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <property name="midLineWidth">
+          <number>3</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_Range">
+         <property name="font">
+          <font>
+           <family>Consolas</family>
+           <pointsize>11</pointsize>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Range</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="rangeSlider">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line_3">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>2</height>
+          </size>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <property name="midLineWidth">
+          <number>3</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="font">
+          <font>
+           <family>Consolas</family>
+           <pointsize>11</pointsize>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Settings</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="showRate">
+           <property name="font">
+            <font>
+             <family>Consolas</family>
+             <pointsize>9</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Plagiarism rate</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="showNames">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="font">
+            <font>
+             <family>Consolas</family>
+             <pointsize>9</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Student names</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="showLinkless">
+           <property name="font">
+            <font>
+             <family>Consolas</family>
+             <pointsize>9</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Linkless nodes</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="chess">
+           <property name="font">
+            <font>
+             <family>Consolas</family>
+             <pointsize>9</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Chess view</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="Line" name="line_4">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>2</height>
+          </size>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <property name="midLineWidth">
+          <number>2</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>10</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QTabWidget" name="tabWidget">
+       <property name="font">
+        <font>
+         <family>Consolas</family>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: #656270;
+background-color: rgb(234, 229, 226)
+</string>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="tabChord">
+        <attribute name="title">
+         <string>Chord diagram</string>
+        </attribute>
+        <widget class="QGraphicsView" name="chordDiagramView">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>680</width>
+           <height>520</height>
+          </rect>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgba(54, 64, 80, 255);
+
+
+border-width:2px;
+border-style:solid;
+border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(54, 64, 80, 120), stop:1 rgba(20, 20, 25,120));
+border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(123, 209, 201, 255), stop:1 rgba(205, 177, 168, 220));
+border-left-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(138, 140, 152, 255), stop:1 rgba(184, 173, 182, 120));
+border-bottom-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(184, 173, 182, 180), stop:1 rgba(212, 199, 205, 180));	
+border-bottom-width: 3px;
+border-right-width: 3px;</string>
+         </property>
+         <property name="renderHints">
+          <set>QPainter::Antialiasing|QPainter::LosslessImageRendering|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="tabChord2">
+        <attribute name="title">
+         <string>Chord diagram 2</string>
+        </attribute>
+        <widget class="QGraphicsView" name="chordDiagram2View">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>680</width>
+           <height>520</height>
+          </rect>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: #364050;
+border-width:2px;
+border-style:solid;
+border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(54, 64, 80, 120), stop:1 rgba(20, 20, 25,120));
+border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(123, 209, 201, 255), stop:1 rgba(205, 177, 168, 220));
+border-left-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(138, 140, 152, 255), stop:1 rgba(184, 173, 182, 120));
+border-bottom-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(184, 173, 182, 180), stop:1 rgba(212, 199, 205, 180));	
+border-bottom-width: 3px;
+border-right-width: 3px;</string>
+         </property>
+         <property name="renderHints">
+          <set>QPainter::Antialiasing|QPainter::LosslessImageRendering|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="tabNetwork">
+        <attribute name="title">
+         <string>Network</string>
+        </attribute>
+        <widget class="QGraphicsView" name="networkView">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>680</width>
+           <height>520</height>
+          </rect>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: #364050;
+border-width:2px;
+border-style:solid;
+border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(54, 64, 80, 120), stop:1 rgba(20, 20, 25,120));
+border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(123, 209, 201, 255), stop:1 rgba(205, 177, 168, 220));
+border-left-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(138, 140, 152, 255), stop:1 rgba(184, 173, 182, 120));
+border-bottom-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(184, 173, 182, 180), stop:1 rgba(212, 199, 205, 180));	
+border-bottom-width: 3px;
+border-right-width: 3px;</string>
+         </property>
+         <property name="renderHints">
+          <set>QPainter::Antialiasing|QPainter::LosslessImageRendering|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="tabBubble">
+        <attribute name="title">
+         <string>Bubble chart</string>
+        </attribute>
+        <widget class="QGraphicsView" name="bubbleChartView">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>680</width>
+           <height>520</height>
+          </rect>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: #364050;
+border-width:2px;
+border-style:solid;
+border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(54, 64, 80, 120), stop:1 rgba(20, 20, 25,120));
+border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(123, 209, 201, 255), stop:1 rgba(205, 177, 168, 220));
+border-left-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(138, 140, 152, 255), stop:1 rgba(184, 173, 182, 120));
+border-bottom-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(184, 173, 182, 180), stop:1 rgba(212, 199, 205, 180));	
+border-bottom-width: 3px;
+border-right-width: 3px;</string>
+         </property>
+         <property name="renderHints">
+          <set>QPainter::Antialiasing|QPainter::LosslessImageRendering|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
+         </property>
+        </widget>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>15</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>980</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Consolas</family>
+     <pointsize>10</pointsize>
+     <italic>false</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_as"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout_VPlag"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionNew">
+   <property name="text">
+    <string>New...</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>Consolas</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open...</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>Consolas</family>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>Consolas</family>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>Consolas</family>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSave_as">
+   <property name="text">
+    <string>Save as...</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>Consolas</family>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionAbout_VPlag">
+   <property name="text">
+    <string>About Grading Cat</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>Consolas</family>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
