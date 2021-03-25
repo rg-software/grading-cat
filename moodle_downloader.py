@@ -1,15 +1,3 @@
-# config.py MUST define:
-# username, password, server_url, course_shortname, working_dir
-
-# NOTE: JPLAG needs the following folder structure: ROOT/user1/*.java, ROOT/user2/*.java, ...
-# It can also handle ROOT/*/user1/*.java, ROOT/*/user2/*.java (with -S flag)
-# By default, it doesn't check subdirectories, but it can be turned on (-r)
-# CHECK Jplag documentation: https://github.com/jplag/jplag
-# basic run: java  -jar jplag-2.12.1-SNAPSHOT-jar-with-dependencies.jar -s -l java19 docs
-# (use recursive mode; for some reason -s needs also another switch such as -l)
-# it will recurse as deeply as necessary
-
-
 #https://docs.moodle.org/dev/Web_service_API_functions#Core_web_service_functions
 
 #The api documentation that provides more extensive documentation on not only what the required parameters are for all the available webservice functions but also the expected response and their structures in both REST and XML-RPC is accessible from the moodle site.
@@ -18,7 +6,8 @@
 
 import requests
 import os
-import config
+import sys
+import json
 
 def get_token(username, password, server_url):
 	response = requests.get(server_url + '/login/token.php', params={'username': username, 'password': password, 'service': 'moodle_mobile_app'})
@@ -66,21 +55,31 @@ def process_assignment(server_url, assignment, working_dir, users, token):
 	for submission in submissions:
 		process_submission(submission, os.path.join(working_dir, assignment['name']), users, token)
 
+# NOTE: we should be inside the project dir here
+def download(config):
+	token = get_token(config['username'], config['password'], config['server_url'])
+	courses = call_service(config['server_url'], token, 'core_course_get_courses_by_field', {'field': 'shortname', 'value': config['course_shortname']}) # list of all matching courses
+	course_id = courses['courses'][0]['id'] # we presume that only one course matches the given shortname
+	users_data = call_service(config['server_url'], token, 'core_enrol_get_enrolled_users', {'courseid': course_id})
 
-#############################################################################
+	users = {} # id -> email
+	for user in users_data:
+		users[user['id']] = user['email']
 
-token = get_token(config.username, config.password, config.server_url)
+	assignments_full = call_service(config['server_url'], token, 'mod_assign_get_assignments', params={'courseids[0]': course_id}) # matching assignments with ext info
+	assignments = assignments_full['courses'][0]['assignments'] # assignments only
 
-courses = call_service(config.server_url, token, 'core_course_get_courses_by_field', {'field': 'shortname', 'value': config.course_shortname}) # list of all matching courses
-course_id = courses['courses'][0]['id'] # we presume that only one course matches the given shortname
+	for assignment in assignments:
+		process_assignment(config['server_url'], assignment, config['working_dir'], users, token)
 
-users_data = call_service(config.server_url, token, 'core_enrol_get_enrolled_users', {'courseid': course_id})
-users = {} # id -> email
-for user in users_data:
-	users[user['id']] = user['email']
 
-assignments_full = call_service(config.server_url, token, 'mod_assign_get_assignments', params={'courseids[0]': course_id}) # matching assignments with ext info
-assignments = assignments_full['courses'][0]['assignments'] # assignments only
-
-for assignment in assignments:
-	process_assignment(config.server_url, assignment, config.working_dir, users, token)
+if __name__ == "__main__":
+	if len(sys.argv) != 2:
+		print("Usage: moodle_downloader.py <project-dir>")
+		sys.exit(1)
+	dir = os.getcwd()
+	os.chdir(sys.argv[1])
+	with open('config.json') as f:
+		config = json.load(f)
+	download(config)
+	os.chdir(dir)
