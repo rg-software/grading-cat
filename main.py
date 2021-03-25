@@ -32,6 +32,7 @@ def updateDiagram():
     config.SHOW_LINKLESS = window.showLinkless.isChecked()
     config.SHOW_RARE = window.showRate.isChecked()
     config.CHESS = window.chess.isChecked()
+    config.SORT = window.sort.isChecked()
 
     config.RANGE_PLAG = window.rangeSlider.value()
     rangeLabel = "Range:  > " + str(config.RANGE_PLAG) + "%"
@@ -52,8 +53,11 @@ def studentList():
     window.listStudents.clear()
     #window.listRate.clear()
     rate = findMaxPlag()
+    #print("1")
     for i in range(len(config.STUDENTS_LIST)):
-        text = config.STUDENTS_LIST[i] + "\t- " + str(rate[i][1]) + "%"
+        if config.SORT: rate = sorted(rate, key=itemgetter(1), reverse=True) 
+
+        text = config.STUDENTS_LIST[rate[i][2]] + "\t- " + str(rate[i][1]) + "%"
         window.listStudents.addItem(text)
         #window.listStudents.addItem(config.STUDENTS_LIST[i])
         #text = str(rate[i][1]) + "%"
@@ -79,30 +83,64 @@ def updateLinkedStudents(student):
 
 def updateList(student):   
     #rate = findMaxPlag()
-    for i in range(len(config.STUDENTS_LIST)):
-        window.listStudents.item(i).setBackground(QColor(250, 247, 247)) #!        
+    #if config.SORT: rate = sorted(rate, key=itemgetter(1), reverse=True)
+    if student in config.STUDENTS_LIST:
+        currentIndex = config.STUDENTS_LIST.index(student)
+        config.SELECTED_STUDENT = config.STUDENTS_LIST[currentIndex]       
+        maxPlag = max(config.RESULT_MATRIX[currentIndex])
+        students = []
+        for i in range(len(config.STUDENTS_LIST)):
+            if currentIndex != i:
+                students.append([config.RESULT_MATRIX[currentIndex][i], i])
+            else: students.append([maxPlag, i])
+        
+        if config.SORT: 
+            del students[currentIndex]
+            students = sorted(students, key=itemgetter(0), reverse=True)            
+            students.insert(0,[maxPlag, currentIndex])            
+            currentIndex = 0
+
+        for i in range(len(config.STUDENTS_LIST)):
+            window.listStudents.item(i).setBackground(QColor(250, 247, 247)) #!   
+            if i == currentIndex:
+                #window.listStudents.item(i).setBackground(QColor(248, 155, 141))
+                window.listStudents.item(i).setSelected(True)
+                newRow = student + "\t- " + str(maxPlag) + "%"
+                window.listStudents.item(i).setText(newRow)   
+            else:
+                if int(students[i][0]) >= config.RANGE_PLAG:
+                    if students[i][0] == maxPlag:
+                        window.listStudents.item(i).setForeground(QColor(235, 50, 50))
+                    else: window.listStudents.item(i).setForeground(QColor(250, 130, 130))
+                    window.listStudents.item(i).setBackground(QColor(231, 214, 212))   
+                else: window.listStudents.item(i).setForeground(QColor(62, 48, 51))                     
+                text = config.STUDENTS_LIST[students[i][1]] + "\t- " + str(students[i][0]) + "%"
+                window.listStudents.item(i).setText(text)
+
+    #for i in range(len(config.STUDENTS_LIST)):
+        #window.listStudents.item(i).setBackground(QColor(250, 247, 247)) #!        
         #text = config.STUDENTS_LIST[i] + "\t- " + str(rate[i][1]) + "%"
-        window.listStudents.item(i).setText(config.STUDENTS_LIST[i])
-        window.listStudents.item(i).setForeground(QColor(62, 48, 51))
+        #window.listStudents.item(i).setText(config.STUDENTS_LIST[i])
+        #window.listStudents.item(i).setForeground(QColor(62, 48, 51))
         
 
-    if student in config.STUDENTS_LIST:          
+    #if student in config.STUDENTS_LIST:          
 
-        currentIndex = config.STUDENTS_LIST.index(student)
-        window.listStudents.item(currentIndex).setBackground(QColor(248, 155, 141))
-        maxPlag = max(config.RESULT_MATRIX[currentIndex])
-        newRow = student + "\t- " + str(maxPlag) + "%"
-        window.listStudents.item(currentIndex).setText(newRow)
-        for i in range(len(config.STUDENTS_LIST)):
-            if currentIndex != i and int(config.RESULT_MATRIX[currentIndex][i]) >= config.RANGE_PLAG:
-                if config.RESULT_MATRIX[currentIndex][i] == maxPlag:
-                    window.listStudents.item(i).setForeground(QColor(235, 50, 50))
+        #currentIndex = config.STUDENTS_LIST.index(student)
+        #window.listStudents.item(currentIndex).setBackground(QColor(248, 155, 141))
+        #maxPlag = max(config.RESULT_MATRIX[currentIndex])
+        #newRow = student + "\t- " + str(maxPlag) + "%"
+        #window.listStudents.item(currentIndex).setText(newRow)
+        #for i in range(len(config.STUDENTS_LIST)):
+            #if currentIndex != i and int(config.RESULT_MATRIX[currentIndex][i]) >= config.RANGE_PLAG:
+                #if config.RESULT_MATRIX[currentIndex][i] == maxPlag:
+                    #window.listStudents.item(i).setForeground(QColor(235, 50, 50))
                     #else: window.listStudents.item(i).setForeground(QColor(250, 130, 130))
-                window.listStudents.item(i).setBackground(QColor(231, 214, 212))
+                #window.listStudents.item(i).setBackground(QColor(231, 214, 212))
                 #config.SELECTED_STUDENT = config.STUDENTS_LIST[i]              
 
-                newRow2 = config.STUDENTS_LIST[i] + "\t- " + str(config.RESULT_MATRIX[currentIndex][i]) + "%"
-                window.listStudents.item(i).setText(newRow2)                
+                #newRow2 = config.STUDENTS_LIST[i] + "\t- " + str(config.RESULT_MATRIX[currentIndex][i]) + "%"
+                #window.listStudents.item(i).setText(newRow2)                
 
 ### file menu
 def CSVtoSomething(content):   
@@ -1053,7 +1091,7 @@ if __name__ == "__main__":
     window.showLinkless.stateChanged.connect(updateDiagram)
     window.showRate.stateChanged.connect(updateDiagram)
     window.chess.stateChanged.connect(updateDiagram)
-    
+    window.sort.stateChanged.connect(updateDiagram)
 
     window.listStudents.itemClicked.connect(selectedStudent)
     window.Show.clicked.connect(showLinks)

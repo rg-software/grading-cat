@@ -13,6 +13,7 @@ SHOW_NAMES = True
 SHOW_LINKLESS = True
 SHOW_RARE = False
 CHESS = False
+SORT = False
 
 ##### slider #####
 RANGE_PLAG = 0
