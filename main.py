@@ -22,7 +22,9 @@ def saveMatrix(results):
     matrix = results[1:]
     for i in range(len(matrix)):
         line = matrix[i].split(',')
-        config.RESULT_MATRIX.append(line)     
+        config.RESULT_MATRIX.append(line) 
+        for j in range(len(config.RESULT_MATRIX[i])):
+            config.RESULT_MATRIX[i][j] = int(config.RESULT_MATRIX[i][j])
 
     pass
 
@@ -78,7 +80,7 @@ def updateLinkedStudents(student):
     if student in config.STUDENTS_LIST:
         currentIndex = config.STUDENTS_LIST.index(student)
         for i in range(len(config.STUDENTS_LIST)):
-            if currentIndex != i and int(config.RESULT_MATRIX[currentIndex][i]) > config.RANGE_PLAG:
+            if currentIndex != i and int(config.RESULT_MATRIX[currentIndex][i]) >= config.RANGE_PLAG:
                 config.SELECTED_STUDENTS.append(config.STUDENTS_LIST[i])
 
 def updateList(student):   
@@ -113,34 +115,9 @@ def updateList(student):
                         window.listStudents.item(i).setForeground(QColor(235, 50, 50))
                     else: window.listStudents.item(i).setForeground(QColor(250, 130, 130))
                     window.listStudents.item(i).setBackground(QColor(231, 214, 212))   
-                else: window.listStudents.item(i).setForeground(QColor(62, 48, 51))                     
+                else: window.listStudents.item(i).setForeground(QColor(119, 110, 107))                     
                 text = config.STUDENTS_LIST[students[i][1]] + "\t- " + str(students[i][0]) + "%"
-                window.listStudents.item(i).setText(text)
-
-    #for i in range(len(config.STUDENTS_LIST)):
-        #window.listStudents.item(i).setBackground(QColor(250, 247, 247)) #!        
-        #text = config.STUDENTS_LIST[i] + "\t- " + str(rate[i][1]) + "%"
-        #window.listStudents.item(i).setText(config.STUDENTS_LIST[i])
-        #window.listStudents.item(i).setForeground(QColor(62, 48, 51))
-        
-
-    #if student in config.STUDENTS_LIST:          
-
-        #currentIndex = config.STUDENTS_LIST.index(student)
-        #window.listStudents.item(currentIndex).setBackground(QColor(248, 155, 141))
-        #maxPlag = max(config.RESULT_MATRIX[currentIndex])
-        #newRow = student + "\t- " + str(maxPlag) + "%"
-        #window.listStudents.item(currentIndex).setText(newRow)
-        #for i in range(len(config.STUDENTS_LIST)):
-            #if currentIndex != i and int(config.RESULT_MATRIX[currentIndex][i]) >= config.RANGE_PLAG:
-                #if config.RESULT_MATRIX[currentIndex][i] == maxPlag:
-                    #window.listStudents.item(i).setForeground(QColor(235, 50, 50))
-                    #else: window.listStudents.item(i).setForeground(QColor(250, 130, 130))
-                #window.listStudents.item(i).setBackground(QColor(231, 214, 212))
-                #config.SELECTED_STUDENT = config.STUDENTS_LIST[i]              
-
-                #newRow2 = config.STUDENTS_LIST[i] + "\t- " + str(config.RESULT_MATRIX[currentIndex][i]) + "%"
-                #window.listStudents.item(i).setText(newRow2)                
+                window.listStudents.item(i).setText(text)             
 
 ### file menu
 def CSVtoSomething(content):   
@@ -325,7 +302,7 @@ class GraphicsSceneBubbleChart(QGraphicsScene):
             step = 0
             if MrPlagiarism[-1][1] >= config.RANGE_PLAG and MrPlagiarism[0][1] >= MrPlagiarism[-1][1]:
                 step = int((MrPlagiarism[0][1] - MrPlagiarism[-1][1])/10) + 1
-            elif MrPlagiarism[-1][1] <= config.RANGE_PLAG and MrPlagiarism[0][1] >= config.RANGE_PLAG:
+            elif MrPlagiarism[-1][1] < config.RANGE_PLAG and MrPlagiarism[0][1] >= config.RANGE_PLAG:
                 step = int((MrPlagiarism[0][1] - config.RANGE_PLAG)/10) + 1   
     
             for i in range(len(config.STUDENTS_LIST)):        
@@ -567,7 +544,7 @@ class GraphicsSceneChordDiagram2(QGraphicsScene):
                     x1 = self.listNodes[i][t].x + self.listNodes[i][t].width/2
                     y1 = self.listNodes[i][t].y + self.listNodes[i][t].width/2
            
-                    if config.RANGE_PLAG <= maxPlagList[i][1] or config.SHOW_LINKLESS:
+                    if config.RANGE_PLAG < maxPlagList[i][1] or config.SHOW_LINKLESS or config.SELECTED_STUDENT == self.listNodes[i][t].name:
                         for j in range(len(self.listNodes)):
                             if i != j and float(config.RESULT_MATRIX[i][j]) > 0 and t < float(config.RESULT_MATRIX[i][j])/10 and config.STUDENTS_LIST[j] not in notedList:
 
@@ -582,23 +559,25 @@ class GraphicsSceneChordDiagram2(QGraphicsScene):
                                 path2.clear
                                 al, a = (255, 255)
 
-                                if float(config.RESULT_MATRIX[i][j]) <= config.RANGE_PLAG: 
+                                if float(config.RESULT_MATRIX[i][j]) < config.RANGE_PLAG: 
                                     al = al - int(config.RANGE_PLAG)*2 - 40
-                                                        
+                                                     
                                 if config.CHESS:
                                     if i% 2 == 0: redl, greenl, bluel, al = (95, 160, 200, al) 
                                     else: redl, greenl, bluel, al = (245, 145, 130, al)
 
                                 if config.SELECTED_STUDENT != "":
-                                    if (config.SELECTED_STUDENT == self.listNodes[i][t].name and self.listNodes[j][t].name in config.SELECTED_STUDENTS) or (config.SELECTED_STUDENT== self.listNodes[j][t].name and self.listNodes[i][t].name in config.SELECTED_STUDENTS):
-                                        redl, greenl, bluel, al = (226, 113, 105, al)
-                                    else: redl, greenl, bluel, al = (102, 151, 180, al - 200)                                   
+                                    if (config.SELECTED_STUDENT == self.listNodes[i][t].name and self.listNodes[j][t].name in config.SELECTED_STUDENTS) or (config.SELECTED_STUDENT == self.listNodes[j][t].name and self.listNodes[i][t].name in config.SELECTED_STUDENTS):                                       
+                                       redl, greenl, bluel, al = (226, 113, 105, al)
+                                    else: redl, greenl, bluel, al = (102, 151, 180, 10)                                     
 
                                 if len(config.HIDED_STUDENTS) > 0:
                                     if self.listNodes[i][t].name in config.HIDED_STUDENTS or self.listNodes[j][t].name in config.HIDED_STUDENTS: al = 5
 
-                                if config.RANGE_PLAG >= maxPlagList[j][1] and not config.SHOW_LINKLESS: al = 0
-
+                                if config.RANGE_PLAG > maxPlagList[j][1]: al = 5
+                                if config.RANGE_PLAG > maxPlagList[j][1] and not config.SHOW_LINKLESS: al = 0
+                                if config.RANGE_PLAG > maxPlagList[j][1] and not config.SHOW_LINKLESS and config.SELECTED_STUDENT == self.listNodes[j][t].name: al = 15 
+                                   
 
                                 colorLine = QColor(redl, greenl, bluel, al)
 
@@ -657,7 +636,6 @@ class GraphicsSceneChordDiagram2(QGraphicsScene):
                                         red, green, blue, a = (95, 65, 70, 255) 
                             else: ap = 255
 
-                        #if config.RANGE_PLAG <= maxPlagList[i][1] or config.SHOW_LINKLESS:
                         colorBrush = QColor(red, green, blue, a)
                         colorPen = QColor(redp, greenp, bluep, ap)
                         self.addEllipse(self.listNodes[i][t].x, self.listNodes[i][t].y, self.listNodes[i][t].width, self.listNodes[i][t].height, QPen(colorPen), QBrush(colorBrush))
@@ -684,7 +662,7 @@ class GraphicsSceneChordDiagram2(QGraphicsScene):
                         
                 
                 textColor = QColor(redt, greent, bluet, at)
-                if config.SHOW_NAMES and (config.RANGE_PLAG <= maxPlagList[i][1] or config.SHOW_LINKLESS):
+                if config.SHOW_NAMES and (config.RANGE_PLAG < maxPlagList[i][1] or config.SHOW_LINKLESS or config.SELECTED_STUDENT == self.listNodes[i][0].name):
                     student = self.listNodes[i][0].name
                     font = 12
                     if len(student) > 12:
@@ -805,7 +783,7 @@ class GraphicsSceneChordDiagram(QGraphicsScene):
                 y1 =  self.Nodes[i].y
 
                 for j in range(len( self.Nodes)):
-                    if i != j and float(config.RESULT_MATRIX[i][j]) > 0 and (config.RANGE_PLAG <= maxPlagList[i][1] or config.SHOW_LINKLESS):
+                    if i != j and float(config.RESULT_MATRIX[i][j]) > 0 and (config.RANGE_PLAG < maxPlagList[i][1] or config.SHOW_LINKLESS):
                 
                         penWidth = float(config.RESULT_MATRIX[i][j])/10
                         x2 =  self.Nodes[j].x
@@ -815,7 +793,7 @@ class GraphicsSceneChordDiagram(QGraphicsScene):
                         if penWidth >= config.RANGE_PLAG/10:
                             red, green, blue, a = (238, 151, 142, 240)
                         else:
-                            red, green, blue, a = (131, 118, 122, 50)
+                            red, green, blue, a = (131, 118, 122, 30)
 
                         if config.CHESS:
                             if i% 2 == 0: red, green, blue = (95, 160, 200) 
@@ -824,7 +802,7 @@ class GraphicsSceneChordDiagram(QGraphicsScene):
                         if config.SELECTED_STUDENT != "":
                             if (config.SELECTED_STUDENT ==  self.Nodes[i].name and self.Nodes[j].name in config.SELECTED_STUDENTS) or (config.SELECTED_STUDENT==  self.Nodes[j].name and  self.Nodes[i].name in config.SELECTED_STUDENTS):
                                 red, green, blue, a = (226, 113, 105, 255)  
-                            else: red, green, blue, a = (102, 151, 180, 50) 
+                            else: red, green, blue, a = (102, 151, 180, 20) 
                         #scene.addLine(x1, y1, x2, y2, QPen(color, penWidth))
                         if len(config.HIDED_STUDENTS) > 0:
                             if self.Nodes[i].name in config.HIDED_STUDENTS or self.Nodes[j].name in config.HIDED_STUDENTS: a = 5
@@ -840,14 +818,14 @@ class GraphicsSceneChordDiagram(QGraphicsScene):
                         ctrlY2 = y2 + (circleCenterY -  self.Nodes[j].width - y2)/3
                         path.cubicTo(ctrlX1, ctrlY1,  ctrlX2, ctrlY2,  x2, y2)
 
-                        if config.RANGE_PLAG <= maxPlagList[j][1] or config.SHOW_LINKLESS:
+                        if config.RANGE_PLAG < maxPlagList[j][1] or config.SHOW_LINKLESS:
                             self.addPath(path, QPen(color, penWidth))     
   
             for i in range(len(self.Nodes)):
                 redt, greent, bluet, at = (254, 234, 230, 255)
                 red, green, blue, a = (160, 205, 225, 255)
                 
-                if config.RANGE_PLAG <= maxPlagList[i][1] or config.SHOW_LINKLESS:
+                if config.RANGE_PLAG < maxPlagList[i][1] or config.SHOW_LINKLESS or config.SELECTED_STUDENT == self.Nodes[i].name:
                     if config.CHESS:
                         if i% 2 == 0: red, green, blue = (95, 160, 200) 
                         else: red, green, blue = (245, 145, 130)
@@ -954,30 +932,6 @@ def drawDiagrams():
     height = BubbleDiagramView.height() - 10
     bubbleChartScene = GraphicsSceneBubbleChart(0, 0, width, height, BubbleDiagramView)
     BubbleDiagramView.setScene(bubbleChartScene)
-
-    #chordDiagram2Scene = GraphicsSceneChordDiagram2(0, 0, imgWidth, imgHeight, window.chordDiagram2View)
-    #networkScene = GraphicsSceneNetwork(0, 0, imgWidth, imgHeight, window.networkView)
-    #bubbleChartScene = GraphicsSceneBubbleChart(0, 0, imgWidth, imgHeight, window.bubbleChartView)
-
-    #imgWidth = window.chordDiagramView.width() - 10
-    #imgHeight = window.chordDiagramView.height() - 10
-
-    #chordDiagramScene = GraphicsSceneChordDiagram(0, 0,   window.chordDiagramView)
-    #chordDiagram2Scene = GraphicsSceneChordDiagram2(0, 0, imgWidth, imgHeight, window.chordDiagram2View)
-    #networkScene = GraphicsSceneNetwork(0, 0, imgWidth, imgHeight, window.networkView)
-    #bubbleChartScene = GraphicsSceneBubbleChart(0, 0, imgWidth, imgHeight, window.bubbleChartView)
-
-    #chordDiagramScene.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-
-    #chordDiagramScene.update
-    #chordDiagramView = GraphicsView(window.chordDiagramView, window.chordDiagramView.parent)
-
-    #chordDiagramView.setScene(chordDiagramScene)
-    #window.chordDiagramView.setScene(chordDiagramScene)
-    #window.chordDiagram2View.setScene(chordDiagram2Scene)
-    #window.networkView.setScene(networkScene)
-    #window.bubbleChartView.setScene(bubbleChartScene)
     pass
 
 class Node():
