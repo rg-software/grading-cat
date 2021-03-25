@@ -285,9 +285,9 @@ class GraphicsSceneBubbleChart(QGraphicsScene):
                 if n > group : group = n
 
             step = 0
-            if MrPlagiarism[-1][1] > config.RANGE_PLAG and MrPlagiarism[0][1] > MrPlagiarism[-1][1]:
+            if MrPlagiarism[-1][1] >= config.RANGE_PLAG and MrPlagiarism[0][1] >= MrPlagiarism[-1][1]:
                 step = int((MrPlagiarism[0][1] - MrPlagiarism[-1][1])/10) + 1
-            elif MrPlagiarism[-1][1] <= config.RANGE_PLAG and MrPlagiarism[0][1] > config.RANGE_PLAG:
+            elif MrPlagiarism[-1][1] <= config.RANGE_PLAG and MrPlagiarism[0][1] >= config.RANGE_PLAG:
                 step = int((MrPlagiarism[0][1] - config.RANGE_PLAG)/10) + 1   
     
             for i in range(len(config.STUDENTS_LIST)):        
@@ -544,7 +544,7 @@ class GraphicsSceneChordDiagram2(QGraphicsScene):
                                 path2.clear
                                 al, a = (255, 255)
 
-                                if float(config.RESULT_MATRIX[i][j]) < config.RANGE_PLAG: 
+                                if float(config.RESULT_MATRIX[i][j]) <= config.RANGE_PLAG: 
                                     al = al - int(config.RANGE_PLAG)*2 - 40
                                                         
                                 if config.CHESS:
@@ -559,7 +559,7 @@ class GraphicsSceneChordDiagram2(QGraphicsScene):
                                 if len(config.HIDED_STUDENTS) > 0:
                                     if self.listNodes[i][t].name in config.HIDED_STUDENTS or self.listNodes[j][t].name in config.HIDED_STUDENTS: al = 5
 
-                                if config.RANGE_PLAG > maxPlagList[j][1] and not config.SHOW_LINKLESS: al = 0
+                                if config.RANGE_PLAG >= maxPlagList[j][1] and not config.SHOW_LINKLESS: al = 0
 
 
                                 colorLine = QColor(redl, greenl, bluel, al)
@@ -694,11 +694,12 @@ class GraphicsSceneChordDiagram2(QGraphicsScene):
                     
 class GraphicsSceneChordDiagram(QGraphicsScene):   
 
-    def __init__(self, x, y, width, height, parent=None):
+    def __init__(self, x, y, width, height, parent): 
         QGraphicsScene.__init__(self, x, y, width, height, parent)   
+
         self.Nodes = []
         self.studentName = []
-        self.drawChordDiagram()
+        self.drawChordDiagram()    
 
     def mousePressEvent(self, event):
         x = event.scenePos().x()
@@ -716,8 +717,7 @@ class GraphicsSceneChordDiagram(QGraphicsScene):
             #self.addRect(xt1, yt1, xt2 -  xt1,  20, QPen(Qt.white), QBrush((QColor(160, 205, 225, 70))))
 
             if xn1 < x < xn2 and yn1 < y < yn2:
-                selectNode(self.Nodes[i].name)
-            
+                selectNode(self.Nodes[i].name)            
 
     def drawChordDiagram(self):
         maxPlagList = findMaxPlag()       
@@ -767,14 +767,14 @@ class GraphicsSceneChordDiagram(QGraphicsScene):
                 y1 =  self.Nodes[i].y
 
                 for j in range(len( self.Nodes)):
-                    if i != j and float(config.RESULT_MATRIX[i][j]) > 0 and (config.RANGE_PLAG < maxPlagList[i][1] or config.SHOW_LINKLESS):
+                    if i != j and float(config.RESULT_MATRIX[i][j]) > 0 and (config.RANGE_PLAG <= maxPlagList[i][1] or config.SHOW_LINKLESS):
                 
                         penWidth = float(config.RESULT_MATRIX[i][j])/10
                         x2 =  self.Nodes[j].x
                         y2 =  self.Nodes[j].y
                         red, green, blue, a = (238, 151, 142, 240)
 
-                        if penWidth > config.RANGE_PLAG/10:
+                        if penWidth >= config.RANGE_PLAG/10:
                             red, green, blue, a = (238, 151, 142, 240)
                         else:
                             red, green, blue, a = (131, 118, 122, 50)
@@ -802,14 +802,14 @@ class GraphicsSceneChordDiagram(QGraphicsScene):
                         ctrlY2 = y2 + (circleCenterY -  self.Nodes[j].width - y2)/3
                         path.cubicTo(ctrlX1, ctrlY1,  ctrlX2, ctrlY2,  x2, y2)
 
-                        if config.RANGE_PLAG < maxPlagList[j][1] or config.SHOW_LINKLESS:
+                        if config.RANGE_PLAG <= maxPlagList[j][1] or config.SHOW_LINKLESS:
                             self.addPath(path, QPen(color, penWidth))     
   
             for i in range(len(self.Nodes)):
                 redt, greent, bluet, at = (254, 234, 230, 255)
                 red, green, blue, a = (160, 205, 225, 255)
                 
-                if config.RANGE_PLAG < maxPlagList[i][1] or config.SHOW_LINKLESS:
+                if config.RANGE_PLAG <= maxPlagList[i][1] or config.SHOW_LINKLESS:
                     if config.CHESS:
                         if i% 2 == 0: red, green, blue = (95, 160, 200) 
                         else: red, green, blue = (245, 145, 130)
@@ -876,22 +876,71 @@ class GraphicsSceneChordDiagram(QGraphicsScene):
                         text.setDefaultTextColor(textColor)   
                         self.studentName.append([text, self.Nodes[i].name])
 
-def drawDiagrams():    
-    imgWidth = window.chordDiagramView.width() - 10
-    imgHeight = window.chordDiagramView.height() - 10
+class GraphicsView(QGraphicsView):
+    def __init__(self):
+        super(GraphicsView, self).__init__()
 
-    chordDiagramScene = GraphicsSceneChordDiagram(0, 0, imgWidth, imgHeight, None)
-    chordDiagram2Scene = GraphicsSceneChordDiagram2(0, 0, imgWidth, imgHeight, None)
-    networkScene = GraphicsSceneNetwork(0, 0, imgWidth, imgHeight, None)
-    bubbleChartScene = GraphicsSceneBubbleChart(0, 0, imgWidth, imgHeight, None)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding )
+        self.setAutoFillBackground(True)
+        self.setMinimumSize(700, 550)
+        self.setStyleSheet('QGraphicsView {background-color: rgba(54, 64, 80, 255); border-width:2px; border-style:solid;border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(54, 64, 80, 120), stop:1 rgba(20, 20, 25,120));border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(123, 209, 201, 255), stop:1 rgba(205, 177, 168, 220));border-left-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(138, 140, 152, 255), stop:1 rgba(184, 173, 182, 120));border-bottom-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(184, 173, 182, 180), stop:1 rgba(212, 199, 205, 180)); border-bottom-width: 3px; border-right-width: 3px;}')
+        self.setRenderHints(QPainter.Antialiasing | QPainter.LosslessImageRendering | QPainter.SmoothPixmapTransform | QPainter.TextAntialiasing);
+        #self.property()
+        #QColor(54, 64, 80, 255)
+
+
+    def resizeEvent(self, event):
+        updateDiagram()
+        super(GraphicsView, self).resizeEvent(event)
+
+def drawDiagrams(): 
+    #chordDiagramView = GraphicsView()
+    #window.gridLayout_chord.addWidget(chordDiagramView, 10, 10)
+
+    width = ChordDiagram2View.width() - 10
+    height = ChordDiagramView.height() - 10
+    chordDiagramScene = GraphicsSceneChordDiagram(0, 0, width, height, ChordDiagramView)
+    ChordDiagramView.setScene(chordDiagramScene)
+
+    width = ChordDiagram2View.width() - 10
+    height = ChordDiagram2View.height() - 10
+    chordDiagram2Scene = GraphicsSceneChordDiagram2(0, 0, width, height, ChordDiagram2View)
+    ChordDiagram2View.setScene(chordDiagram2Scene)
+
+    width = NetworkDiagramView.width() - 10
+    height = NetworkDiagramView.height() - 10
+    networkScene = GraphicsSceneNetwork(0, 0, width, height, NetworkDiagramView)
+    NetworkDiagramView.setScene(networkScene)
+
+    width = BubbleDiagramView.width() - 10
+    height = BubbleDiagramView.height() - 10
+    bubbleChartScene = GraphicsSceneBubbleChart(0, 0, width, height, BubbleDiagramView)
+    BubbleDiagramView.setScene(bubbleChartScene)
+
+    #chordDiagram2Scene = GraphicsSceneChordDiagram2(0, 0, imgWidth, imgHeight, window.chordDiagram2View)
+    #networkScene = GraphicsSceneNetwork(0, 0, imgWidth, imgHeight, window.networkView)
+    #bubbleChartScene = GraphicsSceneBubbleChart(0, 0, imgWidth, imgHeight, window.bubbleChartView)
+
+    #imgWidth = window.chordDiagramView.width() - 10
+    #imgHeight = window.chordDiagramView.height() - 10
+
+    #chordDiagramScene = GraphicsSceneChordDiagram(0, 0,   window.chordDiagramView)
+    #chordDiagram2Scene = GraphicsSceneChordDiagram2(0, 0, imgWidth, imgHeight, window.chordDiagram2View)
+    #networkScene = GraphicsSceneNetwork(0, 0, imgWidth, imgHeight, window.networkView)
+    #bubbleChartScene = GraphicsSceneBubbleChart(0, 0, imgWidth, imgHeight, window.bubbleChartView)
+
+    #chordDiagramScene.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+
     #chordDiagramScene.update
- 
-    window.chordDiagramView.setScene(chordDiagramScene)
-    window.chordDiagram2View.setScene(chordDiagram2Scene)
-    window.networkView.setScene(networkScene)
-    window.bubbleChartView.setScene(bubbleChartScene)
+    #chordDiagramView = GraphicsView(window.chordDiagramView, window.chordDiagramView.parent)
+
+    #chordDiagramView.setScene(chordDiagramScene)
+    #window.chordDiagramView.setScene(chordDiagramScene)
+    #window.chordDiagram2View.setScene(chordDiagram2Scene)
+    #window.networkView.setScene(networkScene)
+    #window.bubbleChartView.setScene(bubbleChartScene)
     pass
-#################
 
 class Node():
     def __init__(self, name, imgWidth, imgHeight):
@@ -969,6 +1018,7 @@ def exposeStudent():
         updateDiagram()
     pass
 
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
@@ -982,8 +1032,10 @@ if __name__ == "__main__":
     ui_file.close()
     if not window:
         print(loader.errorString())
-        sys.exit(-1)
-    window.show()
+        sys.exit(-1)    
+    
+  
+    window.show()   
 
     window.actionNew.triggered.connect(newDiagram)
     window.actionOpen.triggered.connect(openDiagram)
@@ -991,11 +1043,7 @@ if __name__ == "__main__":
     window.actionSave_as.triggered.connect(saveAsDiagram)
     window.actionQuit.triggered.connect(window.close)
 
-    window.actionAbout_VPlag.triggered.connect(aboutCat)
-
-    #if len(config.STUDENTS_LIST) == 0:
-        #window.actionSave.unclickable()    
-        #window.actionSave_as.unclickable()
+    window.actionAbout_VPlag.triggered.connect(aboutCat)   
         
     window.rangeSlider.valueChanged.connect(updateDiagram)
     rangeLabel = "Range:  > " + str(window.rangeSlider.value()) + "%"
@@ -1005,18 +1053,27 @@ if __name__ == "__main__":
     window.showLinkless.stateChanged.connect(updateDiagram)
     window.showRate.stateChanged.connect(updateDiagram)
     window.chess.stateChanged.connect(updateDiagram)
+    
 
-    #window.updateButton.clicked.connect(updateDiagram)
-    #window.listStudents(QItemSelectionModel.NoUpdate) 
     window.listStudents.itemClicked.connect(selectedStudent)
     window.Show.clicked.connect(showLinks)
     window.toolButton_cancel.clicked.connect(clearLine)
     window.toolButton_delete.clicked.connect(deleteStudent)
     window.toolButton_closeEye.clicked.connect(hideStudent)
     window.toolButton_openEye.clicked.connect(exposeStudent)
-    #window.chordDiagramView.setMouseTracking(True)
-    
-    #indow.listStudents.setWindowTitle('Students')
-    #print(window.rangeSlider.value())
+
+    global ChordDiagramView
+    ChordDiagramView = GraphicsView()
+    global ChordDiagram2View
+    ChordDiagram2View = GraphicsView()
+    global NetworkDiagramView
+    NetworkDiagramView = GraphicsView()
+    global BubbleDiagramView
+    BubbleDiagramView = GraphicsView()
+   
+    window.gridLayout_chord.addWidget(ChordDiagramView, 10, 10)
+    window.gridLayout_chord2.addWidget(ChordDiagram2View, 10, 10)
+    window.gridLayout_network.addWidget(NetworkDiagramView, 10, 10)
+    window.gridLayout_bubble.addWidget(BubbleDiagramView, 10, 10)
 
     sys.exit(app.exec_())
