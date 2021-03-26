@@ -1,9 +1,13 @@
 # CHECK Jplag documentation: https://github.com/jplag/jplag
-# basic run: java  -jar jplag-2.12.1-SNAPSHOT-jar-with-dependencies.jar -s -l java19 docs
-# (use recursive mode; for some reason -s needs also another switch such as -l)
-# it will recurse as deeply as necessary
+# Command line output can be used to generate a full similarity matrix.
+# Matches can be ranked according to average or max similarity (the latter is useful if programs are different in size)
 
-# then java  -jar jplag-2.12.1-SNAPSHOT-jar-with-dependencies.jar -m 2% -s -l java19 c:\Projects-Hg\GradingCat\out-w6.4
+# options to check:
+# -t <n>          (Token) Tune the sensitivity of the comparison. A smaller <n> increases the sensitivity. ("min_token_match", default 10)
+# -bc <dir>       Name of the directory which contains the basecode (common framework)
+# -m  <p>%         All matches with more than <p>% similarity will be saved.
+
+# -m might be needed to analyze specific file/file similarity reports
 
 import sys
 import os
@@ -11,14 +15,18 @@ import json
 import subprocess
 
 # NOTE: we should be inside the project dir here
-def run(config, assignment_name):
-	in_dir = 'jpl_in_' + assignment_name # sys.argv[3]
-	out_dir = 'jpl_out_' + assignment_name # sys.argv[3]
-	cmd = config['jplag_runcmd'] + config['jplag_args'] + ['-r', out_dir, in_dir]
-
-	print("will run as")
-	print(cmd)
-	subprocess.run(cmd)
+def run(jplag_args, assignment_name):
+	in_dir = 'jpl_in_' + assignment_name
+	out_dir = 'jpl_out_' + assignment_name
+	out_log = 'jpl_out_' + assignment_name + '.log'
+	jplag_dir = os.path.dirname(os.path.realpath(__file__))
+	jplag_runcmd = ['java', '-jar', os.path.join(jplag_dir, 'jplag-2.12.1-SNAPSHOT-jar-with-dependencies.jar')]
+	cmd = jplag_runcmd + jplag_args + ['-r', out_dir, in_dir]
+	output = subprocess.run(cmd, capture_output=True)
+	cmp_prefix = b'Comparing ' # will strip it
+	output_lines_filtered = [line[len(cmp_prefix):] for line in output.stdout.splitlines(True) if line.startswith(cmp_prefix)]
+	with open(out_log, 'wb') as f:
+		f.writelines(output_lines_filtered)
 
 if __name__ == "__main__":
 	if len(sys.argv) != 3:
@@ -28,5 +36,5 @@ if __name__ == "__main__":
 	os.chdir(sys.argv[1])
 	with open('config.json') as f:
 		config = json.load(f)
-	run(config, sys.argv[2])
+	run(config['jplag_args'], sys.argv[2])
 	os.chdir(dir)

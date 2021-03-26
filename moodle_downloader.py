@@ -8,15 +8,21 @@ import requests
 import os
 import sys
 import json
+import re
+
+def regex_rename(conv_list, str):
+	for pattern, repl in conv_list:
+		if re.fullmatch(pattern, str):
+			return re.sub(pattern, repl, str)
+	return str
 
 def get_token(username, password, server_url):
 	response = requests.get(server_url + '/login/token.php', params={'username': username, 'password': password, 'service': 'moodle_mobile_app'})
 	return response.json()['token']
 
 def call_service(server_url, token, function, params):
-	p = params
-	p.update({'wstoken': token, 'wsfunction': function, 'moodlewsrestformat': 'json'})
-	response = requests.get(server_url + '/webservice/rest/server.php', params=p)
+	params.update({'wstoken': token, 'wsfunction': function, 'moodlewsrestformat': 'json'})
+	response = requests.get(server_url + '/webservice/rest/server.php', params=params)
 	return response.json()
 
 def process_file(f, working_dir, token):
@@ -26,7 +32,8 @@ def process_file(f, working_dir, token):
 	if not os.path.exists(working_dir):
 		os.makedirs(working_dir)
 
-	# TODO: checksum testing (?)
+	# TODO: checksum testing (?) -- no need to redownload already downloaded files
+	# TODO: perhaps, this script should 'sync' rather than download files: so we download new files and delete extra files
 	if not os.path.exists(os.path.join(working_dir, filename)):
 		print(f"\t\tDownloading file: {filename}")
 		r = requests.get(download_url)
@@ -48,7 +55,8 @@ def process_submission(submission, working_dir, users, token):
 				process_file(f, dir, token)
 
 def process_assignment(server_url, assignment, working_dir, users, token):
-	print(f"Processing assignment: {assignment['name']}") # such as "Exercises for Week 1"
+	#new_assignment_name = regex_rename()
+	print(f"Saving assignment '{assignment['name']}' data as ''") # such as "Exercises for Week 1"
 	submissions_full = call_service(server_url, token, 'mod_assign_get_submissions', {'assignmentids[0]': assignment['id']}) # matching submissions with ext info
 	submissions = submissions_full['assignments'][0]['submissions']  # submissions only
 	
@@ -62,15 +70,20 @@ def download(config):
 	course_id = courses['courses'][0]['id'] # we presume that only one course matches the given shortname
 	users_data = call_service(config['server_url'], token, 'core_enrol_get_enrolled_users', {'courseid': course_id})
 
-	users = {} # id -> email
+	users = {} # id -> email-based username
 	for user in users_data:
-		users[user['id']] = user['email']
+		new_uname = regex_rename(config['username_conversions'], user['email']).replace('-', '_') # '-' is bad for JPlag files
+		print(f"Renaming user: {user['email']} -> {new_uname}")
+		users[user['id']] = new_uname
 
 	assignments_full = call_service(config['server_url'], token, 'mod_assign_get_assignments', params={'courseids[0]': course_id}) # matching assignments with ext info
 	assignments = assignments_full['courses'][0]['assignments'] # assignments only
 
 	for assignment in assignments:
-		process_assignment(config['server_url'], assignment, config['working_dir'], users, token)
+		new_aname = regex_rename(config['assignment_conversions'], assignment['name'])
+		print(f"Renaming asignment: {assignment['name']} -> {new_aname}")
+		assignment['name'] = new_aname
+		process_assignment(config['server_url'], assignment, config['moodle_submissions_dir'], users, token)
 
 
 if __name__ == "__main__":

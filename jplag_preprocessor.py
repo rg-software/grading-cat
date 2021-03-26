@@ -2,6 +2,9 @@
 # We presume that each subdir in <week-dir> corresponds to an individual student.
 # We get all files matching the regex filter and depack them to a dir constructed as <output-dir>/<user-dir>
 
+# TODO: archive dirs should be handled separately; we need a special "collate" setting to combine all older students into a single cluster
+# TODO: skip depacking if a file is NOT archive (just plain Java, e.g.)
+
 import sys
 import re
 import os
@@ -10,16 +13,22 @@ import pathlib
 import shutil
 from pyunpack import Archive
 
+
 # NOTE: we should be inside the project dir here
-def preprocess(config, assignment_name):
-	week_dir = os.path.join(config['working_dir'], assignment_name) # sys.argv[1]
-	re_pattern = config['assignment_regex'] # sys.argv[2]
-	output_dir = 'jpl_in_' + assignment_name # sys.argv[3]
+def preprocess_dirs(dirs, re_pattern, assignment_name):
+	output_dir = 'jpl_in_' + assignment_name
+	if os.path.exists(output_dir):
+		shutil.rmtree(output_dir)
+	os.makedirs(output_dir)
+	
+	for base_input_dir in dirs:
+		week_dir = os.path.join(base_input_dir, assignment_name)
+		print(f"Processing assignments from {week_dir}")
+		preprocess(re_pattern, week_dir, output_dir)
 
-	if not os.path.exists(output_dir):
-		os.makedirs(output_dir)
 
-	user_dirs = [name for name in os.listdir(week_dir)] # if os.path.isdir(os.path.join(week_dir, name))]
+def preprocess(re_pattern, week_dir, output_dir):
+	user_dirs = [name for name in os.listdir(week_dir)]
 
 	for user_dir in user_dirs:
 		input_user_dir = os.path.join(week_dir, user_dir)
@@ -47,5 +56,6 @@ if __name__ == "__main__":
 	os.chdir(sys.argv[1])
 	with open('config.json') as f:
 		config = json.load(f)
-	preprocess(config, sys.argv[2])
+	dirs = [config["moodle_submissions_dir"]] + config["archive_dirs"]
+	preprocess_dirs(dirs, config['assignment_regex'], sys.argv[2])
 	os.chdir(dir)
