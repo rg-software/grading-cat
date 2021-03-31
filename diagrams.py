@@ -689,13 +689,13 @@ class GraphicsView(QGraphicsView):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding )
         self.setAutoFillBackground(True)
         self.setMinimumSize(700, 550)
-
+        self.setStyleSheet('QGraphicsView {background-color: rgba(54, 64, 80, 255); border-width:2px; border-style:solid;border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(54, 64, 80, 120), stop:1 rgba(20, 20, 25,120));border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(123, 209, 201, 255), stop:1 rgba(205, 177, 168, 220));border-left-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(138, 140, 152, 255), stop:1 rgba(184, 173, 182, 120));border-bottom-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(184, 173, 182, 180), stop:1 rgba(212, 199, 205, 180)); border-bottom-width: 3px; border-right-width: 3px;}')
+        self.setRenderHints(QPainter.Antialiasing | QPainter.LosslessImageRendering | QPainter.SmoothPixmapTransform | QPainter.TextAntialiasing);
+        
         self.scene = scene 
         self.scene.setSceneRect(0.0, 0.0, self.width() - 10, self.height() - 10)
         self.setScene(self.scene)
 
-        self.setStyleSheet('QGraphicsView {background-color: rgba(54, 64, 80, 255); border-width:2px; border-style:solid;border-top-color: qlineargradient(spread:pad, x1:0.5, y1:0.6, x2:0.5, y2:0.4, stop:0 rgba(54, 64, 80, 120), stop:1 rgba(20, 20, 25,120));border-right-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(123, 209, 201, 255), stop:1 rgba(205, 177, 168, 220));border-left-color: qlineargradient(spread:pad, x1:0.4, y1:0.5, x2:0.6, y2:0.5, stop:0 rgba(138, 140, 152, 255), stop:1 rgba(184, 173, 182, 120));border-bottom-color: qlineargradient(spread:pad, x1:0.6, y1:0.5, x2:0.4, y2:0.5, stop:0 rgba(184, 173, 182, 180), stop:1 rgba(212, 199, 205, 180)); border-bottom-width: 3px; border-right-width: 3px;}')
-        self.setRenderHints(QPainter.Antialiasing | QPainter.LosslessImageRendering | QPainter.SmoothPixmapTransform | QPainter.TextAntialiasing);
         #self.property()
         #QColor(54, 64, 80, 255)
         

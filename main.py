@@ -10,6 +10,7 @@ import config
 import webbrowser
 from ui_main_cat import Ui_MainWindow
 from diagrams import *
+from lines import LinesView
 import project
 
 def expandMatrix(text):
@@ -279,10 +280,15 @@ def aboutCat():
 
 def drawDiagrams(): 
     
-    window.ChordDiagramView.sceneUpdate()
-    window.ChordDiagram2View.sceneUpdate()
-    window.NetworkDiagramView.sceneUpdate()
-    window.BubbleDiagramView.sceneUpdate()
+    window.ChordDiagramView.scene.drawDiagram()
+    window.ChordDiagram2View.scene.drawDiagram()
+    window.NetworkDiagramView.scene.drawDiagram()
+    window.BubbleDiagramView.scene.drawDiagram()
+
+    #window.ChordDiagramView.sceneUpdate()
+    #window.ChordDiagram2View.sceneUpdate()
+    #window.NetworkDiagramView.sceneUpdate()
+    #window.BubbleDiagramView.sceneUpdate()
 
     ######################
     #width = window.ChordDiagramView.width() - 10
@@ -445,6 +451,10 @@ class MainWindow(QMainWindow):
         self.ui.gridLayout_chord2.addWidget(self.ChordDiagram2View, 10, 10)
         self.ui.gridLayout_network.addWidget(self.NetworkDiagramView, 10, 10)
         self.ui.gridLayout_bubble.addWidget(self.BubbleDiagramView, 10, 10)
+
+        self.linesView = LinesView(self)
+        self.ui.gridLayout_lines.addWidget(self.linesView, 10, 10)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

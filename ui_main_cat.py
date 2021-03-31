@@ -138,29 +138,36 @@ class Ui_MainWindow(object):
         self.gridLayout_chord2.setHorizontalSpacing(6)
         self.gridLayout_chord2.setContentsMargins(10, 10, 10, 12)
         self.tabWidget.addTab(self.tabChord2, "")
+
         self.tabNetwork = QWidget()
         self.tabNetwork.setObjectName("tabNetwork")
-
         sizePolicy2.setHeightForWidth(self.tabNetwork.sizePolicy().hasHeightForWidth())
         self.tabNetwork.setSizePolicy(sizePolicy2)
         self.gridLayout_network = QGridLayout(self.tabNetwork)
         self.gridLayout_network.setObjectName("gridLayout_network")
-
         self.gridLayout_network.setContentsMargins(10, 10, 10, 12)
         self.tabWidget.addTab(self.tabNetwork, "")
+
         self.tabBubble = QWidget()
         self.tabBubble.setObjectName("tabBubble")
-
         sizePolicy2.setHeightForWidth(self.tabBubble.sizePolicy().hasHeightForWidth())
         self.tabBubble.setSizePolicy(sizePolicy2)
         self.gridLayout_bubble = QGridLayout(self.tabBubble)
         self.gridLayout_bubble.setObjectName("gridLayout_bubble")
-
         self.gridLayout_bubble.setContentsMargins(10, 10, 10, 12)
         self.tabWidget.addTab(self.tabBubble, "")
 
-        self.gridLayout.addWidget(self.tabWidget, 0, 1, 1, 1)
+        self.tabLines = QWidget()
+        self.tabLines.setObjectName("tabLines")
+        sizePolicy2.setHeightForWidth(self.tabLines.sizePolicy().hasHeightForWidth())
+        self.tabLines.setSizePolicy(sizePolicy2)
+        self.gridLayout_lines = QGridLayout(self.tabLines)
+        self.gridLayout_lines.setObjectName("gridLayout_lines")
+        self.gridLayout_lines.setContentsMargins(10, 10, 10, 12)
+        self.tabWidget.addTab(self.tabLines, "")
 
+
+        self.gridLayout.addWidget(self.tabWidget, 0, 1, 1, 1)
         self.verticalLayoutMenu = QVBoxLayout()
         self.verticalLayoutMenu.setSpacing(6)
         self.verticalLayoutMenu.setObjectName("verticalLayoutMenu")
@@ -532,6 +539,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabChord2), QCoreApplication.translate("MainWindow", "Chord diagram 2", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabNetwork), QCoreApplication.translate("MainWindow", "Network", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabBubble), QCoreApplication.translate("MainWindow", "Bubble chart", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabLines), QCoreApplication.translate("MainWindow", "Lines", None))
         self.label_Grading_Cat.setText(QCoreApplication.translate("MainWindow", "Grading Cat", None))
         self.sort.setText(QCoreApplication.translate("MainWindow", "Sort", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", "Students", None))
