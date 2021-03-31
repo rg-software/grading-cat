@@ -48,16 +48,19 @@ class LinesScene(QGraphicsScene):
         #self.GAME = False
         self.Goal = 5
         self.Score = 0
+        self.BestResult = 5000
         self.Prediction = []
         self.newGlobN = 3
 
-        self.scoreColor = QColor(64, 74, 90, 200)
+        self.scoreColor = QColor(64, 74, 90, 160)
         self.scoreLight = QColor(245, 150, 142, 200)
         self.scoreShadow = QColor(46, 56, 72, 255)
+        self.color_cat = (QBrush(QColor(254, 154, 154, 245)), QPen(QColor(240, 230, 250, 250), 2))
+        self.color_cat_pen = QPen(QColor(240, 230, 250, 250), 4)
 
-        self.predictionShadow = QColor(64, 74, 90, 90)
+        self.predictionShadow = QColor(64, 74, 90, 40)
 
-        self.pathColor = QBrush(QColor(130, 157, 151, 60))
+        self.pathColor = QBrush(QColor(130, 157, 151, 70))
 
         self.linePenLight=QPen(QColor(245, 150, 142, 200), 1)
         self.linePenDark=QPen(QColor(46, 56, 72, 255), 4)
@@ -70,16 +73,17 @@ class LinesScene(QGraphicsScene):
 
         self.quantity = 9
 
-        self.color_1 = (QBrush(QColor(254, 154, 154, 240)), QPen(QColor(240, 230, 250, 240), 2))
-        self.color_2 = (QBrush(QColor(254, 229, 154, 240)), QPen(QColor(240, 230, 250, 240), 2))
-        self.color_3 = (QBrush(QColor(204, 254, 154, 240)), QPen(QColor(240, 230, 250, 240), 2))
-        self.color_4 = (QBrush(QColor(154, 254, 229, 240)), QPen(QColor(240, 230, 250, 240), 2))
-        self.color_5 = (QBrush(QColor(154, 179, 254, 240)), QPen(QColor(240, 230, 250, 240), 2))
-        self.color_6 = (QBrush(QColor(230, 153, 255, 240)), QPen(QColor(240, 230, 250, 240), 2))
+        self.color_1 = (QBrush(QColor(254, 154, 154, 245)), QPen(QColor(240, 230, 250, 250), 2))
+        self.color_2 = (QBrush(QColor(254, 229, 154, 245)), QPen(QColor(240, 230, 250, 250), 2))
+        self.color_3 = (QBrush(QColor(204, 254, 154, 245)), QPen(QColor(240, 230, 250, 250), 2))
+        self.color_4 = (QBrush(QColor(154, 254, 229, 245)), QPen(QColor(240, 230, 250, 250), 2))
+        self.color_5 = (QBrush(QColor(154, 179, 254, 245)), QPen(QColor(240, 230, 250, 250), 2))
+        self.color_6 = (QBrush(QColor(230, 153, 255, 245)), QPen(QColor(240, 230, 250, 250), 2))
         self.colors = []
         self.colors.extend([self.color_1, self.color_2, self.color_3, self.color_4, self.color_5, self.color_6])
         self.color_chosen_one = (QBrush(QColor(255, 255, 250, 255)), QPen(QColor(255, 190, 180, 255), 3))
         self.color_in_line = (QBrush(QColor(255, 135, 130, 245)), QPen(QColor(255, 160, 155, 245), 4))
+        self.color_new_glob = (QBrush(QColor(231, 254, 230, 245)), QPen(QColor(210, 254, 232, 245), 3))
 
         self.cell = []
         self.selectedGlob = None
@@ -115,30 +119,25 @@ class LinesScene(QGraphicsScene):
                         hit = True
 
                         if self.cell[i][j].occupied:
-                            if self.cell[i][j].glob.chosen: 
-                                self.cell[i][j].glob.deselect()
-                                self.selectedGlob = None
-                            else: 
-                                self.cell[i][j].glob.select()
-                                self.selectedGlob = self.cell[i][j].glob
+                            if self.cell[i][j].glob.chosen: self.selectedGlob = None
+                            else: self.selectedGlob = self.cell[i][j].glob
 
                             for a in range(len(self.cell)): 
                                 for b in range(len(self.cell)):
-                                    if a != i and b != j and self.cell[a][b].occupied:  self.cell[a][b].glob.deselect()
-                                    if not self.cell[a][b].occupied:
+                                    if self.cell[a][b].occupied:
+                                        if self.selectedGlob == self.cell[a][b].glob: self.cell[a][b].glob.select()
+                                        else: self.cell[a][b].glob.deselect()
+                                    else: 
                                         self.cell[a][b].untarget()
                                         self.selectedTarget = None
                         else:
-                            if self.cell[i][j].target: 
-                                self.cell[i][j].untarget()
-                                self.selectedTarget = None
-                            else: 
-                                self.cell[i][j].targetable()
-                                self.selectedTarget = self.cell[i][j]
+                            if self.cell[i][j].target: self.selectedTarget = None
+                            else: self.selectedTarget = self.cell[i][j]
 
                             for a in range(len(self.cell)): 
                                 for b in range(len(self.cell)):
-                                    if a != i and b != j:  self.cell[a][b].untarget()    
+                                    if self.cell[a][b] == self.selectedTarget: self.cell[i][j].targetable()
+                                    else: self.cell[a][b].untarget()    
 
             x1 = self.cell[0][0].x
             y1 = self.cell[0][0].y
@@ -187,16 +186,13 @@ class LinesScene(QGraphicsScene):
 
             Path = []
             find = findingWay(self.selectedGlob.parentCell, self.selectedTarget, self.cell)
-            
             Path.extend(find[1])
+
             if len(Path) > 0:
-                for i in range(len(Path)):
-                    #print(Path[i].spot)
-                    Path[i].setPath(True)                
-                
+                for i in range(len(Path)): Path[i].setPath(True) 
                 
             if find[0]: 
-                print(":)")
+                #print(":)")
                 self.selectedTarget.setGlob(self.selectedGlob)
 
                 lines = []
@@ -218,7 +214,8 @@ class LinesScene(QGraphicsScene):
 
                     time.sleep(0.2)
 
-                    self.Score = self.Score + len(lines)*10
+                    self.Score = self.Score + ((len(lines)*(len(lines) - self.Goal + 1))*10)
+
                     for i in range(len(self.cell)):
                         for j in range(len(self.cell)):
                             self.cell[i][j].setPath(False)
@@ -235,8 +232,9 @@ class LinesScene(QGraphicsScene):
                     self.drawLines()
                     self.parent.repaint()
                     
+                    
                     if self.GAME:
-                        time.sleep(0.1)
+                        time.sleep(0.2)
                         for i in range(len(newGlobs)):
                             selectedGlob = newGlobs[i]
                             lines = []
@@ -275,18 +273,14 @@ class LinesScene(QGraphicsScene):
 
             if not find[0]:
                 self.selectedGlob.parentCell.setGlob(self.selectedGlob)                
-                print(":(")
-                
-                    #anim
+                #print(":(")
 
+                
             self.selectedGlob = None
-            self.selectedTarget = None
-            
+            self.selectedTarget = None            
         
         self.drawLines()
-        self.parent.repaint()        
-        
-
+        self.parent.repaint()   
 
     def setGlobs(self):
         newGlobs = self.Prediction
@@ -298,15 +292,21 @@ class LinesScene(QGraphicsScene):
 
         if len(listFreeCells) >= n:
             spots = random.sample(listFreeCells, k = n)
+            #spots = [(0,0)]
             for i in range(n):
                 self.cell[spots[i][0]][spots[i][1]].setGlob(newGlobs[i])
 
-        else:
+        #elif len(listFreeCells) >= 1:
+            #spots = random.sample(listFreeCells, k = len(listFreeCells))
+            #for i in range(len(listFreeCells)):
+                #self.cell[spots[i][0]][spots[i][1]].setGlob(newGlobs[i])
+        #elif len(listFreeCells) == 0:
+            #self.GAME = False
+            #print("Game over")    
+        else: 
             self.GAME = False
-            print("Game over")
-        
-        #for i in range(6):
-            #self.cell[i][1].setGlob(Glob(self.colors[i]))
+            print("Game over")            
+       
 
         self.Prediction = []
         self.Prediction = self.addNewGlobs(n)    
@@ -384,7 +384,27 @@ class LinesScene(QGraphicsScene):
             gameOver.setPos(gameOverX + 1, gameOverY + 1)          
             gameOver.setDefaultTextColor(self.scoreColor)
 
-
+        ####bestResultBox
+        #bestResult_font = scale/6
+        #bestResultX, bestResultY = (x - scale*2 - scale/2, length + scale/2)
+        #bestResult = self.addText(str(self.BestResult), QFont("Consolas", font))
+        #bestResult.setPos(bestResultX + 1, bestResultY + 1)          
+        #bestResult.setDefaultTextColor(self.scoreColor)
+        #self.addRect(bestResultX + scale/15, bestResultY + scale + scale/5, scale*2  + scale/5 , scale/4, self.linePenDark, self.cellColor)
+        #if self.BestResult > self.Score:
+            # BestResult = 100%
+            #catY = bestResultY - scale
+            #catX = bestResultX + scale/2
+            #CatW = scale + scale/2
+            #CatH = scale + scale/7
+            #n = 5
+            #boxX = bestResultX + scale/5
+            #boxY = bestResultY - scale            
+            #for i in range(n):
+                #self.addRect(boxX, boxY - (scale + scale/7)*i, scale*2, scale, self.linePenDark, self.cellColor)
+                #catY = boxY - (scale + scale/7)*i
+            #catY = catY - CatH - scale/2
+            #self.addEllipse(catX, catY, CatW, CatW, self.color_cat[1], self.color_cat[0])    
         self.addRect(x, y, length, length, self.linePenDark, self.cellColor)
 
         for i in range(len(self.cell)):
@@ -422,7 +442,13 @@ class LinesScene(QGraphicsScene):
                         d = self.cell[i][j].glob.diameter
                         x, y = (self.cell[i][j].glob.x  + d/4, self.cell[i][j].glob.y +  d/4)
                         w, h = (d - d/2, d - d/2)
-
+                    elif self.cell[i][j].glob.newGlob: 
+                        self.cell[i][j].glob.notNewAnymore()
+                        brushGlob = self.color_new_glob[0] 
+                        penGlob = self.color_new_glob[1]
+                        d = self.cell[i][j].glob.diameter
+                        x, y = (self.cell[i][j].glob.x  + d/8, self.cell[i][j].glob.y +  d/8)
+                        w, h = (d - d/4, d - d/4)
                     else: 
                         brushGlob = self.cell[i][j].glob.color[0]
                         penGlob = self.cell[i][j].glob.color[1]
@@ -471,13 +497,13 @@ class Cell():
 
 class Glob():
     def __init__(self, color, type):
-        #self.name = name
-        #self.scale = scale 
         self.type = type  
         self.color = color
         self.chosen = False
         self.inLine = False
+        self.newGlob = True
 
+    def notNewAnymore(self): self.newGlob = False
     def setCoordinates(self, scale, x, y):
         self.diameter = scale - scale/8
         self.x = x + scale/16  
@@ -542,121 +568,85 @@ def lineDirection(pos, di, dj, len, cells, color):
 
     return half_line
 
-
 def findingWay(start, finish, field):
     exist = False
     Path = []
+    Queue = []
+    OpenSpots = []    
+    Queue.append(start)
 
-    Path_1 = searchСycle(start, finish, field)
-    Path_2 = searchСycle(finish, start, field)    
-    
-    #print("Path_1")    
-    #print(len(Path_1))
-    #print("Path_2")    
-    #print(len(Path_2))
+    while len(Queue) != 0:
+        CurrentSpot = Queue[0]
+        Path.append(CurrentSpot)
+        Queue = Queue[1:]
+        if CurrentSpot == finish: 
+            exist = True            
+            break
 
-    if len(Path_1) > 0 or len(Path_2) > 0:
-        if len(Path_1) > len(Path_2): 
-            Path.extend(Path_2)            
-            if len(Path) > 0 and Path[-1].spot == start.spot: exist = True
-            else: exist = False
-        else:  
-            Path.extend(Path_1)            
-            if len(Path) > 0 and Path[-1].spot == finish.spot: exist = True
-            else: exist = False
-
-    #print(len(Path))
-    #if len(Path) == 0: Path = []
-    #if len(Path) > 0 and Path[-1].spot != finish.spot: Path = []
-
-    return exist, Path 
-
-def searchСycle(start, finish, field):
-
-    DeadEndsList = []
-    Path = []
-    Hit = []
-    CurrentSpot = start
-    length = len(field) - 1
-    a = 0
-
-    while CurrentSpot != finish:
-        a = a + 1
-        #print(a)
-        if a == 42: break
-        direction = []
-        Possibilities = []  
-        Hit.append(CurrentSpot)
-        Counter = collections.Counter(Hit)
-        #print("CurrentSpot")
-        #print(CurrentSpot.spot)
-        #if field[i][j] in Counter:
-            #print(Counter[CurrentSpot])
-        
-        if (CurrentSpot.spot[0] - 1) >= 0: 
-            i = CurrentSpot.spot[0] - 1
-            j = CurrentSpot.spot[1]
-            if (not field[i][j].occupied) and (field[i][j] not in DeadEndsList): 
-                if Counter[field[i][j]] > 3: DeadEndsList.append(field[i][j])
-                else:Possibilities.append(field[i][j])
-                
-        if (CurrentSpot.spot[0] + 1) <= length:
-            i = CurrentSpot.spot[0] + 1
-            j = CurrentSpot.spot[1]
-            if (not field[i][j].occupied) and (field[i][j] not in DeadEndsList): 
-                if Counter[field[i][j]] > 3: DeadEndsList.append(field[i][j])
-                else:Possibilities.append(field[i][j])
-
-        if (CurrentSpot.spot[1] - 1) >= 0:
-            i = CurrentSpot.spot[0]
-            j = CurrentSpot.spot[1] - 1
-            if (not field[i][j].occupied) and (field[i][j] not in DeadEndsList): 
-                if Counter[field[i][j]] > 3: DeadEndsList.append(field[i][j])
-                else:Possibilities.append(field[i][j])
-
-        if (CurrentSpot.spot[1] + 1) <= length:
-            i = CurrentSpot.spot[0]
-            j = CurrentSpot.spot[1] + 1
-            if (not field[i][j].occupied) and (field[i][j] not in DeadEndsList): 
-                if Counter[field[i][j]] > 3: DeadEndsList.append(field[i][j])
-                else:Possibilities.append(field[i][j])
-
-        #print("Possibilities")
-        #print(len(Possibilities))
-
-        if len(Possibilities) > 0:           
-
-            if len(Possibilities) == 1:
-                Path.append(CurrentSpot)
-                DeadEndsList.append(CurrentSpot)
-                CurrentSpot = Possibilities[0]
-                if CurrentSpot == finish:
-                    Path.append(CurrentSpot)
-            
-            #if len(Possibilities) == 2:           
-            if len(Possibilities) > 1:
-                for i in range(len(Possibilities)):
-                    diff = abs(Possibilities[i].spot[0] - finish.spot[0]) + abs(Possibilities[i].spot[1] - finish.spot[1])
-                    if len(Path ) > 0 and Possibilities[i] == Path[-1]: diff = diff + 2
-                    direction.append([diff, Possibilities[i]])
-                direction = sorted(direction, key=itemgetter(0), reverse=True) ##!!
-                #print("direction")
-                #for i in range(len(Possibilities)):
-                    #print(direction[i][0])
-                    #print(direction[i][1].spot)
-
-                Path.append(CurrentSpot)
-                CurrentSpot = direction[-1][1]
-                if CurrentSpot == finish:
-                    Path.append(CurrentSpot)
-                    #break
         else: 
-            DeadEndsList.append(CurrentSpot)
-            if CurrentSpot == start: 
-                break
-            else:
-                CurrentSpot = Path[-1]
-                del Path[-1]  
-    
-    #print(len(Path))
-    return Path
+            ways = []
+            OpenSpots.append(CurrentSpot)         
+
+            if (CurrentSpot.spot[0] - 1) >= 0: 
+                i = CurrentSpot.spot[0] - 1
+                j = CurrentSpot.spot[1]
+                if (not field[i][j].occupied) and (field[i][j] not in OpenSpots): 
+                    ways.append(field[i][j])
+                
+            if (CurrentSpot.spot[0] + 1) < len(field):
+                i = CurrentSpot.spot[0] + 1
+                j = CurrentSpot.spot[1]
+                if (not field[i][j].occupied) and (field[i][j] not in OpenSpots): 
+                    ways.append(field[i][j])
+
+            if (CurrentSpot.spot[1] - 1) >= 0:
+                i = CurrentSpot.spot[0]
+                j = CurrentSpot.spot[1] - 1
+                if (not field[i][j].occupied) and (field[i][j] not in OpenSpots): 
+                    ways.append(field[i][j])
+
+            if (CurrentSpot.spot[1] + 1) < len(field):
+                i = CurrentSpot.spot[0]
+                j = CurrentSpot.spot[1] + 1
+                if (not field[i][j].occupied) and (field[i][j] not in OpenSpots): 
+                    ways.append(field[i][j])
+
+            #if len(ways) > 0: 
+                #for i in range(len(ways)):
+                    #if ways[i] not in Queue: Queue.append(ways[i])
+               
+            if len(ways) > 1:
+                direction = []
+                for i in range(len(ways)):
+                    diff = abs(ways[i].spot[0] - finish.spot[0]) + abs(ways[i].spot[1] - finish.spot[1])
+                    direction.append([diff, ways[i]])
+                direction = sorted(direction, key=itemgetter(0), reverse=True)
+                for i in range(len(ways)):
+                    if direction[i][1] not in Queue: Queue.insert(0, direction[i][1])
+
+            elif len(ways) == 1: 
+                if ways[0] not in Queue: Queue.insert(0, ways[0])
+
+            else: Path = Path [:-1]  
+
+    if not exist: Path = []
+    else: 
+        hm = optimizePath(Path)
+        if 0 < len(hm) < len(Path): Path = hm
+    return exist, Path
+
+def optimizePath(Path):
+    optPath = []
+    optPath.extend(Path)
+    for i in range(len(Path)):
+        cellA = Path[i]
+        for j in range(len(Path)):
+            cellB = Path[j]
+            if i < j and (j - i > 1) and ((abs(cellA.spot[0] - cellB.spot[0]) <= 1 and (cellA.spot[1] - cellB.spot[1]) == 0) or (abs(cellA.spot[1] - cellB.spot[1]) <= 1 and (cellA.spot[0] - cellB.spot[0]) == 0)):
+               
+                if cellA in optPath and cellB in optPath:
+                    indexA = optPath.index(cellA)
+                    indexB = optPath.index(cellB)
+                    del optPath[indexA + 1:indexB]
+                
+    return optPath
