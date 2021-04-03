@@ -7,7 +7,44 @@ from PySide6 import QtGui
 from PySide6.QtGui import *
 from operator import *
 import config
-import webbrowser
+import json
+import os
+from project_config_editor import ProjectConfigDialog
+
+# When we run the app, we presume that 'empty' project is loaded. It is not saved anywhere
+CurrentProjectPath = None
+
+def getProjectSettings():
+    json_path = 'project_config_template.json' if not CurrentProjectPath else os.path.join(CurrentProjectPath, 'config.json')
+    with open(json_path) as f:
+        config = json.load(f)
+    return config
+
+
+# TODO: should be a global main window object with the corresponding function and global app name setting
+def getMainWin():
+    app = QApplication.instance()
+    for widget in app.topLevelWidgets():
+        if isinstance(widget, QMainWindow):
+            return widget
+
+def updateMainWinTitle():
+    getMainWin().setWindowTitle('Grading Cat: ' + str(CurrentProjectPath))
+
+# TODO: rename to "project settings"
+def detectingSoftware():
+    isOk, config = ProjectConfigDialog.show(getMainWin(), getProjectSettings())
+
+    # TODO: HERE MUST SAVE
+
+    #Эта функция для задания настроек к JPag или каким-то его альтернативам. 
+    #Скажи мне, какие для этого нужны поля, 
+    #и я сделаю диалог с формой для задания таких настроек. 
+    #Пока можно это вообще не трогать, но вообще, 
+    #я думаю, полезно будет иметь возможность что-то поменять, дополнительно настраивать и подобное.
+    print("detecting software")
+
+#def 
 
 #Привет, Максим! Это всё для тебя :)
 
@@ -57,13 +94,6 @@ def openProject():
     #Но это не сложно будет добавить, я думаю.  
     print("open project")
 
-def detectingSoftware():
-    #Эта функция для задания настроек к JPag или каким-то его альтернативам. 
-    #Скажи мне, какие для этого нужны поля, 
-    #и я сделаю диалог с формой для задания таких настроек. 
-    #Пока можно это вообще не трогать, но вообще, 
-    #я думаю, полезно будет иметь возможность что-то поменять, дополнительно настраивать и подобное.
-    print("detecting software")
 
 def dataSource():
     #Здесь, по моему замыслу, настраивается доступ к Мудлу или его альтернативам. 
