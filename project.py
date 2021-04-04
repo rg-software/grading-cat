@@ -8,17 +8,26 @@ from PySide6.QtGui import *
 from operator import *
 import config
 import json
+import shutil
 import os
 from project_config_editor import ProjectConfigDialog
 
-# When we run the app, we presume that 'empty' project is loaded. It is not saved anywhere
-CurrentProjectPath = None
+CurrentProjectPath = None # initially no project file is loaded
+
+# starting folder for project open dialog (may be revised)
+def getDefaultDir():
+    return os.path.dirname(os.path.realpath(__file__))
 
 def getProjectSettings():
-    json_path = 'project_config_template.json' if not CurrentProjectPath else os.path.join(CurrentProjectPath, 'config.json')
+    json_path = os.path.join(CurrentProjectPath, 'config.json')
     with open(json_path) as f:
         config = json.load(f)
     return config
+
+def saveProjectSettings(config):
+    json_path = os.path.join(CurrentProjectPath, 'config.json')
+    with open(json_path, 'w') as f:
+        json.dump(config, f)
 
 
 # TODO: should be a global main window object with the corresponding function and global app name setting
@@ -29,40 +38,32 @@ def getMainWin():
             return widget
 
 def updateMainWinTitle():
-    getMainWin().setWindowTitle('Grading Cat: ' + str(CurrentProjectPath))
+    getMainWin().setWindowTitle(f'Grading Cat: {CurrentProjectPath}')
+
+# must be called before we do anything
+def newProject():
+    r = QFileDialog.getExistingDirectory(getMainWin(), "Choose project folder", getDefaultDir(), QFileDialog.ShowDirsOnly)
+    if r:
+        global CurrentProjectPath
+        CurrentProjectPath = r
+        shutil.copyfile(os.path.join(getDefaultDir(), 'project_config_template.json'), os.path.join(CurrentProjectPath, 'config.json'))
+        # TODO(mm): rename to "project settings"
+        updateMainWinTitle()
+        detectingSoftware()
 
 # TODO: rename to "project settings"
+# TODO: should be DISABLED until a project is created or opened
 def detectingSoftware():
     isOk, config = ProjectConfigDialog.show(getMainWin(), getProjectSettings())
+    if isOk:
+        saveProjectSettings(config)
 
-    # TODO: HERE MUST SAVE
-
-    #Эта функция для задания настроек к JPag или каким-то его альтернативам. 
-    #Скажи мне, какие для этого нужны поля, 
-    #и я сделаю диалог с формой для задания таких настроек. 
-    #Пока можно это вообще не трогать, но вообще, 
-    #я думаю, полезно будет иметь возможность что-то поменять, дополнительно настраивать и подобное.
-    print("detecting software")
-
-#def 
-
-#Привет, Максим! Это всё для тебя :)
-
-#В этом файле функции, которые привязаны к меню (всё работает, я проверяла). 
-#Ты можешь делать с ними все, что хочешь. 
-#И даже, давать мне задания, как-то их заполнять, менять, улучшать, удалять, 
-#добавлять новые функции, диалоги и формы.   
-#Я еще не успела добавить никакие окна, но я надеюсь, это сделать завтра-послезавтра.  
-#Но какую-то логику, возможно, уже можно добавить.
-#Пока же, я планирую описать, как я думаю, они должны использоваться...
-
-def newProject():
-    print("new project")
-    #Здесь будет открываться форма, для создания нового проекта. Я пока не успела сделать. 
-    #Но, честно говоря, я не совсем понимаю, какие там нужны поля. 
-    #В любом случае я сделаю, что-нибудь в ближайшее время, 
-    #а потому уже можно будет править. Миром и проектами. 
-
+def openProject():
+    r = QFileDialog.getExistingDirectory(getMainWin(), "Choose project folder", getDefaultDir(), QFileDialog.ShowDirsOnly)
+    if r:
+        global CurrentProjectPath
+        CurrentProjectPath = r
+        updateMainWinTitle()
 
 def newDetectionSession():
     print("new detection session")
@@ -82,17 +83,6 @@ def newDetectionSession():
         finally: file.close()    
    
     return text
-
-def openProject():
-    #Здесь можно, выбрать папку уже существующего проекта. 
-    #И автоматически загрузятся настройки этого проекта и что там еще нужно. 
-    #Наверное, для этого можно использовать что-то такое
-    #QFileDialog.getExistingDirectory( self, "Open a folder", "/home/my_user_name/", QFileDialog.ShowDirsOnly ) 
-
-    #Еще у меня есть функция, которая открывает файл сохранения, я ее сюда не выносила. 
-    #Но может, зря, может, нужно чтобы в таком случае, проект открывался автоматически. 
-    #Но это не сложно будет добавить, я думаю.  
-    print("open project")
 
 
 def dataSource():

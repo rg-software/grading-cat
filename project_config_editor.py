@@ -19,7 +19,8 @@ class ProjectConfigDialog(QDialog):
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
         layout.addWidget(buttons)
-  
+        self.setWindowTitle('Project Settings')
+
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
 
