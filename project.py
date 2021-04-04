@@ -16,6 +16,23 @@ import moodle_downloader
 
 CurrentProjectPath = None # initially no project file is loaded
 
+#Новое меню
+#
+#Эти функции у тебя уже есть:
+#def newProject():
+#def openProject():
+#
+#Эти функции в каком-то виде, я та понимаю тоже есть, но я не решилась что-то твое трогать.
+
+def setSettings():
+    print("Settings")
+
+def syncWithDataSource():
+    print("Sync with Data Source")
+
+def detect():
+    print("Detect")
+
 # starting folder for project open dialog (may be revised)
 def getDefaultDir():
     return os.path.dirname(os.path.realpath(__file__))
