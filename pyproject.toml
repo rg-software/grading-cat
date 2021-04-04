@@ -7,22 +7,9 @@ authors = ["Your Name <you@example.com>"]
 [tool.poetry.dependencies]
 python = ">=3.6, <3.10"
 PySide6 = "^6.0.2"
-
-[tool.poetry.dev-dependencies]
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-name = "gradingcat"
-version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
-
-[tool.poetry.dependencies]
-python = "^3.9"
-requests = "^2.25.0"
 pyunpack = "^0.2.2"
 patool = "^1.12"
+requests = "^2.25.0"
 
 [tool.poetry.dev-dependencies]
 
