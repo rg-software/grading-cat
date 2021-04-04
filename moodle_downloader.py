@@ -1,7 +1,7 @@
 #https://docs.moodle.org/dev/Web_service_API_functions#Core_web_service_functions
 
 #The api documentation that provides more extensive documentation on not only what the required parameters are for all the available webservice functions but also the expected response and their structures in both REST and XML-RPC is accessible from the moodle site.
-# For access to these docs you must have admin access as they are found in admin submenu located at :
+# For access to these docs you must have admin access as they are found in admin submenu located at:
 # site administration > Plugins > Web services > API Documentation
 
 import requests
@@ -9,6 +9,7 @@ import os
 import sys
 import json
 import re
+import ast
 
 def regex_rename(conv_list, str):
 	for pattern, repl in conv_list:
@@ -54,17 +55,19 @@ def process_submission(submission, working_dir, users, token):
 			for f in areas[0]['files']:
 				process_file(f, dir, token)
 
-def process_assignment(server_url, assignment, working_dir, users, token):
-	#new_assignment_name = regex_rename()
-	print(f"Saving assignment '{assignment['name']}' data as ''") # such as "Exercises for Week 1"
+def process_assignment(server_url, assignment, working_dir, users, token, progressObject):
+	print(f"Saving assignment '{assignment['name']}' data") # such as "Exercises for Week 1"
 	submissions_full = call_service(server_url, token, 'mod_assign_get_submissions', {'assignmentids[0]': assignment['id']}) # matching submissions with ext info
 	submissions = submissions_full['assignments'][0]['submissions']  # submissions only
 	
 	for submission in submissions:
+		progressObject.processAppEvents()
+		if progressObject.wasCanceled():
+			raise RuntimeError()
 		process_submission(submission, os.path.join(working_dir, assignment['name']), users, token)
 
 # NOTE: we should be inside the project dir here
-def download(config):
+def download(config, progressObject):
 	token = get_token(config['username'], config['password'], config['server_url'])
 	courses = call_service(config['server_url'], token, 'core_course_get_courses_by_field', {'field': 'shortname', 'value': config['course_shortname']}) # list of all matching courses
 	course_id = courses['courses'][0]['id'] # we presume that only one course matches the given shortname
@@ -72,18 +75,38 @@ def download(config):
 
 	users = {} # id -> email-based username
 	for user in users_data:
-		new_uname = regex_rename(config['username_conversions'], user['email']).replace('-', '_') # '-' is bad for JPlag files
+		new_uname = regex_rename(ast.literal_eval(config['username_conversions']), user['email']).replace('-', '_') # '-' is bad for JPlag files
 		print(f"Renaming user: {user['email']} -> {new_uname}")
 		users[user['id']] = new_uname
 
 	assignments_full = call_service(config['server_url'], token, 'mod_assign_get_assignments', params={'courseids[0]': course_id}) # matching assignments with ext info
 	assignments = assignments_full['courses'][0]['assignments'] # assignments only
 
-	for assignment in assignments:
-		new_aname = regex_rename(config['assignment_conversions'], assignment['name'])
-		print(f"Renaming asignment: {assignment['name']} -> {new_aname}")
-		assignment['name'] = new_aname
-		process_assignment(config['server_url'], assignment, config['moodle_submissions_dir'], users, token)
+	progressObject.setMaximum(len(assignments) - 1)
+	
+	try:
+		for i, assignment in enumerate(assignments):
+			progressObject.setValue(i)
+			new_aname = regex_rename(ast.literal_eval(config['assignment_conversions']), assignment['name'])
+			print(f"Renaming asignment: {assignment['name']} -> {new_aname}")
+			assignment['name'] = new_aname
+			process_assignment(config['server_url'], assignment, config['moodle_submissions_dir'], users, token, progressObject)
+	except RuntimeError:
+		print("Download process canceled")
+
+
+class DefaultProgressObject():
+	def setMaximum(self, _):
+		pass
+	
+	def setValue(self, _):
+		pass
+
+	def processAppEvents(self, _):
+		pass
+
+	def wasCanceled(self):
+		return False
 
 
 if __name__ == "__main__":
@@ -94,5 +117,5 @@ if __name__ == "__main__":
 	os.chdir(sys.argv[1])
 	with open('config.json') as f:
 		config = json.load(f)
-	download(config)
+	download(config, DefaultProgressObject())
 	os.chdir(dir)

@@ -1,4 +1,3 @@
-import sys
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import *
 from PySide6 import QtCore, QtGui
@@ -6,11 +5,14 @@ from PySide6.QtCore import *
 from PySide6 import QtGui
 from PySide6.QtGui import *
 from operator import *
+import sys
+import types
 import config
 import json
 import shutil
 import os
 from project_config_editor import ProjectConfigDialog
+import moodle_downloader
 
 CurrentProjectPath = None # initially no project file is loaded
 
@@ -66,28 +68,14 @@ def openProject():
         updateMainWinTitle()
 
 def updateProjectData():
-    numFiles = 10000
-    progress = QProgressDialog("Copying files...", "Abort Copy", 0, numFiles, getMainWin())#None)#self)
+    progress = QProgressDialog("Downloading files...", "Cancel", 0, 1, getMainWin())
+    progress.setMinimumDuration(0)
     progress.setWindowModality(Qt.WindowModal)
+    progress.processAppEvents = types.MethodType(lambda x: QtCore.QCoreApplication.instance().processEvents(), progress)
 
-    for i in range(numFiles):
-        progress.setValue(i)
-        print(i)
+    os.chdir(CurrentProjectPath)
+    moodle_downloader.download(getProjectSettings(), progress)
 
-        if progress.wasCanceled():
-            break
-        #... copy one file
-
-    progress.setValue(numFiles)
-
-    #Эта функция для обновления Мудла. 
-    #Не знаю нужна ли здесь какая-то особенная форма. 
-    #Наверное, будет достаточно диалога окей/отменить. 
-    #Но что нужно будет добавить, так это всплывающее сообщение после скачивания, 
-    #или какой-то прогресс бар, да, как я понимаю. 
-    #Вот, на самом деле не знаю, что проще… 
-    #Но главное – это логика скачивания, а это с тебя ;) 
-    #print("update project data")
 
 def newDetectionSession():
     print("new detection session")
