@@ -65,6 +65,30 @@ def openProject():
         CurrentProjectPath = r
         updateMainWinTitle()
 
+def updateProjectData():
+    numFiles = 10000
+    progress = QProgressDialog("Copying files...", "Abort Copy", 0, numFiles, getMainWin())#None)#self)
+    progress.setWindowModality(Qt.WindowModal)
+
+    for i in range(numFiles):
+        progress.setValue(i)
+        print(i)
+
+        if progress.wasCanceled():
+            break
+        #... copy one file
+
+    progress.setValue(numFiles)
+
+    #Эта функция для обновления Мудла. 
+    #Не знаю нужна ли здесь какая-то особенная форма. 
+    #Наверное, будет достаточно диалога окей/отменить. 
+    #Но что нужно будет добавить, так это всплывающее сообщение после скачивания, 
+    #или какой-то прогресс бар, да, как я понимаю. 
+    #Вот, на самом деле не знаю, что проще… 
+    #Но главное – это логика скачивания, а это с тебя ;) 
+    #print("update project data")
+
 def newDetectionSession():
     print("new detection session")
 
@@ -92,16 +116,6 @@ def dataSource():
     #например, пароль к Мудлу или еще что-то, 
     #ты можешь зайти сюда и поменять настройки. 
     print("data source")
-
-def updateProjectData():
-    #Эта функция для обновления Мудла. 
-    #Не знаю нужна ли здесь какая-то особенная форма. 
-    #Наверное, будет достаточно диалога окей/отменить. 
-    #Но что нужно будет добавить, так это всплывающее сообщение после скачивания, 
-    #или какой-то прогресс бар, да, как я понимаю. 
-    #Вот, на самом деле не знаю, что проще… 
-    #Но главное – это логика скачивания, а это с тебя ;) 
-    print("update project data")
 
 def importExportSettings():
     #Эта функция на случай, если ты уже все под себя настроил в одном проекте, 
