@@ -9,7 +9,9 @@ from PySide6.QtGui import *
 from operator import *
 import config
 
-from main import Communicate
+class Communicate(QObject):
+    update = Signal()
+    clear =  Signal()
 
 class GraphicsSceneBubbleChart(QGraphicsScene):
     def __init__(self):

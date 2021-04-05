@@ -18,9 +18,9 @@ CurrentProjectPath = None # initially no project file is loaded
 #### Internal functions ####
 
 def _updateSettingsItems():
-    getMainWin().ui.actionSettings.setEnabled(True)
-    getMainWin().ui.actionSync_with_Data_Source.setEnabled(True)
-    getMainWin().ui.actionDetect.setEnabled(True)
+    _getMainWin().ui.actionSettings.setEnabled(True)
+    _getMainWin().ui.actionSync_with_Data_Source.setEnabled(True)
+    _getMainWin().ui.actionDetect.setEnabled(True)
 
 # starting folder for project open dialog (may be revised)
 def _getDefaultDir():
@@ -48,12 +48,6 @@ def _getMainWin():
 
 def updateMainWinTitle():
     _getMainWin().setWindowTitle(f'{config.APPLICATION_TITLE}: {CurrentProjectPath}')
-
-
-def updateSettingsItems():
-    getMainWin().ui.actionSettings.setEnabled(True)
-    getMainWin().ui.actionSync_with_Data_Source.setEnabled(True)
-    getMainWin().ui.actionDetect.setEnabled(True)
 
 
 # TODO: ensure some project is open
