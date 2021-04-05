@@ -59,6 +59,12 @@ def getMainWin():
 def updateMainWinTitle():
     getMainWin().setWindowTitle(f'Grading Cat: {CurrentProjectPath}')
 
+def updateSettingsItems():
+    getMainWin().ui.actionSettings.setEnabled(True)
+    getMainWin().ui.actionSync_with_Data_Source.setEnabled(True)
+    getMainWin().ui.actionDetect.setEnabled(True)
+
+
 # must be called before we do anything
 def newProject():
     r = QFileDialog.getExistingDirectory(getMainWin(), "Choose project folder", getDefaultDir(), QFileDialog.ShowDirsOnly)
@@ -68,6 +74,7 @@ def newProject():
         shutil.copyfile(os.path.join(getDefaultDir(), 'project_config_template.json'), os.path.join(CurrentProjectPath, 'config.json'))
         # TODO(mm): rename to "project settings"
         updateMainWinTitle()
+        updateSettingsItems()
         detectingSoftware()
 
 # TODO: rename to "project settings"
