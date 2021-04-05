@@ -13,6 +13,7 @@ import sys
 import os
 import json
 import subprocess
+import ast
 
 # NOTE: we should be inside the project dir here
 def run(jplag_args, assignment_name):
@@ -20,8 +21,8 @@ def run(jplag_args, assignment_name):
 	out_dir = 'jpl_out_' + assignment_name
 	out_log = 'jpl_out_' + assignment_name + '.log'
 	jplag_dir = os.path.dirname(os.path.realpath(__file__))
-	jplag_runcmd = ['java', '-jar', os.path.join(jplag_dir, 'jplag-2.12.1-SNAPSHOT-jar-with-dependencies.jar')]
-	cmd = jplag_runcmd + jplag_args + ['-r', out_dir, in_dir]
+	jplag_runcmd = ['java', '-jar', os.path.join(jplag_dir, 'jplag-2.12.1.jar')]
+	cmd = jplag_runcmd + ast.literal_eval(jplag_args) + ['-r', out_dir, in_dir]
 	output = subprocess.run(cmd, capture_output=True)
 	cmp_prefix = b'Comparing ' # will strip it
 	output_lines_filtered = [line[len(cmp_prefix):] for line in output.stdout.splitlines(True) if line.startswith(cmp_prefix)]

@@ -95,7 +95,7 @@ def download(config, progressObject):
 		print("Download process canceled")
 
 
-class DefaultProgressObject():
+class StubProgressObject():
 	def setMaximum(self, _):
 		pass
 	
@@ -117,5 +117,5 @@ if __name__ == "__main__":
 	os.chdir(sys.argv[1])
 	with open('config.json') as f:
 		config = json.load(f)
-	download(config, DefaultProgressObject())
+	download(config, StubProgressObject())
 	os.chdir(dir)

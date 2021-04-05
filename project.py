@@ -1,18 +1,23 @@
-from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import *
-from PySide6 import QtCore, QtGui
-from PySide6.QtCore import *
-from PySide6 import QtGui
-from PySide6.QtGui import *
-from operator import *
+import json
+import os
+import shutil
 import sys
 import types
+
+#import PySide6.QtWidgets
+#from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6 import QtCore
+#, QtGui
+#from PySide6.QtCore import *
+#from PySide6.QtGui import *
+#from PySide6.QtUiTools import QUiLoader
+from PySide6.QtWidgets import *
+
 import config
-import json
-import shutil
-import os
-from project_config_editor import ProjectConfigDialog
+import jplag_preprocessor
+import jplag_runner
 import moodle_downloader
+from project_config_editor import ProjectConfigDialog
 
 CurrentProjectPath = None # initially no project file is loaded
 
@@ -54,7 +59,7 @@ def newProject():
         detectingSoftware()
 
 # TODO: rename to "project settings"
-# TODO: should be DISABLED until a project is created or opened
+# TODO: should be DISABLED until a project is created or opened (alternatively, we can force the user to create a project if it isn't ready) yet
 def detectingSoftware():
     isOk, config = ProjectConfigDialog.show(getMainWin(), getProjectSettings())
     if isOk:
@@ -70,31 +75,48 @@ def openProject():
 def updateProjectData():
     progress = QProgressDialog("Downloading files...", "Cancel", 0, 1, getMainWin())
     progress.setMinimumDuration(0)
-    progress.setWindowModality(Qt.WindowModal)
+    progress.setWindowModality(QtCore.Qt.WindowModal)
     progress.processAppEvents = types.MethodType(lambda x: QtCore.QCoreApplication.instance().processEvents(), progress)
 
     os.chdir(CurrentProjectPath)
     moodle_downloader.download(getProjectSettings(), progress)
 
 
+# TODO: ensure some project is open at this stage or force the user to open it
 def newDetectionSession():
-    print("new detection session")
+    config = getProjectSettings()
+    os.chdir(os.path.join(CurrentProjectPath, config["moodle_submissions_dir"]))
+    assignments = [d for d in os.listdir() if os.path.isdir(d)]
+    r, isOk = QInputDialog.getItem(getMainWin(), 'Grading Cat', 'Choose assignment', assignments)
+    if isOk:
+        os.chdir(CurrentProjectPath)
+        dirs = [config["moodle_submissions_dir"]] + config["archive_dirs"]
+        jplag_preprocessor.preprocess_dirs(dirs, config['assignment_regex'], r)
+        jplag_runner.run(config['jplag_args'], r)
+        
+        with open(f'jpl_out_{r}.log') as f:
+            text = f.read()
+        return text
+    
+    # TODO: it must work even if the user cancels the session
+    return None
+    #print("new detection session")
 
     #Эта та функция, которая запускает JPlag, и радует нас результатами :) 
     #Нужна ли тебе для запуска, какая-то особая форма? Диалог? Я сделаю. 
     #Мне же нужно, чтобы на выходе был результат следующего вида:
     #<имя1>-<имя2>: <число>\n 
     #как в примере 
-    text = "s1252001-s1260009: 32.753624\ns1252001-s1260017: 21.987314\ns1252001-s1260027: 41.365463"
+    return "s1252001-s1260009: 32.753624\ns1252001-s1260017: 21.987314\ns1252001-s1260027: 41.365463"
     #или как в файле jpl_out_Upload Solutions for Exercises 3.x.log
     #Можешь, проверить, открыв тот файл, который ты мне присылал, или подобный
-    filename = QFileDialog.getOpenFileName(None,"Load File","","Text (*.log);;All Files (*)")[0]
-    if filename != '':
-        file = open(filename)
-        try: text = file.read()
-        finally: file.close()    
+    # filename = QFileDialog.getOpenFileName(None,"Load File","","Text (*.log);;All Files (*)")[0]
+    # if filename != '':
+    #     file = open(filename)
+    #     try: text = file.read()
+    #     finally: file.close()    
    
-    return text
+    # return text
 
 
 def dataSource():
