@@ -4,13 +4,7 @@ import shutil
 import sys
 import types
 
-#import PySide6.QtWidgets
-#from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6 import QtCore
-#, QtGui
-#from PySide6.QtCore import *
-#from PySide6.QtGui import *
-#from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import *
 
 import config
@@ -21,99 +15,88 @@ from project_config_editor import ProjectConfigDialog
 
 CurrentProjectPath = None # initially no project file is loaded
 
-#Новое меню
-#
-#Эти функции у тебя уже есть:
-#def newProject():
-#def openProject():
-#
-#Эти функции в каком-то виде, я та понимаю тоже есть, но я не решилась что-то твое трогать.
-
-def setSettings():
-    print("Settings")
-
-def syncWithDataSource():
-    print("Sync with Data Source")
-
-def detect():
-    print("Detect")
+#### Internal functions ####
 
 # starting folder for project open dialog (may be revised)
-def getDefaultDir():
+def _getDefaultDir():
     return os.path.dirname(os.path.realpath(__file__))
 
-def getProjectSettings():
+def _getProjectSettings():
     json_path = os.path.join(CurrentProjectPath, 'config.json')
     with open(json_path) as f:
         config = json.load(f)
     return config
 
-def saveProjectSettings(config):
+def _saveProjectSettings(config):
     json_path = os.path.join(CurrentProjectPath, 'config.json')
     with open(json_path, 'w') as f:
         json.dump(config, f)
 
-
-# TODO: should be a global main window object with the corresponding function and global app name setting
-def getMainWin():
+# better make it a global main window object rather than search it like this
+def _getMainWin():
     app = QApplication.instance()
     for widget in app.topLevelWidgets():
         if isinstance(widget, QMainWindow):
             return widget
 
+#### API Functions ####
+
 def updateMainWinTitle():
-    getMainWin().setWindowTitle(f'Grading Cat: {CurrentProjectPath}')
+    _getMainWin().setWindowTitle(f'{config.APPLICATION_TITLE}: {CurrentProjectPath}')
 
-# must be called before we do anything
-def newProject():
-    r = QFileDialog.getExistingDirectory(getMainWin(), "Choose project folder", getDefaultDir(), QFileDialog.ShowDirsOnly)
-    if r:
-        global CurrentProjectPath
-        CurrentProjectPath = r
-        shutil.copyfile(os.path.join(getDefaultDir(), 'project_config_template.json'), os.path.join(CurrentProjectPath, 'config.json'))
-        # TODO(mm): rename to "project settings"
-        updateMainWinTitle()
-        detectingSoftware()
-
-# TODO: rename to "project settings"
-# TODO: should be DISABLED until a project is created or opened (alternatively, we can force the user to create a project if it isn't ready) yet
-def detectingSoftware():
-    isOk, config = ProjectConfigDialog.show(getMainWin(), getProjectSettings())
+# TODO: ensure some project is open
+def setSettings():
+    isOk, config = ProjectConfigDialog.show(_getMainWin(), _getProjectSettings())
     if isOk:
-        saveProjectSettings(config)
+        _saveProjectSettings(config)
 
-def openProject():
-    r = QFileDialog.getExistingDirectory(getMainWin(), "Choose project folder", getDefaultDir(), QFileDialog.ShowDirsOnly)
-    if r:
-        global CurrentProjectPath
-        CurrentProjectPath = r
-        updateMainWinTitle()
-
-def updateProjectData():
-    progress = QProgressDialog("Downloading files...", "Cancel", 0, 1, getMainWin())
+# TODO: ensure some project is open
+def syncWithDataSource():
+    progress = QProgressDialog("Downloading files...", "Cancel", 0, 1, _getMainWin())
     progress.setMinimumDuration(0)
     progress.setWindowModality(QtCore.Qt.WindowModal)
     progress.processAppEvents = types.MethodType(lambda x: QtCore.QCoreApplication.instance().processEvents(), progress)
 
     os.chdir(CurrentProjectPath)
-    moodle_downloader.download(getProjectSettings(), progress)
+    moodle_downloader.download(_getProjectSettings(), progress)
 
-
-# TODO: ensure some project is open at this stage or force the user to open it
-def newDetectionSession():
-    config = getProjectSettings()
-    os.chdir(os.path.join(CurrentProjectPath, config["moodle_submissions_dir"]))
+# TODO: ensure some project is open
+def detect():
+    prj_config = _getProjectSettings()
+    os.chdir(os.path.join(CurrentProjectPath, prj_config["moodle_submissions_dir"]))
     assignments = [d for d in os.listdir() if os.path.isdir(d)]
-    r, isOk = QInputDialog.getItem(getMainWin(), 'Grading Cat', 'Choose assignment', assignments)
+    r, isOk = QInputDialog.getItem(_getMainWin(), config.APPLICATION_TITLE, 'Choose assignment', assignments, editable=False)
     if isOk:
         os.chdir(CurrentProjectPath)
-        dirs = [config["moodle_submissions_dir"]] + config["archive_dirs"]
-        jplag_preprocessor.preprocess_dirs(dirs, config['assignment_regex'], r)
-        jplag_runner.run(config['jplag_args'], r)
-        
-        with open(f'jpl_out_{r}.log') as f:
-            text = f.read()
-        return text
+        dirs = [prj_config["moodle_submissions_dir"]] + prj_config["archive_dirs"]
+        jplag_preprocessor.preprocess_dirs(dirs, prj_config['assignment_regex'], r)
+        jplag_runner.run(prj_config['jplag_args'], r)
+
+# must be called before we do anything
+def newProject():
+    r = QFileDialog.getExistingDirectory(_getMainWin(), "Choose project folder", _getDefaultDir(), QFileDialog.ShowDirsOnly)
+    if r:
+        global CurrentProjectPath
+        CurrentProjectPath = r
+        shutil.copyfile(os.path.join(_getDefaultDir(), 'project_config_template.json'), os.path.join(CurrentProjectPath, 'config.json'))
+        updateMainWinTitle()
+        setSettings()
+
+def openProject():
+    r = QFileDialog.getExistingDirectory(_getMainWin(), "Choose project folder", _getDefaultDir(), QFileDialog.ShowDirsOnly)
+    if r:
+        global CurrentProjectPath
+        CurrentProjectPath = r
+        updateMainWinTitle()
+
+
+
+
+def newDetectionSession():
+    r = 'testassignment'
+    with open(f'jpl_out_{r}.log') as f:
+        text = f.read()
+    return text
     
     # TODO: it must work even if the user cancels the session
     return None

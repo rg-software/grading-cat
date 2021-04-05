@@ -1,3 +1,5 @@
+APPLICATION_TITLE = "Grading Cat"
+
 ##### diagram data #####
 FILE_NAME = ""
 

@@ -3,7 +3,7 @@
 	"password": "", 
 	"server_url": "", 
 	"course_shortname": "",
-	"moodle_submissions_dir": "moodle_submissions",
+	"moodle_submissions_dir": "submissions",
 	"archive_dirs": ["s:\\Teaching\\DistrComp\\submissions\\2019", "s:\\Teaching\\DistrComp\\submissions\\2018"],
 	"assignment_regex": ".+\\.zip",
 	"username_conversions": "[['(.+)@.+', '\\\\1']]",
