@@ -1,21 +1,34 @@
-import json
-import os
-import shutil
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtWidgets import *
+from PySide6 import QtCore, QtGui
+from PySide6.QtCore import *
+from PySide6 import QtGui
+from PySide6.QtGui import *
+from operator import *
 import sys
 import types
-
-from PySide6 import QtCore
-from PySide6.QtWidgets import *
-
 import config
-import jplag_preprocessor
-import jplag_runner
-import moodle_downloader
+import json
+import shutil
+import os
 from project_config_editor import ProjectConfigDialog
+import moodle_downloader
 
 CurrentProjectPath = None # initially no project file is loaded
 
-#### Internal functions ####
+#Новое меню
+#
+#Эти функции у тебя уже есть:
+#def newProject():
+#def openProject():
+#
+#Эти функции в каком-то виде, я та понимаю тоже есть, но я не решилась что-то твое трогать.
+
+def setSettings():
+    print("Settings")
+
+def syncWithDataSource():
+    print("Sync with Data Source")
 
 def _updateSettingsItems():
     getMainWin().ui.actionSettings.setEnabled(True)
@@ -23,32 +36,30 @@ def _updateSettingsItems():
     getMainWin().ui.actionDetect.setEnabled(True)
 
 # starting folder for project open dialog (may be revised)
-def _getDefaultDir():
+def getDefaultDir():
     return os.path.dirname(os.path.realpath(__file__))
 
-def _getProjectSettings():
+def getProjectSettings():
     json_path = os.path.join(CurrentProjectPath, 'config.json')
     with open(json_path) as f:
         config = json.load(f)
     return config
 
-def _saveProjectSettings(config):
+def saveProjectSettings(config):
     json_path = os.path.join(CurrentProjectPath, 'config.json')
     with open(json_path, 'w') as f:
         json.dump(config, f)
 
-# better make it a global main window object rather than search it like this
-def _getMainWin():
+
+# TODO: should be a global main window object with the corresponding function and global app name setting
+def getMainWin():
     app = QApplication.instance()
     for widget in app.topLevelWidgets():
         if isinstance(widget, QMainWindow):
             return widget
 
-#### API Functions ####
-
 def updateMainWinTitle():
-    _getMainWin().setWindowTitle(f'{config.APPLICATION_TITLE}: {CurrentProjectPath}')
-
+    getMainWin().setWindowTitle(f'Grading Cat: {CurrentProjectPath}')
 
 def updateSettingsItems():
     getMainWin().ui.actionSettings.setEnabled(True)
@@ -56,80 +67,53 @@ def updateSettingsItems():
     getMainWin().ui.actionDetect.setEnabled(True)
 
 
-# TODO: ensure some project is open
-def setSettings():
-    isOk, config = ProjectConfigDialog.show(_getMainWin(), _getProjectSettings())
-    if isOk:
-        _saveProjectSettings(config)
-
-# TODO: ensure some project is open
-def syncWithDataSource():
-    progress = QProgressDialog("Downloading files...", "Cancel", 0, 1, _getMainWin())
-    progress.setMinimumDuration(0)
-    progress.setWindowModality(QtCore.Qt.WindowModal)
-    progress.processAppEvents = types.MethodType(lambda x: QtCore.QCoreApplication.instance().processEvents(), progress)
-
-    os.chdir(CurrentProjectPath)
-    moodle_downloader.download(_getProjectSettings(), progress)
-
-# TODO: ensure some project is open
-def detect():
-    prj_config = _getProjectSettings()
-    os.chdir(os.path.join(CurrentProjectPath, prj_config["moodle_submissions_dir"]))
-    assignments = [d for d in os.listdir() if os.path.isdir(d)]
-    r, isOk = QInputDialog.getItem(_getMainWin(), config.APPLICATION_TITLE, 'Choose assignment', assignments, editable=False)
-    if isOk:
-        os.chdir(CurrentProjectPath)
-        dirs = [prj_config["moodle_submissions_dir"]] + prj_config["archive_dirs"]
-        jplag_preprocessor.preprocess_dirs(dirs, prj_config['assignment_regex'], r)
-        jplag_runner.run(prj_config['jplag_args'], r)
-
 # must be called before we do anything
 def newProject():
-    r = QFileDialog.getExistingDirectory(_getMainWin(), "Choose project folder", _getDefaultDir(), QFileDialog.ShowDirsOnly)
+    r = QFileDialog.getExistingDirectory(getMainWin(), "Choose project folder", getDefaultDir(), QFileDialog.ShowDirsOnly)
     if r:
         global CurrentProjectPath
         CurrentProjectPath = r
-        shutil.copyfile(os.path.join(_getDefaultDir(), 'project_config_template.json'), os.path.join(CurrentProjectPath, 'config.json'))
+        shutil.copyfile(os.path.join(getDefaultDir(), 'project_config_template.json'), os.path.join(CurrentProjectPath, 'config.json'))
+        # TODO(mm): rename to "project settings"
         updateMainWinTitle()
         _updateSettingsItems()
         setSettings()
 
 def openProject():
-    r = QFileDialog.getExistingDirectory(_getMainWin(), "Choose project folder", _getDefaultDir(), QFileDialog.ShowDirsOnly)
+    r = QFileDialog.getExistingDirectory(getMainWin(), "Choose project folder", getDefaultDir(), QFileDialog.ShowDirsOnly)
     if r:
         global CurrentProjectPath
         CurrentProjectPath = r
         updateMainWinTitle()
 
+def updateProjectData():
+    progress = QProgressDialog("Downloading files...", "Cancel", 0, 1, getMainWin())
+    progress.setMinimumDuration(0)
+    progress.setWindowModality(Qt.WindowModal)
+    progress.processAppEvents = types.MethodType(lambda x: QtCore.QCoreApplication.instance().processEvents(), progress)
 
+    os.chdir(CurrentProjectPath)
+    moodle_downloader.download(getProjectSettings(), progress)
 
 
 def newDetectionSession():
-    r = 'testassignment'
-    with open(f'jpl_out_{r}.log') as f:
-        text = f.read()
-    return text
-    
-    # TODO: it must work even if the user cancels the session
-    return None
-    #print("new detection session")
+    print("new detection session")
 
     #Эта та функция, которая запускает JPlag, и радует нас результатами :) 
     #Нужна ли тебе для запуска, какая-то особая форма? Диалог? Я сделаю. 
     #Мне же нужно, чтобы на выходе был результат следующего вида:
     #<имя1>-<имя2>: <число>\n 
     #как в примере 
-    return "s1252001-s1260009: 32.753624\ns1252001-s1260017: 21.987314\ns1252001-s1260027: 41.365463"
+    text = "s1252001-s1260009: 32.753624\ns1252001-s1260017: 21.987314\ns1252001-s1260027: 41.365463"
     #или как в файле jpl_out_Upload Solutions for Exercises 3.x.log
     #Можешь, проверить, открыв тот файл, который ты мне присылал, или подобный
-    # filename = QFileDialog.getOpenFileName(None,"Load File","","Text (*.log);;All Files (*)")[0]
-    # if filename != '':
-    #     file = open(filename)
-    #     try: text = file.read()
-    #     finally: file.close()    
+    filename = QFileDialog.getOpenFileName(None,"Load File","","Text (*.log);;All Files (*)")[0]
+    if filename != '':
+        file = open(filename)
+        try: text = file.read()
+        finally: file.close()    
    
-    # return text
+    return text
 
 
 def dataSource():
