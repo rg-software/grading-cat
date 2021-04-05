@@ -392,7 +392,7 @@ class MainWindow(QMainWindow):
         self.ui.actionSync_with_Data_Source.setEnabled(False)
         self.ui.actionDetect.triggered.connect(project.detect)
         self.ui.actionDetect.setEnabled(False)
-
+        
 
         #self.ui.actionNew_Project.triggered.connect(project.newProject)
         #self.ui.actionNew_Detection_Session.triggered.connect(openNewSession)
@@ -409,6 +409,7 @@ class MainWindow(QMainWindow):
         #self.ui.actionSave_as.triggered.connect(saveAsDiagram)
         #self.ui.actionClose.triggered.connect(closeDiagram)
         self.ui.actionQuit.triggered.connect(self.close)
+        self.ui.actionQuit.setEnabled(True)
 
         self.ui.actionAbout_VPlag.triggered.connect(aboutCat)   
         
