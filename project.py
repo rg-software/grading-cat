@@ -17,6 +17,11 @@ CurrentProjectPath = None # initially no project file is loaded
 
 #### Internal functions ####
 
+def _updateSettingsItems():
+    getMainWin().ui.actionSettings.setEnabled(True)
+    getMainWin().ui.actionSync_with_Data_Source.setEnabled(True)
+    getMainWin().ui.actionDetect.setEnabled(True)
+
 # starting folder for project open dialog (may be revised)
 def _getDefaultDir():
     return os.path.dirname(os.path.realpath(__file__))
@@ -87,6 +92,7 @@ def newProject():
         CurrentProjectPath = r
         shutil.copyfile(os.path.join(_getDefaultDir(), 'project_config_template.json'), os.path.join(CurrentProjectPath, 'config.json'))
         updateMainWinTitle()
+        _updateSettingsItems()
         setSettings()
 
 def openProject():
