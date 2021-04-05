@@ -382,11 +382,16 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)    
 
         self.ui.actionNew_Project_2.triggered.connect(project.newProject)
+        self.ui.actionSettings.setEnabled(True)
         self.ui.actionOpen_Project_2.triggered.connect(project.openProject)
+        self.ui.actionSettings.setEnabled(True)
 
         self.ui.actionSettings.triggered.connect(project.setSettings)
+        self.ui.actionSettings.setEnabled(False)
         self.ui.actionSync_with_Data_Source.triggered.connect(project.syncWithDataSource)
+        self.ui.actionSync_with_Data_Source.setEnabled(False)
         self.ui.actionDetect.triggered.connect(project.detect)
+        self.ui.actionDetect.setEnabled(False)
 
 
         #self.ui.actionNew_Project.triggered.connect(project.newProject)

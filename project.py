@@ -44,6 +44,13 @@ def _getMainWin():
 def updateMainWinTitle():
     _getMainWin().setWindowTitle(f'{config.APPLICATION_TITLE}: {CurrentProjectPath}')
 
+
+def updateSettingsItems():
+    getMainWin().ui.actionSettings.setEnabled(True)
+    getMainWin().ui.actionSync_with_Data_Source.setEnabled(True)
+    getMainWin().ui.actionDetect.setEnabled(True)
+
+
 # TODO: ensure some project is open
 def setSettings():
     isOk, config = ProjectConfigDialog.show(_getMainWin(), _getProjectSettings())
