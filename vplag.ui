@@ -417,111 +417,8 @@ background-color: rgb(234, 229, 226)
 </string>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>-1</number>
         </property>
-        <widget class="QWidget" name="tabChord">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>1</horstretch>
-           <verstretch>1</verstretch>
-          </sizepolicy>
-         </property>
-         <attribute name="title">
-          <string>Chord diagram</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_chord">
-          <property name="leftMargin">
-           <number>10</number>
-          </property>
-          <property name="topMargin">
-           <number>10</number>
-          </property>
-          <property name="rightMargin">
-           <number>10</number>
-          </property>
-          <property name="bottomMargin">
-           <number>12</number>
-          </property>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="tabChord2">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>1</horstretch>
-           <verstretch>1</verstretch>
-          </sizepolicy>
-         </property>
-         <attribute name="title">
-          <string>Chord diagram 2</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_chord2">
-          <property name="leftMargin">
-           <number>10</number>
-          </property>
-          <property name="topMargin">
-           <number>10</number>
-          </property>
-          <property name="rightMargin">
-           <number>10</number>
-          </property>
-          <property name="bottomMargin">
-           <number>12</number>
-          </property>
-          <property name="horizontalSpacing">
-           <number>6</number>
-          </property>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="tabNetwork">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>1</horstretch>
-           <verstretch>1</verstretch>
-          </sizepolicy>
-         </property>
-         <attribute name="title">
-          <string>Network</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_network">
-          <property name="leftMargin">
-           <number>10</number>
-          </property>
-          <property name="topMargin">
-           <number>10</number>
-          </property>
-          <property name="rightMargin">
-           <number>10</number>
-          </property>
-          <property name="bottomMargin">
-           <number>12</number>
-          </property>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="tabBubble">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>1</horstretch>
-           <verstretch>1</verstretch>
-          </sizepolicy>
-         </property>
-         <attribute name="title">
-          <string>Bubble chart</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_bubble">
-          <property name="leftMargin">
-           <number>10</number>
-          </property>
-          <property name="topMargin">
-           <number>10</number>
-          </property>
-          <property name="rightMargin">
-           <number>10</number>
-          </property>
-          <property name="bottomMargin">
-           <number>12</number>
-          </property>
-         </layout>
-        </widget>
        </widget>
       </item>
       <item row="0" column="0">
@@ -940,27 +837,8 @@ background-color: #faf1ec</string>
     <property name="title">
      <string>File</string>
     </property>
-    <widget class="QMenu" name="menuNew">
-     <property name="title">
-      <string>New</string>
-     </property>
-     <addaction name="actionNew_Project"/>
-     <addaction name="actionNew_Detection_Session"/>
-    </widget>
-    <widget class="QMenu" name="menuOpen">
-     <property name="title">
-      <string>Open</string>
-     </property>
-     <addaction name="actionOpen_Project"/>
-     <addaction name="actionOpen_Detection_Session"/>
-    </widget>
-    <addaction name="menuNew"/>
-    <addaction name="menuOpen"/>
-    <addaction name="separator"/>
-    <addaction name="actionSave"/>
-    <addaction name="actionSave_as"/>
-    <addaction name="separator"/>
-    <addaction name="actionClose"/>
+    <addaction name="actionNew_Project_2"/>
+    <addaction name="actionOpen_Project_2"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -974,18 +852,9 @@ background-color: #faf1ec</string>
     <property name="title">
      <string>Project</string>
     </property>
-    <widget class="QMenu" name="menuProject_settings">
-     <property name="title">
-      <string>Project Settings</string>
-     </property>
-     <addaction name="actionDetecting_Software"/>
-     <addaction name="actionData_Source"/>
-     <addaction name="separator"/>
-     <addaction name="actionImport_and_Export_Settings"/>
-    </widget>
-    <addaction name="menuProject_settings"/>
-    <addaction name="actionUpdate_Project_Data"/>
-    <addaction name="actionExport_Template"/>
+    <addaction name="actionSettings"/>
+    <addaction name="actionSync_with_Data_Source"/>
+    <addaction name="actionDetect"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuProject"/>
@@ -1035,7 +904,7 @@ background-color: #faf1ec</string>
      <pointsize>11</pointsize>
     </font>
    </property>
-  </action> 
+  </action>
   <action name="actionClose">
    <property name="text">
     <string>Close</string>
@@ -1065,7 +934,7 @@ background-color: #faf1ec</string>
    <property name="text">
     <string>Update Project Data</string>
    </property>
-  </action>  
+  </action>
   <action name="actionNew_Project">
    <property name="text">
     <string>New Project</string>
@@ -1086,6 +955,31 @@ background-color: #faf1ec</string>
    <property name="text">
     <string>Open Detection Session
 </string>
+   </property>
+  </action>
+  <action name="actionNew_Project_2">
+   <property name="text">
+    <string>New Project</string>
+   </property>
+  </action>
+  <action name="actionOpen_Project_2">
+   <property name="text">
+    <string>Open Project</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionSync_with_Data_Source">
+   <property name="text">
+    <string>Sync with Data Source</string>
+   </property>
+  </action>
+  <action name="actionDetect">
+   <property name="text">
+    <string>Detect </string>
    </property>
   </action>
  </widget>
