@@ -10,6 +10,7 @@ import config
 import webbrowser
 import project
 from main_window import MainWindow
+from diagrams import findMaxPlag
 
 def openNewSession():
     text = project.detect()    
