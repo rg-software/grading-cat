@@ -8,69 +8,18 @@ from PySide6.QtGui import *
 from operator import *
 import config
 import webbrowser
-from ui_mainwindow import Ui_MainWindow
-from diagrams import *
-from lines import LinesView
 import project
+from main_window import MainWindow
 
-def expandMatrix(text):
-    students = []
-    rate = []
-    students.extend(text[0].split(','))
-    
-    matrix = text[1:]
-    for i in range(len(matrix)):
-        line = matrix[i].split(',')
-        rate.append(line) 
-        for j in range(len(rate[i])):
-            rate[i][j] = int(rate[i][j])
-
-    return students, rate
-def saveMatrix(students, rate):
-        
-        #window.ui.lineEdit.clear
-        config.STUDENTS_LIST.clear()
-        config.RESULT_MATRIX.clear()
-        config.HIDED_STUDENTS.clear()
-        config.SELECTED_STUDENTS.clear()
-        config.SELECTED_STUDENT = ""
-
-        config.STUDENTS_LIST.extend(students)
-        config.RESULT_MATRIX.extend(rate)
-
-def CSVtoSomething(content):   
-    result = []
-    fileStrings = []
-    studentNames = []
-    for i in range(len(content)):
-        fileStrings.append(content[i].split(';'))
-        #print(fileStrings[i])
-        for j in range(len(fileStrings[i])):
-            if fileStrings[i][j] not in studentNames and len(fileStrings[i][j]) > 5: #ну а что делать?!
-                studentNames.append(fileStrings[i][j])
-    ### мать
-    matrix = []
-    for i in range(len(studentNames)):
-        line = []
-        for j in range(len(studentNames)):
-            line.append(0)
-        matrix.append(line)
-
-    for i in range(len(fileStrings)):
-        if fileStrings[i][0] in studentNames:
-            indexA = studentNames.index(fileStrings[i][0])
-            for j in range(len(fileStrings[i])):
-                if fileStrings[i][j] in studentNames:
-                    indexB = studentNames.index(fileStrings[i][j])
-                    if indexA != indexB:
-                        matrix[indexA][indexB] = matrix[indexB][indexA] = fileStrings[i][j+1].split('.')[0] ###...
-
-    names = ','.join(studentNames)
-    result.append(names)
-    for i in range(len(studentNames)):
-        line = ','.join(matrix[i])
-        result.append(line)
-    return result
+def openNewSession():
+    text = project.detect()    
+    if text != "":   
+        students, matrix = newDiagramFromJPlag(text)
+        if len(students) > 1 and len(matrix) == len(students):
+            saveMatrix(students, matrix)
+            if len(config.STUDENTS_LIST) > 1 and len(config.STUDENTS_LIST) == len(config.RESULT_MATRIX) and len(config.RESULT_MATRIX) == len(config.RESULT_MATRIX[0]):
+                updateDiagram()
+                window.ui.actionSave_2.setEnabled(True)
 
 def newDiagramFromJPlag(text):
     #text = "s1252001-s1260009: 32.753624\ns1252001-s1260017: 21.987314\ns1252001-s1260027: 41.365463"
@@ -82,13 +31,14 @@ def newDiagramFromJPlag(text):
     matrix = []
     for i in range(len(resultsList)):
         resultsList[i].replace(' ','')
+        #Злой человек осуждает такой разбор :( 
+        #Что ж, он всегда может показать "как надо", в рамках этой функции, например.
         if len(resultsList[i]) > 0 and '-' in resultsList[i] and ':' in resultsList[i]:
             part1 = resultsList[i].split('-')
             part2 = part1[1].split(':')
             studentA.append(part1[0])
             studentB.append(part2[0])
             rate.append(part2[1])
-
             if studentA[i] not in students: students.append(studentA[i])
             if studentB[i] not in students: students.append(studentB[i])
         
@@ -103,21 +53,134 @@ def newDiagramFromJPlag(text):
         indexB = students.index(studentB[i])
         matrix[indexA][indexB] = int(float(rate[i]))
         matrix[indexB][indexA] = int(float(rate[i]))
-
     
     return students, matrix
-def openNewSession():
-    text = project.newDetectionSession()
-    if len(text) > 0:        
-        #if 'JPlag'
-        students, matrix = newDiagramFromJPlag(text)
-        if len(students) > 1 and len(matrix) == len(students):
-            saveMatrix(students, matrix)
-            if len(config.STUDENTS_LIST) > 1 and len(config.STUDENTS_LIST) == len(config.RESULT_MATRIX) and len(config.RESULT_MATRIX) == len(config.RESULT_MATRIX[0]):
-                updateDiagram()
+def saveDiagram_2():    
+    if len(config.STUDENTS_LIST) > 0:       
+        #Нужно имя файла, я забыла, где его брать. 
+        if config.FILE_NAME != "": 
+            string = ','.join(config.STUDENTS_LIST) 
+            for i in range(len(config.STUDENTS_LIST)):
+                line = ','.join(config.RESULT_MATRIX[i])
+                string = string + ";\n" + line
+            
+            file = open(config.FILE_NAME, 'w+')
+            try:
+                file.write(string)
+            finally:
+                file.close()  
+        else: saveAsDiagram() 
+    # TODO
+    # Очевидно, еще заставит менять формат сохранения. 
+    # Но, я лучше подожду -- инициатива тут наказывается хуже промедления.  
+    pass
+
+def openDiagram_2():    
+    # Это функция скорей всего вернется тоже, но каким извращёнными способом, лучше пока даже не гадать.
+    pass
+
+def expandMatrix(text):
+    students = []
+    rate = []
+    students.extend(text[0].split(','))
+    
+    matrix = text[1:]
+    for i in range(len(matrix)):
+        line = matrix[i].split(',')
+        rate.append(line) 
+        for j in range(len(rate[i])):
+            rate[i][j] = int(rate[i][j])
+
+    return students, rate
+def saveMatrix(students, rate):        
+        #window.ui.lineEdit.clear
+        config.STUDENTS_LIST.clear()
+        config.RESULT_MATRIX.clear()
+        config.HIDED_STUDENTS.clear()
+        config.SELECTED_STUDENTS.clear()
+        config.SELECTED_STUDENT = ""
+
+        config.STUDENTS_LIST.extend(students)
+        config.RESULT_MATRIX.extend(rate)
+
+def aboutCat():
+    # Ссылка нормально работает, но поменять это может и надо… Но как-нибудь потом. 
+    # Если уж мы серьезные вещи откладываем на потом, то это уж точно подождет. 
+    url = "https://memegenerator.net/img/instances/70259669/patience-as-i-catch-up-on-grading.jpg"
+    webbrowser.open(url, new=0, autoraise=True)
+
+### file menu
+## Злой человек считает, что вы работаете неправильно :(             ##
+## Пока посидите тут, я вас воскрешу в своей программе, чуть позже.  ##
+def clearDiagram():
+    blankScene = QGraphicsScene()
+    window.ChordDiagramView.setScene(blankScene)
+    window.ChordDiagram2View.setScene(blankScene)
+    window.NetworkDiagramView.setScene(blankScene)
+    window.BubbleDiagramView.setScene(blankScene)
+    pass
+def closeDiagram():
+    config.FILE_NAME = ""
+    config.STUDENTS_LIST.clear()
+    config.RESULT_MATRIX.clear()
+    config.HIDED_STUDENTS.clear()
+    config.SELECTED_STUDENT = ""
+    config.SELECTED_STUDENTS.clear()
+
+    window.ui.lineEdit.clear()
+    updateList("")
+    window.ui.listStudents.clear()
+    drawDiagrams()
+    #clearDiagram()
+    pass
+def saveDiagram():
+    #if config.FILE_NAME != "":
+        #with open(config.FILE_NAME, "w") as text_file: 
+            #print(f"Purchase Amount:", file=text_file)
+    
+    if len(config.STUDENTS_LIST) > 0:       
+        if config.FILE_NAME != "": 
+            string = ','.join(config.STUDENTS_LIST) 
+            for i in range(len(config.STUDENTS_LIST)):
+                line = ','.join(config.RESULT_MATRIX[i])
+                string = string + ";\n" + line
+
+            
+            file = open(config.FILE_NAME, 'w+')
+            try:
+                file.write(string)
+            finally:
+                file.close()  
+        else: saveAsDiagram() 
+    # TODO
+    pass
+def openDiagram():    
+    config.FILE_NAME = QFileDialog.getOpenFileName(None,"Load File","","Text (*.txt);;All Files (*)")[0]
+    if config.FILE_NAME != "":
+        file = open(config.FILE_NAME)
+        try:
+            results = file.read().replace('\n','').split(';') 
+            window.ui.lineEdit.clear            
+            students, matrix = expandMatrix(results)
+            if len(students) > 1 and len(matrix) == len(students):
+                saveMatrix(students, matrix)
+        finally:
+            file.close()      
+    
+        if len(config.STUDENTS_LIST) > 1 and len(config.STUDENTS_LIST) == len(config.RESULT_MATRIX) and len(config.RESULT_MATRIX) == len(config.RESULT_MATRIX[0]):
+            updateDiagram()
+    pass
+def saveAsDiagram():    
+    if len(config.STUDENTS_LIST) > 0:
+        config.FILE_NAME = QFileDialog.getSaveFileName(None,"Load File","","Text (*.txt);;All Files (*)")[0]
+        print(config.FILE_NAME)
+        if config.FILE_NAME != "": saveDiagram()
+    # TODO
+    pass
+## ----------------------------------------------------------------- ##
+
 
 def updateDiagram():
-
     config.SHOW_NAMES = window.ui.showNames.isChecked()
     config.SHOW_LINKLESS = window.ui.showLinkless.isChecked()
     config.SHOW_RARE = window.ui.showRate.isChecked()
@@ -204,79 +267,7 @@ def updateList(student):
                     window.ui.listStudents.item(i).setBackground(QColor(231, 214, 212))   
                 else: window.ui.listStudents.item(i).setForeground(QColor(119, 110, 107))                     
                 text = config.STUDENTS_LIST[students[i][1]] + "\t- " + str(students[i][0]) + "%"
-                window.ui.listStudents.item(i).setText(text)             
-
-### file menu
-
-def openDiagram():    
-    config.FILE_NAME = QFileDialog.getOpenFileName(None,"Load File","","Text (*.txt);;All Files (*)")[0]
-    if config.FILE_NAME != "":
-        file = open(config.FILE_NAME)
-        try:
-            results = file.read().replace('\n','').split(';') 
-            window.ui.lineEdit.clear            
-            students, matrix = expandMatrix(results)
-            if len(students) > 1 and len(matrix) == len(students):
-                saveMatrix(students, matrix)
-        finally:
-            file.close()      
-    
-        if len(config.STUDENTS_LIST) > 1 and len(config.STUDENTS_LIST) == len(config.RESULT_MATRIX) and len(config.RESULT_MATRIX) == len(config.RESULT_MATRIX[0]):
-            updateDiagram()
-    pass
-def saveAsDiagram():    
-    if len(config.STUDENTS_LIST) > 0:
-        config.FILE_NAME = QFileDialog.getSaveFileName(None,"Load File","","Text (*.txt);;All Files (*)")[0]
-        print(config.FILE_NAME)
-        if config.FILE_NAME != "": saveDiagram()
-    # TODO
-    pass
-def saveDiagram():
-    #if config.FILE_NAME != "":
-        #with open(config.FILE_NAME, "w") as text_file: 
-            #print(f"Purchase Amount:", file=text_file)
-    
-    if len(config.STUDENTS_LIST) > 0:       
-        if config.FILE_NAME != "": 
-            string = ','.join(config.STUDENTS_LIST) 
-            for i in range(len(config.STUDENTS_LIST)):
-                line = ','.join(config.RESULT_MATRIX[i])
-                string = string + ";\n" + line
-
-            
-            file = open(config.FILE_NAME, 'w+')
-            try:
-                file.write(string)
-            finally:
-                file.close()  
-        else: saveAsDiagram() 
-    # TODO
-    pass
-def closeDiagram():
-    config.FILE_NAME = ""
-    config.STUDENTS_LIST.clear()
-    config.RESULT_MATRIX.clear()
-    config.HIDED_STUDENTS.clear()
-    config.SELECTED_STUDENT = ""
-    config.SELECTED_STUDENTS.clear()
-
-    window.ui.lineEdit.clear()
-    updateList("")
-    window.ui.listStudents.clear()
-    drawDiagrams()
-    #clearDiagram()
-    pass
-def clearDiagram():
-    blankScene = QGraphicsScene()
-    window.ChordDiagramView.setScene(blankScene)
-    window.ChordDiagram2View.setScene(blankScene)
-    window.NetworkDiagramView.setScene(blankScene)
-    window.BubbleDiagramView.setScene(blankScene)
-    pass
-def aboutCat():
-    url = "https://memegenerator.net/img/instances/70259669/patience-as-i-catch-up-on-grading.jpg"
-    webbrowser.open(url, new=0, autoraise=True)
-    pass
+                window.ui.listStudents.item(i).setText(text)  
 
 def drawDiagrams(): 
     
@@ -285,39 +276,6 @@ def drawDiagrams():
     window.NetworkDiagramView.scene.drawDiagram()
     window.BubbleDiagramView.scene.drawDiagram()
 
-    #window.ChordDiagramView.sceneUpdate()
-    #window.ChordDiagram2View.sceneUpdate()
-    #window.NetworkDiagramView.sceneUpdate()
-    #window.BubbleDiagramView.sceneUpdate()
-
-    ######################
-    #width = window.ChordDiagramView.width() - 10
-    #height = window.ChordDiagramView.height() - 10
-    #chordDiagramScene = GraphicsSceneChordDiagram(0, 0, width, height, window.ChordDiagramView)
-    #window.ChordDiagramView.setScene(chordDiagramScene)
-    #chordDiagramScene.signal.update.connect(updateDiagram)
-    #chordDiagramScene.signal.clear.connect(clearLine)
-
-    #width = window.ChordDiagram2View.width() - 10
-    #height = window.ChordDiagram2View.height() - 10
-    #chordDiagram2Scene = GraphicsSceneChordDiagram2(0, 0, width, height, window.ChordDiagram2View)
-    #window.ChordDiagram2View.setScene(chordDiagram2Scene)
-    #chordDiagram2Scene.signal.update.connect(updateDiagram)
-    #chordDiagram2Scene.signal.clear.connect(clearLine)
-
-    #width = window.NetworkDiagramView.width() - 10
-    #height = window.NetworkDiagramView.height() - 10
-    #networkScene = GraphicsSceneNetwork(0, 0, width, height, window.NetworkDiagramView)
-    #window.NetworkDiagramView.setScene(networkScene)
-    #networkScene.signal.update.connect(updateDiagram)
-    #networkScene.signal.clear.connect(clearLine)
-
-    #width = window.BubbleDiagramView.width() - 10
-    #height = window.BubbleDiagramView.height() - 10
-    #bubbleChartScene = GraphicsSceneBubbleChart(0, 0, width, height, window.BubbleDiagramView)
-    #window.BubbleDiagramView.setScene(bubbleChartScene)
-    #bubbleChartScene.signal.update.connect(updateDiagram)
-    #bubbleChartScene.signal.clear.connect(clearLine)
     pass
 def clearLine():
     config.SELECTED_STUDENT = ""
@@ -369,157 +327,53 @@ def exposeStudent():
         updateDiagram()
     pass
 
-class Communicate(QObject):
-    update = Signal()
-    clear =  Signal()
-
-
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super(MainWindow, self).__init__()
-        self.ui = Ui_MainWindow()
-        
-        self.ui.setupUi(self)    
-
-        self.ui.actionNew_Project_2.triggered.connect(project.newProject)
-        self.ui.actionSettings.setEnabled(True)
-        self.ui.actionOpen_Project_2.triggered.connect(project.openProject)
-        self.ui.actionSettings.setEnabled(True)
-
-        self.ui.actionSettings.triggered.connect(project.setSettings)
-        self.ui.actionSettings.setEnabled(False)
-        self.ui.actionSync_with_Data_Source.triggered.connect(project.syncWithDataSource)
-        self.ui.actionSync_with_Data_Source.setEnabled(False)
-        self.ui.actionDetect.triggered.connect(project.detect)
-        self.ui.actionDetect.setEnabled(False)
-        
-
-        #self.ui.actionNew_Project.triggered.connect(project.newProject)
-        #self.ui.actionNew_Detection_Session.triggered.connect(openNewSession)
-        #self.ui.actionOpen_Project.triggered.connect(project.openProject)
-        #self.ui.actionUpdate_Project_Data.triggered.connect(project.updateProjectData)
-        #self.ui.actionExport_Template.triggered.connect(project.exportTemplate)
-        #self.ui.actionDetecting_Software.triggered.connect(project.detectingSoftware)
-        #self.ui.actionData_Source.triggered.connect(project.dataSource)
-        #self.ui.actionImport_and_Export_Settings.triggered.connect(project.importExportSettings)
-
-
-        #self.ui.actionOpen_Detection_Session.triggered.connect(openDiagram)
-        #self.ui.actionSave.triggered.connect(saveDiagram)    
-        #self.ui.actionSave_as.triggered.connect(saveAsDiagram)
-        #self.ui.actionClose.triggered.connect(closeDiagram)
-        self.ui.actionQuit.triggered.connect(self.close)
-        self.ui.actionQuit.setEnabled(True)
-
-        self.ui.actionAbout_VPlag.triggered.connect(aboutCat)   
-        
-        self.ui.rangeSlider.valueChanged.connect(updateDiagram)
-        rangeLabel = "Range:  > " + str(self.ui.rangeSlider.value()) + "%"
-        self.ui.label_Range.setText(rangeLabel)
-      
-        self.ui.showNames.stateChanged.connect(updateDiagram)
-        self.ui.showLinkless.stateChanged.connect(updateDiagram)
-        self.ui.showRate.stateChanged.connect(updateDiagram)
-        self.ui.chess.stateChanged.connect(updateDiagram)
-        self.ui.sort.stateChanged.connect(updateDiagram)
-
-        self.ui.listStudents.itemClicked.connect(selectedStudent)
-        self.ui.Show.clicked.connect(showLinks)
-        self.ui.toolButton_cancel.clicked.connect(clearLine)
-        self.ui.toolButton_delete.clicked.connect(deleteStudent)
-        self.ui.toolButton_closeEye.clicked.connect(hideStudent)
-        self.ui.toolButton_openEye.clicked.connect(exposeStudent)
-
-        #width = 600 height = 700
-
-        self.tabChord = QWidget()
-        self.tabChord.setObjectName("tabChord")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy2.setHorizontalStretch(1)
-        sizePolicy2.setVerticalStretch(1)
-        sizePolicy2.setHeightForWidth(self.tabChord.sizePolicy().hasHeightForWidth())
-        self.tabChord.setSizePolicy(sizePolicy2)
-        self.gridLayout_chord = QGridLayout(self.tabChord)
-        self.gridLayout_chord.setObjectName("gridLayout_chord")
-        self.gridLayout_chord.setContentsMargins(10, 10, 10, 12)
-        self.ui.tabWidget.addTab(self.tabChord, "")
-
-        self.tabChord2 = QWidget()
-        self.tabChord2.setObjectName("tabChord2")
-        sizePolicy2.setHeightForWidth(self.tabChord2.sizePolicy().hasHeightForWidth())
-        self.tabChord2.setSizePolicy(sizePolicy2)
-        self.gridLayout_chord2 = QGridLayout(self.tabChord2)
-        self.gridLayout_chord2.setObjectName("gridLayout_chord2")
-        self.gridLayout_chord2.setContentsMargins(10, 10, 10, 12)
-        self.ui.tabWidget.addTab(self.tabChord2, "")
-
-        self.tabNetwork = QWidget()
-        self.tabNetwork.setObjectName("tabNetwork")
-        sizePolicy2.setHeightForWidth(self.tabNetwork.sizePolicy().hasHeightForWidth())
-        self.tabNetwork.setSizePolicy(sizePolicy2)
-        self.gridLayout_network = QGridLayout(self.tabNetwork)
-        self.gridLayout_network.setObjectName("gridLayout_network")
-        self.gridLayout_network.setContentsMargins(10, 10, 10, 12)
-        self.ui.tabWidget.addTab(self.tabNetwork, "")
-
-        self.tabBubble = QWidget()
-        self.tabBubble.setObjectName("tabBubble")
-        sizePolicy2.setHeightForWidth(self.tabBubble.sizePolicy().hasHeightForWidth())
-        self.tabBubble.setSizePolicy(sizePolicy2)
-        self.gridLayout_bubble = QGridLayout(self.tabBubble)
-        self.gridLayout_bubble.setObjectName("gridLayout_bubble")
-        self.gridLayout_bubble.setContentsMargins(10, 10, 10, 12)
-        self.ui.tabWidget.addTab(self.tabBubble, "")
-
-        self.tabLines = QWidget()
-        self.tabLines.setObjectName("tabLines")
-        sizePolicy2.setHeightForWidth(self.tabLines.sizePolicy().hasHeightForWidth())
-        self.tabLines.setSizePolicy(sizePolicy2)
-        self.gridLayout_lines = QGridLayout(self.tabLines)
-        self.gridLayout_lines.setObjectName("gridLayout_lines")
-        self.gridLayout_lines.setContentsMargins(10, 10, 10, 12)
-        self.ui.tabWidget.addTab(self.tabLines, "")
-
-        self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabChord), QCoreApplication.translate("MainWindow", "Chord diagram", None))
-        self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabChord2), QCoreApplication.translate("MainWindow", "Chord diagram 2", None))
-        self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabNetwork), QCoreApplication.translate("MainWindow", "Network", None))
-        self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabBubble), QCoreApplication.translate("MainWindow", "Bubble chart", None))
-        self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabLines), QCoreApplication.translate("MainWindow", "Lines", None))
-
-        self.chordDiagramScene = GraphicsSceneChordDiagram()
-        self.chordDiagramScene.signal.update.connect(updateDiagram)
-        self.chordDiagramScene.signal.clear.connect(clearLine)
-
-        self.chordDiagram2Scene = GraphicsSceneChordDiagram2()
-        self.chordDiagram2Scene.signal.update.connect(updateDiagram)
-        self.chordDiagram2Scene.signal.clear.connect(clearLine)
-
-        self.networkScene = GraphicsSceneNetwork()
-        self.networkScene.signal.update.connect(updateDiagram)
-        self.networkScene.signal.clear.connect(clearLine)
-
-        self.bubbleChartScene = GraphicsSceneBubbleChart()
-        self.bubbleChartScene.signal.update.connect(updateDiagram)
-        self.bubbleChartScene.signal.clear.connect(clearLine)
-                
-        self.ChordDiagramView = GraphicsView(self, self.chordDiagramScene)        
-        self.ChordDiagram2View = GraphicsView(self, self.chordDiagram2Scene)        
-        self.NetworkDiagramView = GraphicsView(self, self.networkScene)        
-        self.BubbleDiagramView = GraphicsView(self, self.bubbleChartScene)
-
-        self.gridLayout_chord.addWidget(self.ChordDiagramView, 10, 10)
-        self.gridLayout_chord2.addWidget(self.ChordDiagram2View, 10, 10)
-        self.gridLayout_network.addWidget(self.NetworkDiagramView, 10, 10)
-        self.gridLayout_bubble.addWidget(self.BubbleDiagramView, 10, 10)
-
-        self.linesView = LinesView(self)
-        self.gridLayout_lines.addWidget(self.linesView, 10, 10)
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     window = MainWindow()
+
+    window.ui.actionNew_Project_2.triggered.connect(project.newProject)
+    window.ui.actionOpen_Project_2.triggered.connect(project.openProject)
+    window.ui.actionSave_2.triggered.connect(saveDiagram_2)
+
+    window.ui.actionSettings.triggered.connect(project.setSettings)
+    window.ui.actionSync_with_Data_Source.triggered.connect(project.syncWithDataSource)
+    window.ui.actionDetect.triggered.connect(openNewSession)
+
+    window.ui.actionQuit.triggered.connect(window.close)    
+    window.ui.actionAbout_VPlag.triggered.connect(aboutCat)   
+        
+    window.ui.rangeSlider.valueChanged.connect(updateDiagram)
+    rangeLabel = "Range:  > " + str(window.ui.rangeSlider.value()) + "%"
+    window.ui.label_Range.setText(rangeLabel)
+      
+    window.ui.showNames.stateChanged.connect(updateDiagram)
+    window.ui.showLinkless.stateChanged.connect(updateDiagram)
+    window.ui.showRate.stateChanged.connect(updateDiagram)
+    window.ui.chess.stateChanged.connect(updateDiagram)
+    window.ui.sort.stateChanged.connect(updateDiagram)
+
+    window.ui.listStudents.itemClicked.connect(selectedStudent)
+    window.ui.Show.clicked.connect(showLinks)
+    window.ui.toolButton_cancel.clicked.connect(clearLine)
+    window.ui.toolButton_delete.clicked.connect(deleteStudent)
+    window.ui.toolButton_closeEye.clicked.connect(hideStudent)
+    window.ui.toolButton_openEye.clicked.connect(exposeStudent)
+
+    window.chordDiagramScene.signal.update.connect(updateDiagram)
+    window.chordDiagramScene.signal.clear.connect(clearLine)
+
+    window.chordDiagram2Scene.signal.update.connect(updateDiagram)
+    window.chordDiagram2Scene.signal.clear.connect(clearLine)
+
+    window.networkScene.signal.update.connect(updateDiagram)
+    window.networkScene.signal.clear.connect(clearLine)
+
+    window.bubbleChartScene.signal.update.connect(updateDiagram)
+    window.bubbleChartScene.signal.clear.connect(clearLine)
+
+
     window.show()
     project.updateMainWinTitle()
 
