@@ -18,9 +18,9 @@ CurrentProjectPath = None # initially no project file is loaded
 #### Internal functions ####
 
 def _updateSettingsItems():
-    getMainWin().ui.actionSettings.setEnabled(True)
-    getMainWin().ui.actionSync_with_Data_Source.setEnabled(True)
-    getMainWin().ui.actionDetect.setEnabled(True)
+    _getMainWin().ui.actionSettings.setEnabled(True)
+    _getMainWin().ui.actionSync_with_Data_Source.setEnabled(True)
+    _getMainWin().ui.actionDetect.setEnabled(True)
 
 # starting folder for project open dialog (may be revised)
 def _getDefaultDir():
@@ -83,6 +83,9 @@ def detect():
         dirs = [prj_config["moodle_submissions_dir"]] + prj_config["archive_dirs"]
         jplag_preprocessor.preprocess_dirs(dirs, prj_config['assignment_regex'], r)
         jplag_runner.run(prj_config['jplag_args'], r)
+    
+    # TODO: return diagram data
+    return ""
 
 # must be called before we do anything
 def newProject():
@@ -92,8 +95,8 @@ def newProject():
         CurrentProjectPath = r
         shutil.copyfile(os.path.join(_getDefaultDir(), 'project_config_template.json'), os.path.join(CurrentProjectPath, 'config.json'))
         updateMainWinTitle()
-        _updateSettingsItems()
         setSettings()
+        _updateSettingsItems()
 
 def openProject():
     r = QFileDialog.getExistingDirectory(_getMainWin(), "Choose project folder", _getDefaultDir(), QFileDialog.ShowDirsOnly)
@@ -101,6 +104,7 @@ def openProject():
         global CurrentProjectPath
         CurrentProjectPath = r
         updateMainWinTitle()
+        _updateSettingsItems()
 
 
 
