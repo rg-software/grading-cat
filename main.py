@@ -9,6 +9,7 @@ from operator import *
 import config
 import webbrowser
 import project
+from diagrams import *
 from main_window import MainWindow
 
 def openNewSession():
