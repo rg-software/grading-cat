@@ -17,10 +17,11 @@ CurrentProjectPath = None # initially no project file is loaded
 
 #### Internal functions ####
 
-def _updateSettingsItems():
-    _getMainWin().ui.actionSettings.setEnabled(True)
-    _getMainWin().ui.actionSync_with_Data_Source.setEnabled(True)
-    _getMainWin().ui.actionDetect.setEnabled(True)
+_PROJECT_OPENED_ITEMS = [('actionSettings', True), ('actionSync_with_Data_Source', True), ('actionDetect', True)]
+
+def _updateMenuStatus(items):
+    for item, status in items:
+        getattr(_getMainWin().ui, item).setEnabled(status)    
 
 # starting folder for project open dialog (may be revised)
 def _getDefaultDir():
@@ -49,15 +50,14 @@ def _getMainWin():
 def updateMainWinTitle():
     _getMainWin().setWindowTitle(f'{config.APPLICATION_TITLE}: {CurrentProjectPath}')
 
-
-# TODO: ensure some project is open
 def setSettings():
+    assert CurrentProjectPath
     isOk, config = ProjectConfigDialog.show(_getMainWin(), _getProjectSettings())
     if isOk:
         _saveProjectSettings(config)
 
-# TODO: ensure some project is open
 def syncWithDataSource():
+    assert CurrentProjectPath
     progress = QProgressDialog("Downloading files...", "Cancel", 0, 1, _getMainWin())
     progress.setMinimumDuration(0)
     progress.setWindowModality(QtCore.Qt.WindowModal)
@@ -66,19 +66,25 @@ def syncWithDataSource():
     os.chdir(CurrentProjectPath)
     moodle_downloader.download(_getProjectSettings(), progress)
 
-# TODO: ensure some project is open
 def detect():
+    assert CurrentProjectPath
     prj_config = _getProjectSettings()
     os.chdir(os.path.join(CurrentProjectPath, prj_config["moodle_submissions_dir"]))
     assignments = [d for d in os.listdir() if os.path.isdir(d)]
+    diagram_data = ""
     r, isOk = QInputDialog.getItem(_getMainWin(), config.APPLICATION_TITLE, 'Choose assignment', assignments, editable=False)
     if isOk:
         os.chdir(CurrentProjectPath)
         dirs = [prj_config["moodle_submissions_dir"]] + prj_config["archive_dirs"]
         jplag_preprocessor.preprocess_dirs(dirs, prj_config['assignment_regex'], r)
         jplag_runner.run(prj_config['jplag_args'], r)
+        
+        # must be in a format "<user1>-<user2>: <sim_ratio>\n<user1>-<user3>: <sim_ratio>\n..."
+        with open(f'jpl_out_{r}.log') as f:
+            diagram_data = f.read()
 
-# must be called before we do anything
+    return diagram_data
+
 def newProject():
     r = QFileDialog.getExistingDirectory(_getMainWin(), "Choose project folder", _getDefaultDir(), QFileDialog.ShowDirsOnly)
     if r:
@@ -86,8 +92,8 @@ def newProject():
         CurrentProjectPath = r
         shutil.copyfile(os.path.join(_getDefaultDir(), 'project_config_template.json'), os.path.join(CurrentProjectPath, 'config.json'))
         updateMainWinTitle()
-        _updateSettingsItems()
         setSettings()
+        _updateMenuStatus(_PROJECT_OPENED_ITEMS)
 
 def openProject():
     r = QFileDialog.getExistingDirectory(_getMainWin(), "Choose project folder", _getDefaultDir(), QFileDialog.ShowDirsOnly)
@@ -95,35 +101,8 @@ def openProject():
         global CurrentProjectPath
         CurrentProjectPath = r
         updateMainWinTitle()
+        _updateMenuStatus(_PROJECT_OPENED_ITEMS)
 
-
-
-
-def newDetectionSession():
-    r = 'testassignment'
-    with open(f'jpl_out_{r}.log') as f:
-        text = f.read()
-    return text
-    
-    # TODO: it must work even if the user cancels the session
-    return None
-    #print("new detection session")
-
-    #Эта та функция, которая запускает JPlag, и радует нас результатами :) 
-    #Нужна ли тебе для запуска, какая-то особая форма? Диалог? Я сделаю. 
-    #Мне же нужно, чтобы на выходе был результат следующего вида:
-    #<имя1>-<имя2>: <число>\n 
-    #как в примере 
-    return "s1252001-s1260009: 32.753624\ns1252001-s1260017: 21.987314\ns1252001-s1260027: 41.365463"
-    #или как в файле jpl_out_Upload Solutions for Exercises 3.x.log
-    #Можешь, проверить, открыв тот файл, который ты мне присылал, или подобный
-    # filename = QFileDialog.getOpenFileName(None,"Load File","","Text (*.log);;All Files (*)")[0]
-    # if filename != '':
-    #     file = open(filename)
-    #     try: text = file.read()
-    #     finally: file.close()    
-   
-    # return text
 
 
 def dataSource():
