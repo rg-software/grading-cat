@@ -75,9 +75,10 @@ def detect():
     r, isOk = QInputDialog.getItem(_getMainWin(), config.APPLICATION_TITLE, 'Choose assignment', assignments, editable=False)
     if isOk:
         os.chdir(CurrentProjectPath)
-        dirs = [prj_config["moodle_submissions_dir"]] + prj_config["archive_dirs"]
-        jplag_preprocessor.preprocess_dirs(dirs, prj_config['assignment_regex'], r)
-        jplag_runner.run(prj_config['jplag_args'], r)
+        if not os.path.exists(f'jpl_out_{r}.log'):
+            dirs = [prj_config["moodle_submissions_dir"]] + prj_config["archive_dirs"]
+            jplag_preprocessor.preprocess_dirs(dirs, prj_config['assignment_regex'], r)
+            jplag_runner.run(prj_config['jplag_args'], r)
         
         # must be in a format "<user1>-<user2>: <sim_ratio>\n<user1>-<user3>: <sim_ratio>\n..."
         with open(f'jpl_out_{r}.log') as f:
