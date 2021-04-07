@@ -54,36 +54,22 @@ class MainWindow(QMainWindow):
         self.gridLayout_network = QGridLayout(self.tabNetwork)
         self.gridLayout_network.setObjectName("gridLayout_network")
         self.gridLayout_network.setContentsMargins(10, 10, 10, 12)
-        self.ui.tabWidget.addTab(self.tabNetwork, "")
-
-        self.tabBubble = QWidget()
-        self.tabBubble.setObjectName("tabBubble")
-        sizePolicy2.setHeightForWidth(self.tabBubble.sizePolicy().hasHeightForWidth())
-        self.tabBubble.setSizePolicy(sizePolicy2)
-        self.gridLayout_bubble = QGridLayout(self.tabBubble)
-        self.gridLayout_bubble.setObjectName("gridLayout_bubble")
-        self.gridLayout_bubble.setContentsMargins(10, 10, 10, 12)
-        self.ui.tabWidget.addTab(self.tabBubble, "")
-    
+        self.ui.tabWidget.addTab(self.tabNetwork, "")        
 
         self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabChord), QCoreApplication.translate("MainWindow", "Chord diagram", None))
         self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabChord2), QCoreApplication.translate("MainWindow", "Chord diagram 2", None))
         self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabNetwork), QCoreApplication.translate("MainWindow", "Network", None))
-        self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabBubble), QCoreApplication.translate("MainWindow", "Bubble chart", None))
-        
+         
         self.chordDiagramScene = GraphicsSceneChordDiagram()
         self.chordDiagram2Scene = GraphicsSceneChordDiagram2()
         self.networkScene = GraphicsSceneNetwork()
-        self.bubbleChartScene = GraphicsSceneBubbleChart()
                 
         self.ChordDiagramView = GraphicsView(self, self.chordDiagramScene)        
         self.ChordDiagram2View = GraphicsView(self, self.chordDiagram2Scene)        
-        self.NetworkDiagramView = GraphicsView(self, self.networkScene)        
-        self.BubbleDiagramView = GraphicsView(self, self.bubbleChartScene)
+        self.NetworkDiagramView = GraphicsView(self, self.networkScene)      
 
         self.gridLayout_chord.addWidget(self.ChordDiagramView, 10, 10)
         self.gridLayout_chord2.addWidget(self.ChordDiagram2View, 10, 10)
         self.gridLayout_network.addWidget(self.NetworkDiagramView, 10, 10)
-        self.gridLayout_bubble.addWidget(self.BubbleDiagramView, 10, 10)
 
        

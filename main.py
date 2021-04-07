@@ -176,7 +176,6 @@ def drawDiagrams():
     window.ChordDiagramView.scene.drawDiagram()
     window.ChordDiagram2View.scene.drawDiagram()
     window.NetworkDiagramView.scene.drawDiagram()
-    window.BubbleDiagramView.scene.drawDiagram()
 
     pass
 def clearLine():
@@ -223,18 +222,20 @@ def exposeStudent():
         updateDiagram()
     pass
 def resetSettings():
+
+    window.ui.showNames.setChecked(True)
+    window.ui.showLinkless.setChecked(True)
+    window.ui.showRate.setChecked(False)
+    window.ui.chess.setChecked(False)
+    window.ui.sort.setChecked(False)
+    window.ui.rangeSlider.setValue(0)
+
     config.SHOW_NAMES = True
     config.SHOW_LINKLESS = True
     config.SHOW_RARE = False
     config.CHESS = False
     config.SORT = False
     config.RANGE_PLAG = 0
-    window.ui.showNames.setChecked(config.SHOW_NAMES)
-    window.ui.showLinkless.setChecked(config.SHOW_LINKLESS)
-    window.ui.showRate.setChecked(config.SHOW_RARE)
-    window.ui.chess.setChecked(config.CHESS)
-    window.ui.sort.setChecked(config.SORT)
-    window.ui.rangeSlider.setValue(config.RANGE_PLAG)
     
 
 if __name__ == "__main__":
@@ -276,9 +277,6 @@ if __name__ == "__main__":
 
     window.networkScene.signal.update.connect(updateDiagram)
     window.networkScene.signal.clear.connect(clearLine)
-
-    window.bubbleChartScene.signal.update.connect(updateDiagram)
-    window.bubbleChartScene.signal.clear.connect(clearLine)
 
 
     window.show()
