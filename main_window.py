@@ -18,27 +18,13 @@ class MainWindow(QMainWindow):
 
         self.ui.actionSettings.setEnabled(True)
         self.ui.actionSettings.setEnabled(True)
-        self.ui.actionSave_2.setEnabled(False)
 
         self.ui.actionSettings.setEnabled(False)
         self.ui.actionSync_with_Data_Source.setEnabled(False)
         self.ui.actionDetect.setEnabled(False)
                 
         self.ui.actionQuit.setEnabled(True)
-        
-        #self.ui.actionSave.triggered.connect(saveDiagram)
-        #self.ui.actionNew_Project.triggered.connect(project.newProject)
-        #self.ui.actionNew_Detection_Session.triggered.connect(openNewSession)
-        #self.ui.actionOpen_Project.triggered.connect(project.openProject)
-        #self.ui.actionUpdate_Project_Data.triggered.connect(project.updateProjectData)
-        #self.ui.actionExport_Template.triggered.connect(project.exportTemplate)
-        #self.ui.actionDetecting_Software.triggered.connect(project.detectingSoftware)
-        #self.ui.actionData_Source.triggered.connect(project.dataSource)
-        #self.ui.actionImport_and_Export_Settings.triggered.connect(project.importExportSettings)
-        #self.ui.actionOpen_Detection_Session.triggered.connect(openDiagram)            
-        #self.ui.actionSave_as.triggered.connect(saveAsDiagram)
-        #self.ui.actionClose.triggered.connect(closeDiagram)
-        #width = 600 height = 700
+
 
         self.tabChord = QWidget()
         self.tabChord.setObjectName("tabChord")
@@ -78,22 +64,13 @@ class MainWindow(QMainWindow):
         self.gridLayout_bubble.setObjectName("gridLayout_bubble")
         self.gridLayout_bubble.setContentsMargins(10, 10, 10, 12)
         self.ui.tabWidget.addTab(self.tabBubble, "")
-
-        self.tabLines = QWidget()
-        self.tabLines.setObjectName("tabLines")
-        sizePolicy2.setHeightForWidth(self.tabLines.sizePolicy().hasHeightForWidth())
-        self.tabLines.setSizePolicy(sizePolicy2)
-        self.gridLayout_lines = QGridLayout(self.tabLines)
-        self.gridLayout_lines.setObjectName("gridLayout_lines")
-        self.gridLayout_lines.setContentsMargins(10, 10, 10, 12)
-        self.ui.tabWidget.addTab(self.tabLines, "")
+    
 
         self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabChord), QCoreApplication.translate("MainWindow", "Chord diagram", None))
         self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabChord2), QCoreApplication.translate("MainWindow", "Chord diagram 2", None))
         self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabNetwork), QCoreApplication.translate("MainWindow", "Network", None))
         self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabBubble), QCoreApplication.translate("MainWindow", "Bubble chart", None))
-        self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabLines), QCoreApplication.translate("MainWindow", "Lines", None))
-
+        
         self.chordDiagramScene = GraphicsSceneChordDiagram()
         self.chordDiagram2Scene = GraphicsSceneChordDiagram2()
         self.networkScene = GraphicsSceneNetwork()
@@ -109,7 +86,4 @@ class MainWindow(QMainWindow):
         self.gridLayout_network.addWidget(self.NetworkDiagramView, 10, 10)
         self.gridLayout_bubble.addWidget(self.BubbleDiagramView, 10, 10)
 
-        self.linesView = LinesView(self)
-        self.gridLayout_lines.addWidget(self.linesView, 10, 10)
-
-
+       
