@@ -56,29 +56,6 @@ def newDiagramFromJPlag(text):
         matrix[indexB][indexA] = int(float(rate[i]))
     
     return students, matrix
-def saveDiagram_2():    
-    if len(config.STUDENTS_LIST) > 0:       
-        #Нужно имя файла, я забыла, где его брать. 
-        if config.FILE_NAME != "": 
-            string = ','.join(config.STUDENTS_LIST) 
-            for i in range(len(config.STUDENTS_LIST)):
-                line = ','.join(config.RESULT_MATRIX[i])
-                string = string + ";\n" + line
-            
-            file = open(config.FILE_NAME, 'w+')
-            try:
-                file.write(string)
-            finally:
-                file.close()  
-        else: saveAsDiagram() 
-    # TODO
-    # Очевидно, еще заставит менять формат сохранения. 
-    # Но, я лучше подожду -- инициатива тут наказывается хуже промедления.  
-    pass
-
-def openDiagram_2():    
-    # Это функция скорей всего вернется тоже, но каким извращёнными способом, лучше пока даже не гадать.
-    pass
 
 def expandMatrix(text):
     students = []
@@ -104,82 +81,6 @@ def saveMatrix(students, rate):
         config.STUDENTS_LIST.extend(students)
         config.RESULT_MATRIX.extend(rate)
 
-def aboutCat():
-    # Ссылка нормально работает, но поменять это может и надо… Но как-нибудь потом. 
-    # Если уж мы серьезные вещи откладываем на потом, то это уж точно подождет. 
-    url = "https://memegenerator.net/img/instances/70259669/patience-as-i-catch-up-on-grading.jpg"
-    webbrowser.open(url, new=0, autoraise=True)
-
-### file menu
-## Злой человек считает, что вы работаете неправильно :(             ##
-## Пока посидите тут, я вас воскрешу в своей программе, чуть позже.  ##
-def clearDiagram():
-    blankScene = QGraphicsScene()
-    window.ChordDiagramView.setScene(blankScene)
-    window.ChordDiagram2View.setScene(blankScene)
-    window.NetworkDiagramView.setScene(blankScene)
-    window.BubbleDiagramView.setScene(blankScene)
-    pass
-def closeDiagram():
-    config.FILE_NAME = ""
-    config.STUDENTS_LIST.clear()
-    config.RESULT_MATRIX.clear()
-    config.HIDED_STUDENTS.clear()
-    config.SELECTED_STUDENT = ""
-    config.SELECTED_STUDENTS.clear()
-
-    window.ui.lineEdit.clear()
-    updateList("")
-    window.ui.listStudents.clear()
-    drawDiagrams()
-    #clearDiagram()
-    pass
-def saveDiagram():
-    #if config.FILE_NAME != "":
-        #with open(config.FILE_NAME, "w") as text_file: 
-            #print(f"Purchase Amount:", file=text_file)
-    
-    if len(config.STUDENTS_LIST) > 0:       
-        if config.FILE_NAME != "": 
-            string = ','.join(config.STUDENTS_LIST) 
-            for i in range(len(config.STUDENTS_LIST)):
-                line = ','.join(config.RESULT_MATRIX[i])
-                string = string + ";\n" + line
-
-            
-            file = open(config.FILE_NAME, 'w+')
-            try:
-                file.write(string)
-            finally:
-                file.close()  
-        else: saveAsDiagram() 
-    # TODO
-    pass
-def openDiagram():    
-    config.FILE_NAME = QFileDialog.getOpenFileName(None,"Load File","","Text (*.txt);;All Files (*)")[0]
-    if config.FILE_NAME != "":
-        file = open(config.FILE_NAME)
-        try:
-            results = file.read().replace('\n','').split(';') 
-            window.ui.lineEdit.clear            
-            students, matrix = expandMatrix(results)
-            if len(students) > 1 and len(matrix) == len(students):
-                saveMatrix(students, matrix)
-        finally:
-            file.close()      
-    
-        if len(config.STUDENTS_LIST) > 1 and len(config.STUDENTS_LIST) == len(config.RESULT_MATRIX) and len(config.RESULT_MATRIX) == len(config.RESULT_MATRIX[0]):
-            updateDiagram()
-    pass
-def saveAsDiagram():    
-    if len(config.STUDENTS_LIST) > 0:
-        config.FILE_NAME = QFileDialog.getSaveFileName(None,"Load File","","Text (*.txt);;All Files (*)")[0]
-        print(config.FILE_NAME)
-        if config.FILE_NAME != "": saveDiagram()
-    # TODO
-    pass
-## ----------------------------------------------------------------- ##
-
 
 def updateDiagram():
     config.SHOW_NAMES = window.ui.showNames.isChecked()
@@ -202,7 +103,6 @@ def updateDiagram():
         drawDiagrams()
         if len(config.SELECTED_STUDENT) > 0:
             updateList(config.SELECTED_STUDENT)
-        #config.SELECTED_STUDENTS.clear()
 
     # TODO-BE-DO-BE-DO    
     pass
@@ -285,13 +185,7 @@ def clearLine():
     updateList("")
     updateDiagram()
     pass
-def showLinks():
-    student = window.ui.lineEdit.text()
-    if len(student) > 0:
-        student = student.split()[0]
-        config.SELECTED_STUDENT = student
-        updateDiagram()        
-    pass
+
 def deleteStudent():
     if  config.SELECTED_STUDENT != "" and config.SELECTED_STUDENT in config.STUDENTS_LIST:
         index = config.STUDENTS_LIST.index(config.SELECTED_STUDENT)        
@@ -327,7 +221,20 @@ def exposeStudent():
         updateList(config.SELECTED_STUDENT)
         updateDiagram()
     pass
-
+def resetSettings():
+    config.SHOW_NAMES = True
+    config.SHOW_LINKLESS = True
+    config.SHOW_RARE = False
+    config.CHESS = False
+    config.SORT = False
+    config.RANGE_PLAG = 0
+    window.ui.showNames.setChecked(config.SHOW_NAMES)
+    window.ui.showLinkless.setChecked(config.SHOW_LINKLESS)
+    window.ui.showRate.setChecked(config.SHOW_RARE)
+    window.ui.chess.setChecked(config.CHESS)
+    window.ui.sort.setChecked(config.SORT)
+    window.ui.rangeSlider.setValue(config.RANGE_PLAG)
+    
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
@@ -336,14 +243,11 @@ if __name__ == "__main__":
 
     window.ui.actionNew_Project_2.triggered.connect(project.newProject)
     window.ui.actionOpen_Project_2.triggered.connect(project.openProject)
-    window.ui.actionSave_2.triggered.connect(saveDiagram_2)
-
     window.ui.actionSettings.triggered.connect(project.setSettings)
     window.ui.actionSync_with_Data_Source.triggered.connect(project.syncWithDataSource)
     window.ui.actionDetect.triggered.connect(openNewSession)
 
-    window.ui.actionQuit.triggered.connect(window.close)    
-    window.ui.actionAbout_VPlag.triggered.connect(aboutCat)   
+    window.ui.actionQuit.triggered.connect(window.close)     
         
     window.ui.rangeSlider.valueChanged.connect(updateDiagram)
     rangeLabel = "Range:  > " + str(window.ui.rangeSlider.value()) + "%"
@@ -356,11 +260,12 @@ if __name__ == "__main__":
     window.ui.sort.stateChanged.connect(updateDiagram)
 
     window.ui.listStudents.itemClicked.connect(selectedStudent)
-    window.ui.Show.clicked.connect(showLinks)
+    
     window.ui.toolButton_cancel.clicked.connect(clearLine)
     window.ui.toolButton_delete.clicked.connect(deleteStudent)
     window.ui.toolButton_closeEye.clicked.connect(hideStudent)
     window.ui.toolButton_openEye.clicked.connect(exposeStudent)
+    window.ui.resetButton.clicked.connect(resetSettings)
 
     window.chordDiagramScene.signal.update.connect(updateDiagram)
     window.chordDiagramScene.signal.clear.connect(clearLine)
