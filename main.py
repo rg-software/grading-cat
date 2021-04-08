@@ -33,8 +33,6 @@ def newDiagramFromJPlag(text):
     matrix = []
     for i in range(len(resultsList)):
         resultsList[i].replace(' ','')
-        #Злой человек осуждает такой разбор :( 
-        #Что ж, он всегда может показать "как надо", в рамках этой функции, например.
         if len(resultsList[i]) > 0 and '-' in resultsList[i] and ':' in resultsList[i]:
             part1 = resultsList[i].split('-')
             part2 = part1[1].split(':')
@@ -94,9 +92,16 @@ def updateDiagram():
     rangeLabel = "Range:  > " + str(config.RANGE_PLAG) + "%"
     window.ui.label_Range.setText(rangeLabel)
 
+    if config.COUPLE != "":
+        project.сall_me_whatever_you_like(config.WAITING_FOR_, config.COUPLE)
+        config.SELECTED_STUDENT = config.WAITING_FOR_
+        config.WAITING_FOR_ = ""
+        config.COUPLE = ""
+
     if config.SELECTED_STUDENT != "":
         window.ui.lineEdit.clear
         window.ui.lineEdit.setText(str(config.SELECTED_STUDENT))
+        window.ui.lineEdit.setToolTip('Selected student') 
 
     if len(config.STUDENTS_LIST) > 0:
         studentList()
@@ -120,14 +125,27 @@ def studentList():
         #text = str(rate[i][1]) + "%"
         #window.listRate.addItem(text)
     pass
-def selectedStudent(item):
-    
-    student = item.text().split()[0]
-    config.SELECTED_STUDENT = student
-    #updateList(student)
-    window.ui.lineEdit.setText(student)
-    updateDiagram()
-    pass
+def selectedStudent(item):    
+    node = item.text().split()[0]
+
+    if node != "" and node in config.STUDENTS_LIST:
+       
+        if config.SELECTED_STUDENT == node and config.WAITING_FOR_ == "":
+            config.WAITING_FOR_ = node
+        elif config.SELECTED_STUDENT == node and config.WAITING_FOR_ == node:
+            config.WAITING_FOR_ = ""
+        elif config.SELECTED_STUDENT != "" and config.WAITING_FOR_ != "":
+            if node in config.SELECTED_NODES: 
+                config.COUPLE = node
+            else: 
+                config.WAITING_FOR_ = ""
+        
+        config.SELECTED_STUDENT = node   
+
+        window.ui.lineEdit.setText(node)
+        window.ui.lineEdit.setToolTip('Selected student') 
+        updateDiagram()
+
 def updateLinkedStudents(student):
     config.SELECTED_STUDENTS.clear()
     if student in config.STUDENTS_LIST:
@@ -179,9 +197,12 @@ def drawDiagrams():
 
     pass
 def clearLine():
+    config.WAITING_FOR_ = ""
+    config.COUPLE = ""
     config.SELECTED_STUDENT = ""
     config.SELECTED_STUDENTS.clear()
-    window.ui.lineEdit.clear()
+    window.ui.lineEdit.clear()        
+    window.ui.lineEdit.setToolTip('No one selected')
     updateList("")
     updateDiagram()
     pass
@@ -241,6 +262,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     window = MainWindow()
+    #window.ui.setToolTip('This is a tooltip message.') 
 
     window.ui.actionNew_Project_2.triggered.connect(project.newProject)
     window.ui.actionOpen_Project_2.triggered.connect(project.openProject)
@@ -261,12 +283,19 @@ if __name__ == "__main__":
     window.ui.sort.stateChanged.connect(updateDiagram)
 
     window.ui.listStudents.itemClicked.connect(selectedStudent)
-    
+
+    window.ui.lineEdit.setToolTip('No one selected') 
+    #window.ui.lineEdit.setToolTip('Enter student ID to select') Больше не работает, потому что нет кнопки show
     window.ui.toolButton_cancel.clicked.connect(clearLine)
+    window.ui.toolButton_cancel.setToolTip('Cancel') 
     window.ui.toolButton_delete.clicked.connect(deleteStudent)
+    window.ui.toolButton_delete.setToolTip('Delete')
     window.ui.toolButton_closeEye.clicked.connect(hideStudent)
+    window.ui.toolButton_closeEye.setToolTip('Hide')
     window.ui.toolButton_openEye.clicked.connect(exposeStudent)
+    window.ui.toolButton_openEye.setToolTip('Expose')
     window.ui.resetButton.clicked.connect(resetSettings)
+    window.ui.resetButton.setToolTip('Reset settings')
 
     window.chordDiagramScene.signal.update.connect(updateDiagram)
     window.chordDiagramScene.signal.clear.connect(clearLine)
@@ -276,7 +305,6 @@ if __name__ == "__main__":
 
     window.networkScene.signal.update.connect(updateDiagram)
     window.networkScene.signal.clear.connect(clearLine)
-
 
     window.show()
     project.updateMainWinTitle()

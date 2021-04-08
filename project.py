@@ -15,6 +15,12 @@ from project_config_editor import ProjectConfigDialog
 
 CurrentProjectPath = None # initially no project file is loaded
 
+#### MP ####
+def сall_me_whatever_you_like(studentID_1, studentID_2):
+    print(studentID_1, studentID_2)
+    # do whatever you want
+
+
 #### Internal functions ####
 
 _PROJECT_OPENED_ITEMS = [('actionSettings', True), ('actionSync_with_Data_Source', True), ('actionDetect', True)]

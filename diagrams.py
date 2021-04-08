@@ -22,13 +22,22 @@ class GraphicsSceneBubbleChart(QGraphicsScene):
         self.srudentsInRange = []
         #self.drawBubbleChart()
 
+    def mouseDoubleClickEvent(self, event):
+        x = event.scenePos().x()
+        y = event.scenePos().y()
+        self.positionCheck(x, y, True)
+
     def mousePressEvent(self, event):
         x = event.scenePos().x()
         y = event.scenePos().y()
+        self.positionCheck(x, y, False)
+
+    def positionCheck(self, x, y, double):
+        hit = False
+        name = ""
         #clearLine()
         if len(config.STUDENTS_LIST) > 1 and len(config.RESULT_MATRIX) == len(config.STUDENTS_LIST):
-            self.signal.clear.emit()
-            selectNode(checkText(self.studentName, x, y))
+            #self.signal.clear.emit()          
        
             for i in range(len(self.Nodes)):
                 if self.Nodes[i].name in self.srudentsInRange:
@@ -36,13 +45,44 @@ class GraphicsSceneBubbleChart(QGraphicsScene):
                     xn2 = self.Nodes[i].x + self.Nodes[i].width 
                     yn1 = self.Nodes[i].y 
                     yn2 = self.Nodes[i].y + self.Nodes[i].height   
-                    if xn1 < x < xn2 and yn1 < y < yn2:                
-                        selectNode(self.Nodes[i].name)            
-            
-                self.signal.update.emit()
+                    if xn1 < x < xn2 and yn1 < y < yn2:                        
+                        name = self.Nodes[i].name 
+
+            if name != "": hit = selectNode(name, double)
+            else: 
+                name = checkText(self.studentName, x, y)
+                if name != "": hit = selectNode(name, double)            
+                
+            if hit: self.signal.update.emit()
+            else: self.signal.clear.emit()
 
     def drawDiagram(self):
         self.clear()
+        hint_text = ""
+
+        if len(config.STUDENTS_LIST) <= 1:
+            hint_text = "Hint: start a new investigation"
+        else:
+            if config.SELECTED_STUDENT == "":
+                hint_text = "Hint: select one of the nodes - one click to highlight, two clicks to select"
+            else:
+                if config.WAITING_FOR_ == "":
+                    hint_text = "Hint: click on the highlighting node one more time or select another one"
+                else:
+                    if config.COUPLE == "":
+                        hint_text = "Hint: select one more node to start the comparison"
+
+
+        hintX, hintY = (5, 3)
+        hintShadowColor = QColor(75, 85, 95, 70)
+        hintShadow = self.addText(hint_text, QFont("Times", 9))
+        hintShadow.setPos(hintX  + 1, hintY + 1)          
+        hintShadow.setDefaultTextColor(hintShadowColor)
+
+        hintColor = QColor(234, 255, 239, 180)
+        hint = self.addText(hint_text, QFont("Times", 9))                    
+        hint.setPos(hintX, hintY)                 
+        hint.setDefaultTextColor(hintColor)  
         if len(config.STUDENTS_LIST) > 1 and len(config.RESULT_MATRIX) == len(config.STUDENTS_LIST):
             
             self.Nodes = []
@@ -109,8 +149,9 @@ class GraphicsSceneBubbleChart(QGraphicsScene):
                     else: red, green, blue, a = (245, 145, 130, 220)
 
                 if config.SELECTED_STUDENT != "":
-
-                    if config.SELECTED_STUDENT == self.Nodes[i].name:
+                    if config.WAITING_FOR_ == self.Nodes[i].name:
+                        red, green, blue, a = (234, 255, 239, a)
+                    elif config.SELECTED_STUDENT == self.Nodes[i].name:
                         red, green, blue, a = (254, 113, 105, 200)
                     else: red, green, blue, a = (102, 151, 180, 150) 
             
@@ -163,7 +204,9 @@ class GraphicsSceneBubbleChart(QGraphicsScene):
                 if MrPlagiarism[i][1] >= config.RANGE_PLAG and step > 0 and (MrPlagiarism[i][1] > 0 or config.SHOW_LINKLESS):
               
                     if config.SELECTED_STUDENT != "":
-                        if  self.Nodes[i].name == config.SELECTED_STUDENT:
+                        if config.WAITING_FOR_ ==  self.Nodes[i].name:
+                            red, green, blue = redt, greent, bluet = (234, 255, 239)
+                        elif  self.Nodes[i].name == config.SELECTED_STUDENT:
                             redt, greent, bluet, at = (255, 233, 224, 255)
                         elif self.Nodes[i].name in config.SELECTED_STUDENTS: 
                             redt, greent, bluet, at = (254, 113, 105, 255)
@@ -174,7 +217,7 @@ class GraphicsSceneBubbleChart(QGraphicsScene):
                         if self.Nodes[i].name in config.HIDED_STUDENTS: 
                             at = 20
                             ats = 20
-                            if self.Nodes[i].name == config.SELECTED_STUDENT:
+                            if self.Nodes[i].name == config.SELECTED_STUDENTT:
                                 redt, greent, bluet, at = (215, 115, 105, 50)
                     
                     textColor = QColor(redt, greent, bluet, at)
@@ -222,19 +265,52 @@ class GraphicsSceneNetwork(QGraphicsScene):
         self.Nodes = []
         self.studentName = []
         #self.drawNetwork()
+    def mouseDoubleClickEvent(self, event):
+        x = event.scenePos().x()
+        y = event.scenePos().y()
+        self.positionCheck(x, y, True)
 
     def mousePressEvent(self, event):
         x = event.scenePos().x()
         y = event.scenePos().y()
-        if len(config.STUDENTS_LIST) > 1 and len(config.RESULT_MATRIX) == len(config.STUDENTS_LIST):
-            self.signal.update.emit()
+        self.positionCheck(x, y, False)
+
+    def positionCheck(self, x, y, double):
+        hit = False
+        name = ""
+        #if len(config.STUDENTS_LIST) > 1 and len(config.RESULT_MATRIX) == len(config.STUDENTS_LIST):
+            #self.signal.update.emit()
 
     def drawDiagram(self):
         self.clear()
-        if len(config.STUDENTS_LIST) > 1 and len(config.RESULT_MATRIX) == len(config.STUDENTS_LIST):
-            
-            self.Nodes = []
-            self.studentName = []
+        hint_text = ""
+
+        if len(config.STUDENTS_LIST) <= 1:
+            hint_text = "Hint: start a new investigation"
+        else:
+            if config.SELECTED_STUDENT == "":
+                hint_text = "Hint: select one of the nodes - one click to highlight, two clicks to select"
+            else:
+                if config.WAITING_FOR_ == "":
+                    hint_text = "Hint: click on the highlighting node one more time or select another one"
+                else:
+                    if config.COUPLE == "":
+                        hint_text = "Hint: select one more node to start the comparison"
+
+
+        hintX, hintY = (5, 3)
+        hintShadowColor = QColor(75, 85, 95, 70)
+        hintShadow = self.addText(hint_text, QFont("Times", 9))
+        hintShadow.setPos(hintX  + 1, hintY + 1)          
+        hintShadow.setDefaultTextColor(hintShadowColor)
+
+        hintColor = QColor(234, 255, 239, 180)
+        hint = self.addText(hint_text, QFont("Times", 9))                    
+        hint.setPos(hintX, hintY)                 
+        hint.setDefaultTextColor(hintColor)  
+        #if len(config.STUDENTS_LIST) > 1 and len(config.RESULT_MATRIX) == len(config.STUDENTS_LIST):
+            #self.Nodes = []
+            #self.studentName = []
         #if len(config.STUDENTS_LIST) > 1:
         pass
 class GraphicsSceneChordDiagram2(QGraphicsScene):
@@ -245,14 +321,21 @@ class GraphicsSceneChordDiagram2(QGraphicsScene):
         self.studentName = []
         #self.drawChordDiagram2()
 
+    def mouseDoubleClickEvent(self, event):
+        x = event.scenePos().x()
+        y = event.scenePos().y()
+        self.positionCheck(x, y, True)
+
     def mousePressEvent(self, event):
         x = event.scenePos().x()
         y = event.scenePos().y()
-        #print(self.Nodes[0].width, self.Nodes[0].width)
-        #clearLine()
+        self.positionCheck(x, y, False)
+
+    def positionCheck(self, x, y, double):
+        hit = False
+        name = ""
+
         if len(config.STUDENTS_LIST) > 1 and len(config.RESULT_MATRIX) == len(config.STUDENTS_LIST):
-            self.signal.clear.emit()
-            selectNode(checkText(self.studentName, x, y))
         
             for i in range(len(self.listNodes)):
                 if self.listNodes[i][0].x > self.listNodes[i][9].x:
@@ -270,12 +353,43 @@ class GraphicsSceneChordDiagram2(QGraphicsScene):
                     yn2 = self.listNodes[i][9].y            
 
                 if xn1 < x < xn2 and yn1 < y < yn2:
-                    selectNode(self.listNodes[i][0].name) 
+                    name = self.listNodes[i][0].name 
+
+            if name != "": hit = selectNode(name, double)
+            else: 
+                name = checkText(self.studentName, x, y)
+                if name != "": hit = selectNode(name, double)            
                 
-            self.signal.update.emit()
+            if hit: self.signal.update.emit()
+            else: self.signal.clear.emit()
 
     def drawDiagram(self):
         self.clear()
+        hint_text = ""
+
+        if len(config.STUDENTS_LIST) <= 1:
+            hint_text = "Hint: start a new investigation"
+        else:
+            if config.SELECTED_STUDENT == "":
+                hint_text = "Hint: select one of the nodes - one click to highlight, two clicks to select"
+            else:
+                if config.WAITING_FOR_ == "":
+                    hint_text = "Hint: click on the highlighting node one more time or select another one"
+                else:
+                    if config.COUPLE == "":
+                        hint_text = "Hint: select one more node to start the comparison"
+
+
+        hintX, hintY = (5, 3)
+        hintShadowColor = QColor(75, 85, 95, 70)
+        hintShadow = self.addText(hint_text, QFont("Times", 9))
+        hintShadow.setPos(hintX  + 1, hintY + 1)          
+        hintShadow.setDefaultTextColor(hintShadowColor)
+
+        hintColor = QColor(234, 255, 239, 180)
+        hint = self.addText(hint_text, QFont("Times", 9))                    
+        hint.setPos(hintX, hintY)                 
+        hint.setDefaultTextColor(hintColor)  
         if len(config.STUDENTS_LIST) > 1 and len(config.RESULT_MATRIX) == len(config.STUDENTS_LIST):
             
             self.listNodes = []
@@ -406,7 +520,9 @@ class GraphicsSceneChordDiagram2(QGraphicsScene):
                                  else: red, green, blue, a = (245, 145, 130, a)
                 
                             if config.SELECTED_STUDENT != "":
-                                if config.SELECTED_STUDENT== self.listNodes[i][t].name:
+                                if config.WAITING_FOR_ == self.listNodes[i][t].name:
+                                    red, green, blue, a = (234, 255, 239, a)
+                                elif config.SELECTED_STUDENT== self.listNodes[i][t].name:
                                     red, green, blue, a = (254, 113, 105, a)
                                 elif self.listNodes[i][t].name in config.SELECTED_STUDENTS: 
                                     red, green, blue, a = (205, 140, 134, a)
@@ -433,7 +549,9 @@ class GraphicsSceneChordDiagram2(QGraphicsScene):
                 for i in range(len(self.listNodes)): 
                     redt, greent, bluet, at = (250, 200, 190, 255)
                     if config.SELECTED_STUDENT != "":
-                        if config.SELECTED_STUDENT== self.listNodes[i][t].name:
+                        if config.WAITING_FOR_ == self.listNodes[i][t].name:
+                                    red, green, blue, a = (234, 255, 239, a)                               
+                        elif config.SELECTED_STUDENT== self.listNodes[i][t].name:
                             redt, greent, bluet, at = (254, 113, 105, 255)
                         elif self.listNodes[i][t].name in config.SELECTED_STUDENTS: 
                             redt, greent, bluet, at = (205, 140, 134, 255)
@@ -501,33 +619,66 @@ class GraphicsSceneChordDiagram(QGraphicsScene):
         self.studentName = []
         #self.drawDiagram()          
 
+    def mouseDoubleClickEvent(self, event):
+        x = event.scenePos().x()
+        y = event.scenePos().y()
+        self.positionCheck(x, y, True)
+
     def mousePressEvent(self, event):
         x = event.scenePos().x()
         y = event.scenePos().y()
-        #print(self.Nodes[0].width, self.Nodes[0].width)
-        #clearLine()
+        self.positionCheck(x, y, False)
+
+    def positionCheck(self, x, y, double):
+        hit = False
+        name = ""
         if len(config.STUDENTS_LIST) > 1 and len(config.RESULT_MATRIX) == len(config.STUDENTS_LIST):
-            #print("3 - mousePressEvent")
-            #self.drawDiagram()  
-            self.signal.clear.emit()
-            selectNode(checkText(self.studentName, x, y))
 
             for i in range(len(self.Nodes)):
                 xn1 = self.Nodes[i].x - self.Nodes[i].width/2
                 xn2 = self.Nodes[i].x + self.Nodes[i].width - self.Nodes[i].width/2
                 yn1 = self.Nodes[i].y - self.Nodes[i].height/2
                 yn2 = self.Nodes[i].y + self.Nodes[i].height - self.Nodes[i].height/2
-
-                #self.addRect(xt1, yt1, xt2 -  xt1,  20, QPen(Qt.white), QBrush((QColor(160, 205, 225, 70))))
-
+               
                 if xn1 < x < xn2 and yn1 < y < yn2:
-                    selectNode(self.Nodes[i].name) 
+                    name = self.Nodes[i].name 
 
-        
-            self.signal.update.emit()
+            if name != "": hit = selectNode(name, double)
+            else: 
+                name = checkText(self.studentName, x, y)
+                if name != "": hit = selectNode(name, double)            
+                
+            if hit: self.signal.update.emit()
+            else: self.signal.clear.emit()
 
     def drawDiagram(self):
         self.clear()
+        hint_text = ""
+
+        if len(config.STUDENTS_LIST) <= 1:
+            hint_text = "Hint: start a new investigation"
+        else:
+            if config.SELECTED_STUDENT == "":
+                hint_text = "Hint: select one of the nodes - one click to highlight, two clicks to select"
+            else:
+                if config.WAITING_FOR_ == "":
+                    hint_text = "Hint: click on the highlighting node one more time or select another one"
+                else:
+                    if config.COUPLE == "":
+                        hint_text = "Hint: select one more node to start the comparison"
+
+
+        hintX, hintY = (5, 3)
+        hintShadowColor = QColor(75, 85, 95, 70)
+        hintShadow = self.addText(hint_text, QFont("Times", 9))
+        hintShadow.setPos(hintX  + 1, hintY + 1)          
+        hintShadow.setDefaultTextColor(hintShadowColor)
+
+        hintColor = QColor(234, 255, 239, 180)
+        hint = self.addText(hint_text, QFont("Times", 9))                    
+        hint.setPos(hintX, hintY)                 
+        hint.setDefaultTextColor(hintColor)  
+
         if len(config.STUDENTS_LIST) > 1 and len(config.RESULT_MATRIX) == len(config.STUDENTS_LIST):
             
             self.Nodes = []
@@ -591,9 +742,10 @@ class GraphicsSceneChordDiagram(QGraphicsScene):
                                 else: red, green, blue = (245, 145, 130) 
 
                             if config.SELECTED_STUDENT != "":
-                                if (config.SELECTED_STUDENT ==  self.Nodes[i].name and self.Nodes[j].name in config.SELECTED_STUDENTS) or (config.SELECTED_STUDENT==  self.Nodes[j].name and  self.Nodes[i].name in config.SELECTED_STUDENTS):
+                                if (config.SELECTED_STUDENT ==  self.Nodes[i].name and self.Nodes[j].name in config.SELECTED_STUDENTS) or (config.SELECTED_STUDENT ==  self.Nodes[j].name and  self.Nodes[i].name in config.SELECTED_STUDENTS):
                                     red, green, blue, a = (226, 113, 105, 255)  
                                 else: red, green, blue, a = (102, 151, 180, 20) 
+
                             #scene.addLine(x1, y1, x2, y2, QPen(color, penWidth))
                             if len(config.HIDED_STUDENTS) > 0:
                                 if self.Nodes[i].name in config.HIDED_STUDENTS or self.Nodes[j].name in config.HIDED_STUDENTS: a = 5
@@ -622,8 +774,10 @@ class GraphicsSceneChordDiagram(QGraphicsScene):
                             else: red, green, blue = (245, 145, 130)
             
                         if config.SELECTED_STUDENT != "":
-                            if config.SELECTED_STUDENT ==  self.Nodes[i].name:
-                                red, green, blue = redt, greent, bluet = (254, 113, 105)                        
+                            if config.WAITING_FOR_ ==  self.Nodes[i].name:
+                                red, green, blue = redt, greent, bluet = (234, 255, 239)                                
+                            elif config.SELECTED_STUDENT ==  self.Nodes[i].name:
+                                red, green, blue = redt, greent, bluet = (254, 113, 105)
                             elif self.Nodes[i].name in config.SELECTED_STUDENTS: 
                                 red, green, blue = redt, greent, bluet = (205, 140, 134)                         
                             else: red, green, blue = redt, greent, bluet = (102, 151, 180)
@@ -735,10 +889,33 @@ def findRadius(imgWidth, imgHeight):
 
     return radius/3
 def findPerimeter(radius): return 2 * math.pi * radius
-def selectNode(name): 
+
+def selectNode(name, double): 
+
     if name != "" and name in config.STUDENTS_LIST:
-        config.SELECTED_STUDENT = name
-        #updateDiagram() 
+
+        if double:
+            if config.SELECTED_STUDENT == name: 
+                config.WAITING_FOR_ = name
+                config.SELECTED_STUDENT = name
+        else:
+            if config.SELECTED_STUDENT == name and config.WAITING_FOR_ == "":
+                config.WAITING_FOR_ = name
+
+            elif config.SELECTED_STUDENT == name and config.WAITING_FOR_ == name:
+                config.WAITING_FOR_ = ""
+
+            elif config.SELECTED_STUDENT != "" and config.WAITING_FOR_ != "":
+                if name in config.SELECTED_STUDENTS: 
+                    config.COUPLE = name
+                else: 
+                    config.WAITING_FOR_ = ""
+        
+            config.SELECTED_STUDENT = name
+        return True
+    return False
+
+
 def checkText(studentName, x, y):
     for i in range(len(studentName)):
         student = studentName[i][1]

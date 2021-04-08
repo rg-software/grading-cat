@@ -72,4 +72,19 @@ class MainWindow(QMainWindow):
         self.gridLayout_chord2.addWidget(self.ChordDiagram2View, 10, 10)
         self.gridLayout_network.addWidget(self.NetworkDiagramView, 10, 10)
 
-       
+
+        #### LINES ####
+
+        self.tabLines = QWidget()
+        self.tabLines.setObjectName("tabLines")
+        sizePolicy2.setHeightForWidth(self.tabLines.sizePolicy().hasHeightForWidth())
+        self.tabLines.setSizePolicy(sizePolicy2)
+        self.gridLayout_lines = QGridLayout(self.tabLines)
+        self.gridLayout_lines.setObjectName("gridLayout_lines")
+        self.gridLayout_lines.setContentsMargins(10, 10, 10, 12)
+        self.ui.tabWidget.addTab(self.tabLines, "")
+
+        self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabLines), QCoreApplication.translate("MainWindow", "Lines", None))
+
+        self.linesView = LinesView(self)
+        self.gridLayout_lines.addWidget(self.linesView, 10, 10)

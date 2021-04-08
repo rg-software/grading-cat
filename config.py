@@ -9,6 +9,8 @@ RESULT_MATRIX = [[]]
 SELECTED_STUDENT = ""
 SELECTED_STUDENTS = []
 HIDED_STUDENTS = []
+WAITING_FOR_ = ""
+COUPLE = ""
 
 ##### check box #####
 SHOW_NAMES = True
