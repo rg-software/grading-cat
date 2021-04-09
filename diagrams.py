@@ -8,6 +8,7 @@ from PySide6 import QtGui
 from PySide6.QtGui import *
 from operator import *
 import config
+import project
 
 class Communicate(QObject):
     update = Signal()
@@ -25,14 +26,18 @@ class GraphicsSceneBubbleChart(QGraphicsScene):
     def mouseDoubleClickEvent(self, event):
         x = event.scenePos().x()
         y = event.scenePos().y()
-        self.positionCheck(x, y, True)
+        self.positionCheck(x, y, True, "LeftButton")
 
     def mousePressEvent(self, event):
+        button = "LeftButton"
+        if event.button() == Qt.LeftButton: button = "LeftButton"        
+        elif event.button() == Qt.RightButton: button = "RightButton"
+        
         x = event.scenePos().x()
         y = event.scenePos().y()
-        self.positionCheck(x, y, False)
+        self.positionCheck(x, y, False, button)
 
-    def positionCheck(self, x, y, double):
+    def positionCheck(self, x, y, double, button):
         hit = False
         name = ""
         #clearLine()
@@ -48,10 +53,10 @@ class GraphicsSceneBubbleChart(QGraphicsScene):
                     if xn1 < x < xn2 and yn1 < y < yn2:                        
                         name = self.Nodes[i].name 
 
-            if name != "": hit = selectNode(name, double)
+            if name != "": hit = selectNode(name, double, button)
             else: 
                 name = checkText(self.studentName, x, y)
-                if name != "": hit = selectNode(name, double)            
+                if name != "": hit = selectNode(name, double, button)            
                 
             if hit: self.signal.update.emit()
             else: self.signal.clear.emit()
@@ -268,14 +273,18 @@ class GraphicsSceneNetwork(QGraphicsScene):
     def mouseDoubleClickEvent(self, event):
         x = event.scenePos().x()
         y = event.scenePos().y()
-        self.positionCheck(x, y, True)
+        self.positionCheck(x, y, True, "LeftButton")
 
     def mousePressEvent(self, event):
+        button = "LeftButton"
+        if event.button() == Qt.LeftButton: button = "LeftButton"        
+        elif event.button() == Qt.RightButton: button = "RightButton"
+        
         x = event.scenePos().x()
         y = event.scenePos().y()
-        self.positionCheck(x, y, False)
+        self.positionCheck(x, y, False, button)
 
-    def positionCheck(self, x, y, double):
+    def positionCheck(self, x, y, double, button):
         hit = False
         name = ""
         #if len(config.STUDENTS_LIST) > 1 and len(config.RESULT_MATRIX) == len(config.STUDENTS_LIST):
@@ -324,14 +333,18 @@ class GraphicsSceneChordDiagram2(QGraphicsScene):
     def mouseDoubleClickEvent(self, event):
         x = event.scenePos().x()
         y = event.scenePos().y()
-        self.positionCheck(x, y, True)
+        self.positionCheck(x, y, True, "LeftButton")
 
     def mousePressEvent(self, event):
+        button = "LeftButton"
+        if event.button() == Qt.LeftButton: button = "LeftButton"        
+        elif event.button() == Qt.RightButton: button = "RightButton"
+        
         x = event.scenePos().x()
         y = event.scenePos().y()
-        self.positionCheck(x, y, False)
+        self.positionCheck(x, y, False, button)
 
-    def positionCheck(self, x, y, double):
+    def positionCheck(self, x, y, double, button):
         hit = False
         name = ""
 
@@ -355,10 +368,10 @@ class GraphicsSceneChordDiagram2(QGraphicsScene):
                 if xn1 < x < xn2 and yn1 < y < yn2:
                     name = self.listNodes[i][0].name 
 
-            if name != "": hit = selectNode(name, double)
+            if name != "": hit = selectNode(name, double, button)
             else: 
                 name = checkText(self.studentName, x, y)
-                if name != "": hit = selectNode(name, double)            
+                if name != "": hit = selectNode(name, double, button)            
                 
             if hit: self.signal.update.emit()
             else: self.signal.clear.emit()
@@ -622,14 +635,18 @@ class GraphicsSceneChordDiagram(QGraphicsScene):
     def mouseDoubleClickEvent(self, event):
         x = event.scenePos().x()
         y = event.scenePos().y()
-        self.positionCheck(x, y, True)
+        self.positionCheck(x, y, True, "LeftButton")
 
     def mousePressEvent(self, event):
+        button = "LeftButton"
+        if event.button() == Qt.LeftButton: button = "LeftButton"        
+        elif event.button() == Qt.RightButton: button = "RightButton"
+        
         x = event.scenePos().x()
         y = event.scenePos().y()
-        self.positionCheck(x, y, False)
+        self.positionCheck(x, y, False, button)
 
-    def positionCheck(self, x, y, double):
+    def positionCheck(self, x, y, double, button):
         hit = False
         name = ""
         if len(config.STUDENTS_LIST) > 1 and len(config.RESULT_MATRIX) == len(config.STUDENTS_LIST):
@@ -643,10 +660,10 @@ class GraphicsSceneChordDiagram(QGraphicsScene):
                 if xn1 < x < xn2 and yn1 < y < yn2:
                     name = self.Nodes[i].name 
 
-            if name != "": hit = selectNode(name, double)
+            if name != "": hit = selectNode(name, double, button)
             else: 
                 name = checkText(self.studentName, x, y)
-                if name != "": hit = selectNode(name, double)            
+                if name != "": hit = selectNode(name, double, button)            
                 
             if hit: self.signal.update.emit()
             else: self.signal.clear.emit()
@@ -865,6 +882,52 @@ class GraphicsView(QGraphicsView):
         #QGraphicsView.paintEvent(self, event)#########   
         #self.scene.drawDiagram()     
         #print('view paint event')
+    def contextMenuEvent(self, event):
+        if config.SELECTED_STUDENT != "":
+            contextMenu = QMenu(self)
+            contextMenu.setMinimumWidth(180)
+            #nodeID = contextMenu.addSection(config.SELECTED_NODE)
+            #contextMenu.addSeparator()
+            listActs = []
+            if len(config.SELECTED_STUDENTS) > 0:
+                compareList = QMenu("Compare with ", contextMenu)
+                compare_iconPath = config.APPLICATION_DIRNAME + "/icons/compare.png"
+                compareList.setIcon(QIcon(compare_iconPath))
+                compareAct = contextMenu.addMenu(compareList) 
+                
+                for i in range(len(config.SELECTED_STUDENTS)):
+                    newAct = compareList.addAction(config.SELECTED_STUDENTS[i])                    
+                    listActs.append(newAct)
+                contextMenu.addSeparator()
+            
+            exposeAct = None
+            hideAct = None
+            if config.SELECTED_STUDENT in config.HIDED_STUDENTS:
+                expose_iconPath = config.APPLICATION_DIRNAME + "/icons/openEye.png"
+                exposeAct = contextMenu.addAction(QIcon(expose_iconPath), "Expose")                
+            else: 
+                hide_iconPath = config.APPLICATION_DIRNAME + "/icons/closeEye.png"
+                hideAct = contextMenu.addAction(QIcon(hide_iconPath), "Hide")
+            cancel_iconPath = config.APPLICATION_DIRNAME + "/icons/cancel.png"
+            cancelAct = contextMenu.addAction(QIcon(cancel_iconPath), "Cancel")
+            delete_iconPath = config.APPLICATION_DIRNAME + "/icons/delete.png"
+            deleteAct = contextMenu.addAction(QIcon(delete_iconPath), "Delete")
+
+            contextMenu.addSeparator()              
+            action = contextMenu.exec_(self.mapToGlobal(event.pos()))                       
+            if action == exposeAct: self.parent.exposeStudent() 
+            if action == hideAct: self.parent.hideStudent() 
+            if action == cancelAct: self.parent.deleteStudent()
+            if action == deleteAct: self.parent.clearLine() 
+
+            if action in listActs:
+                for i in range(len(listActs)):
+                    if action == listActs[i]:
+                        project.сall_me_whatever_you_like(config.SELECTED_STUDENT, config.SELECTED_STUDENTS[i])
+                        #config.SELECTED_STUDENT = config.WAITING_FOR_
+                        config.WAITING_FOR_ = config.SELECTED_STUDENT
+                        config.COUPLE = ""
+                        self.scene.drawDiagram()
 
     def sceneUpdate(self):
         self.scene.drawDiagram()
@@ -890,7 +953,7 @@ def findRadius(imgWidth, imgHeight):
     return radius/3
 def findPerimeter(radius): return 2 * math.pi * radius
 
-def selectNode(name, double): 
+def selectNode(name, double, button): 
 
     if name != "" and name in config.STUDENTS_LIST:
 
@@ -898,6 +961,9 @@ def selectNode(name, double):
             if config.SELECTED_STUDENT == name: 
                 config.WAITING_FOR_ = name
                 config.SELECTED_STUDENT = name
+        elif button == "RightButton":
+            config.WAITING_FOR_ = name
+            config.SELECTED_STUDENT = name
         else:
             if config.SELECTED_STUDENT == name and config.WAITING_FOR_ == "":
                 config.WAITING_FOR_ = name

@@ -1,4 +1,5 @@
 APPLICATION_TITLE = "Grading Cat"
+APPLICATION_DIRNAME = ""
 
 ##### diagram data #####
 FILE_NAME = ""
@@ -20,4 +21,4 @@ CHESS = False
 SORT = False
 
 ##### slider #####
-RANGE_PLAG = 0
+RANGE_PLAG = 25

@@ -14,7 +14,8 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         
-        self.ui.setupUi(self)    
+        self.ui.setupUi(self) 
+        self.setWindowIcon(QIcon("icons/cat.png"))
 
         self.ui.actionSettings.setEnabled(True)
         self.ui.actionSettings.setEnabled(True)
@@ -24,7 +25,6 @@ class MainWindow(QMainWindow):
         self.ui.actionDetect.setEnabled(False)
                 
         self.ui.actionQuit.setEnabled(True)
-
 
         self.tabChord = QWidget()
         self.tabChord.setObjectName("tabChord")
@@ -88,3 +88,198 @@ class MainWindow(QMainWindow):
 
         self.linesView = LinesView(self)
         self.gridLayout_lines.addWidget(self.linesView, 10, 10)
+
+    def updateList(self, student):   
+    #rate = findMaxPlag()
+    #if config.SORT: rate = sorted(rate, key=itemgetter(1), reverse=True)
+        if student in config.STUDENTS_LIST:
+            currentIndex = config.STUDENTS_LIST.index(student)
+            config.SELECTED_STUDENT = config.STUDENTS_LIST[currentIndex]       
+            maxPlag = max(config.RESULT_MATRIX[currentIndex])
+            students = []
+            for i in range(len(config.STUDENTS_LIST)):
+                if currentIndex != i:
+                    students.append([config.RESULT_MATRIX[currentIndex][i], i])
+                else: students.append([maxPlag, i])
+        
+            if config.SORT: 
+                del students[currentIndex]
+                students = sorted(students, key=itemgetter(0), reverse=True)            
+                students.insert(0,[maxPlag, currentIndex])            
+                currentIndex = 0
+
+            for i in range(len(config.STUDENTS_LIST)):
+                self.ui.listStudents.item(i).setBackground(QColor(250, 247, 247)) #!   
+                if i == currentIndex:
+                    #window.listStudents.item(i).setBackground(QColor(248, 155, 141))
+                    self.ui.listStudents.item(i).setSelected(True)
+                    newRow = student + "\t- " + str(maxPlag) + "%"
+                    self.ui.listStudents.item(i).setText(newRow)   
+                else:
+                    if int(students[i][0]) >= config.RANGE_PLAG:
+                        if students[i][0] == maxPlag:
+                            self.ui.listStudents.item(i).setForeground(QColor(235, 50, 50))
+                        else: self.ui.listStudents.item(i).setForeground(QColor(250, 130, 130))
+                        self.ui.listStudents.item(i).setBackground(QColor(231, 214, 212))   
+                    else: self.ui.listStudents.item(i).setForeground(QColor(119, 110, 107))                     
+                    text = config.STUDENTS_LIST[students[i][1]] + "\t- " + str(students[i][0]) + "%"
+                    self.ui.listStudents.item(i).setText(text)  
+
+    def drawDiagrams(self):
+        self.ChordDiagramView.scene.drawDiagram()
+        self.ChordDiagram2View.scene.drawDiagram()
+        self.NetworkDiagramView.scene.drawDiagram()
+
+    def updateDiagram(self):
+        config.SHOW_NAMES = self.ui.showNames.isChecked()
+        config.SHOW_LINKLESS = self.ui.showLinkless.isChecked()
+        config.SHOW_RARE = self.ui.showRate.isChecked()
+        config.CHESS = self.ui.chess.isChecked()
+        config.SORT = self.ui.sort.isChecked()
+
+        config.RANGE_PLAG = self.ui.rangeSlider.value()
+        rangeLabel = "Range:  > " + str(config.RANGE_PLAG) + "%"
+        self.ui.label_Range.setText(rangeLabel)
+
+        if config.COUPLE != "":
+            project.сall_me_whatever_you_like(config.WAITING_FOR_, config.COUPLE)
+            config.SELECTED_STUDENT = config.WAITING_FOR_
+             #config.WAITING_FOR_ = ""
+            config.COUPLE = ""
+
+        if config.SELECTED_STUDENT != "":
+            self.ui.lineEdit.clear
+            self.ui.lineEdit.setText(str(config.SELECTED_STUDENT))
+            self.ui.lineEdit.setToolTip('Selected student')
+            self.ui.ShowButton.setToolTip('Show selected student')
+
+            #if config.SELECTED_STUDENT not in config.HIDED_STUDENTS:
+                #self.ui.toolButton_openEye.clicked.connect(self.hideStudent)            
+                #self.ui.toolButton_openEye.setToolTip('Hide')
+                #iconPath = config.APPLICATION_DIRNAME + "/icons/closeEye.png"
+                #self.ui.toolButton_openEye.setIcon(QIcon(iconPath))
+            #else:
+                #self.ui.toolButton_openEye.clicked.connect(self.exposeStudent)
+                #self.ui.toolButton_openEye.setToolTip('Expose')
+                #iconPath = config.APPLICATION_DIRNAME + "/icons/openEye.png"
+                #self.ui.toolButton_openEye.setIcon(QIcon(iconPath))
+
+        if len(config.STUDENTS_LIST) > 0:
+            self.studentList()
+            self.updateLinkedStudents(config.SELECTED_STUDENT)
+            self.drawDiagrams()
+            if len(config.SELECTED_STUDENT) > 0:
+                self.updateList(config.SELECTED_STUDENT)
+
+    def studentList(self):
+        self.ui.listStudents.clear()
+        #window.listRate.clear()
+        rate = findMaxPlag()
+        for i in range(len(config.STUDENTS_LIST)):
+            if config.SORT: rate = sorted(rate, key=itemgetter(1), reverse=True) 
+
+            text = config.STUDENTS_LIST[rate[i][2]] + "\t- " + str(rate[i][1]) + "%"
+            self.ui.listStudents.addItem(text)
+            #window.listStudents.addItem(config.STUDENTS_LIST[i])
+            #text = str(rate[i][1]) + "%"
+            #window.listRate.addItem(text)
+        pass
+    def selectedStudent(self, item):    
+        node = item.text().split()[0]
+
+        if node != "" and node in config.STUDENTS_LIST:       
+            if config.SELECTED_STUDENT == node and config.WAITING_FOR_ == "":
+                config.WAITING_FOR_ = node
+            elif config.SELECTED_STUDENT == node and config.WAITING_FOR_ == node:
+                config.WAITING_FOR_ = ""
+            elif config.SELECTED_STUDENT != "" and config.WAITING_FOR_ != "":
+                if node in config.SELECTED_STUDENTS: 
+                    config.COUPLE = node
+                else: 
+                    config.WAITING_FOR_ = ""
+        
+            config.SELECTED_STUDENT = node   
+
+            self.ui.lineEdit.setText(node)
+            self.ui.lineEdit.setToolTip('Selected student') 
+            self.ui.ShowButton.setToolTip('Show selected student')
+            self.updateDiagram()
+
+    def updateLinkedStudents(self, student):
+        config.SELECTED_STUDENTS.clear()
+        if student in config.STUDENTS_LIST:
+            currentIndex = config.STUDENTS_LIST.index(student)
+            for i in range(len(config.STUDENTS_LIST)): 
+                if currentIndex != i and int(config.RESULT_MATRIX[currentIndex][i]) >= config.RANGE_PLAG:
+                    config.SELECTED_STUDENTS.append(config.STUDENTS_LIST[i])
+
+    def clearLine(self):
+        config.WAITING_FOR_ = ""
+        config.COUPLE = ""
+        config.SELECTED_STUDENT = ""
+        config.SELECTED_STUDENTS.clear()
+        self.ui.lineEdit.clear()        
+        self.ui.lineEdit.setToolTip('Enter student ID to select')
+        self.ui.ShowButton.setToolTip('No one selected')
+        self.updateList("")
+        self.updateDiagram()
+    
+    def resetSettings(self):
+
+        self.ui.showNames.setChecked(True)
+        self.ui.showLinkless.setChecked(True)
+        self.ui.showRate.setChecked(False)
+        self.ui.chess.setChecked(False)
+        self.ui.sort.setChecked(False)
+        self.ui.rangeSlider.setValue(25)
+        config.SHOW_NAMES = True
+        config.SHOW_LINKLESS = True
+        config.SHOW_RARE = False
+        config.CHESS = False
+        config.SORT = False
+        config.RANGE_PLAG = 25
+
+    def deleteStudent(self):
+        if  config.SELECTED_STUDENT != "" and config.SELECTED_STUDENT in config.STUDENTS_LIST:
+            index = config.STUDENTS_LIST.index(config.SELECTED_STUDENT)        
+            config.STUDENTS_LIST.remove(config.SELECTED_STUDENT)
+        
+            del config.RESULT_MATRIX[index]
+            for i in range(len(config.RESULT_MATRIX)):
+                del config.RESULT_MATRIX[i][index]
+      
+            if config.SELECTED_STUDENT in config.HIDED_STUDENTS:
+                config.HIDED_STUDENTS.remove(config.SELECTED_STUDENT)
+
+            config.SELECTED_STUDENT = ""
+            config.SELECTED_STUDENTS.clear()
+            self.ui.lineEdit.clear()
+            self.updateList("")
+            self.updateDiagram()
+        pass
+    def hideStudent(self):
+        if  config.SELECTED_STUDENT != "" and config.SELECTED_STUDENT in config.STUDENTS_LIST:
+            if config.SELECTED_STUDENT not in config.HIDED_STUDENTS:
+                config.HIDED_STUDENTS.append(config.SELECTED_STUDENT)
+
+            config.WAITING_FOR_ = "" 
+            config.COUPLE = ""
+            config.SELECTED_STUDENT = ""
+            config.SELECTED_STUDENTS.clear()
+            self.ui.lineEdit.clear()
+            self.updateList("")
+            self.updateDiagram()
+        pass
+    def exposeStudent(self):
+        if  config.SELECTED_STUDENT != "" and config.SELECTED_STUDENT in config.STUDENTS_LIST and config.SELECTED_STUDENT in config.HIDED_STUDENTS:
+            config.HIDED_STUDENTS.remove(config.SELECTED_STUDENT)
+
+            self.updateList(config.SELECTED_STUDENT)
+            self.updateDiagram()
+  
+    def findStudent(self):
+        student = self.ui.lineEdit.text()
+        if student != "":
+            student = student.split()[0]
+            config.SELECTED_STUDENT = student
+            self.updateDiagram()    

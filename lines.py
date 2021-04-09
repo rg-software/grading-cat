@@ -360,6 +360,12 @@ class LinesScene(QGraphicsScene):
         score.setDefaultTextColor(self.scoreColor)
 
         if self.GAME:
+            catPath = config.APPLICATION_DIRNAME + "/icons/cat_ss.png"
+            pixmap = QPixmap.fromImage(catPath).scaled(scale + scale/3, scale + scale/3, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+            pixmapItem = QGraphicsPixmapItem(pixmap)        
+            #pixmapItem.setScale(pixmapSize, Qt.IgnoreAspectRatio,Qt.SmoothTransformation)
+            pixmapItem.setPos(x + scale*4 - scale/4, scale/2)        
+            self.addItem(pixmapItem)
             for i in range(len(self.Prediction)):
                 brushGlob = self.Prediction[i].color[0] 
                 penGlob = self.Prediction[i].color[1] 
@@ -369,8 +375,8 @@ class LinesScene(QGraphicsScene):
                 self.addEllipse(PredictionX, PredictionY, scale - scale/4, scale - scale/4, penGlob, brushGlob)          
                 self.addEllipse(PredictionX, PredictionY, scale - scale/4, scale - scale/4, self.linePenGreen, self.predictionShadow)
         else:
-            gameOverFont = scale - scale/4
-            gameOverX, gameOverY = (x + scale/20, scale/2)
+            gameOverFont = scale/2 
+            gameOverX, gameOverY = (x + scale/20, scale/2 + scale/4)
 
             gameOverShadow = self.addText("GAME OVER", QFont("Consolas", gameOverFont))
             gameOverShadow.setPos(gameOverX + 2, gameOverY + 2)          
@@ -384,6 +390,17 @@ class LinesScene(QGraphicsScene):
             gameOver.setPos(gameOverX + 1, gameOverY + 1)          
             gameOver.setDefaultTextColor(self.scoreColor)
 
+            goCatPath = config.APPLICATION_DIRNAME + "/icons/cat_ssevl.png"
+            pixmap = QPixmap.fromImage(goCatPath).scaled(scale + scale/3, scale + scale/3, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+            pixmapItem = QGraphicsPixmapItem(pixmap)        
+            #pixmapItem.setScale(pixmapSize, Qt.IgnoreAspectRatio,Qt.SmoothTransformation)
+            pixmapItem.setPos(x + scale*4 - scale/4, scale/2)        
+            self.addItem(pixmapItem)
+
+            
+        
+
+       
         ####bestResultBox
         #bestResult_font = scale/6
         #bestResultX, bestResultY = (x - scale*2 - scale/2, length + scale/2)
