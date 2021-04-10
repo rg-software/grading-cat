@@ -2,10 +2,11 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtQuick import QQuickView
-
+# does not work yet
+# from PySide6.QtWebEngineWidgets import QWebEngineView
 
 class MatchViewerDialog(QDialog):
-    def __init__(self, parent, student_1, student_2):
+    def __init__(self, parent, student_1, student_2, html_path):
         super(MatchViewerDialog, self).__init__(parent)
 
         self.student_1 = student_1
@@ -21,15 +22,20 @@ class MatchViewerDialog(QDialog):
         self.gridLayoutSettings = QGridLayout()
         self.gridLayoutSettings.setObjectName("settings_frame")
 
+        # QWebEngineView(self)
         self.textBrowser = QTextBrowser(self)
-        self.textBrowser.setObjectName("textBrowser")
-        self.document = QTextDocument()
+        
+        #self.textBrowser.setObjectName("textBrowser")
+        #self.document = QTextDocument()
+
+        self.textBrowser.load(QUrl.fromLocalFile(html_path))
+        self.textBrowser.show()
 
         #url = QUrl("")
         #self.document.addResource(QTextDocument.HtmlResource, url, )
-        self.document.setHtml("<html><head></head><body>some results</body></html>")
+        #self.document.setHtml("<html><head></head><body>some results</body></html>")
 
-        self.textBrowser.setDocument(self.document)
+        #self.textBrowser.setDocument(self.document)
         self.gridLayout_Dialog.addWidget(self.textBrowser, 1, 0, 1, 1)
 
         self.labelStudentsID = QLabel(self)
@@ -104,8 +110,8 @@ class MatchViewerDialog(QDialog):
         QMetaObject.connectSlotsByName(self)   
 
     @staticmethod
-    def show(parent, student_1, student_2):
+    def show(parent, student_1, student_2, html_path):
 
-        dialog = MatchViewerDialog(parent, student_1, student_2)
+        dialog = MatchViewerDialog(parent, student_1, student_2, html_path)
         result = dialog.exec_()
         return result == QDialog.Accepted

@@ -15,13 +15,16 @@ from project_config_editor import ProjectConfigDialog
 from match_viewer import MatchViewerDialog
 
 CurrentProjectPath = None # initially no project file is loaded
+CurrentAssignment = None
 
 #### MP ####
 def сall_me_whatever_you_like(studentID_1, studentID_2):
-
-    isOk = MatchViewerDialog.show(_getMainWin(), studentID_1, studentID_2)
+    # TODO: always shows 'match0.html' -- for testing
+    html_path = os.path.join(CurrentProjectPath, f'jpl_out_{CurrentAssignment}', 'match0.html')
+    isOk = MatchViewerDialog.show(_getMainWin(), studentID_1, studentID_2, html_path)
     if isOk:
         print("Yay!")
+    # CurrentAssignment
     # do whatever you want
 
 
@@ -84,6 +87,8 @@ def detect():
     diagram_data = ""
     r, isOk = QInputDialog.getItem(_getMainWin(), config.APPLICATION_TITLE, 'Choose assignment', assignments, editable=False)
     if isOk:
+        global CurrentAssignment
+        CurrentAssignment = r
         os.chdir(CurrentProjectPath)
         if not os.path.exists(f'jpl_out_{r}.log'):
             dirs = [prj_config["moodle_submissions_dir"]] + prj_config["archive_dirs"]
