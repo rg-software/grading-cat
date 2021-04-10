@@ -917,8 +917,8 @@ class GraphicsView(QGraphicsView):
             action = contextMenu.exec_(self.mapToGlobal(event.pos()))                       
             if action == exposeAct: self.parent.exposeStudent() 
             if action == hideAct: self.parent.hideStudent() 
-            if action == cancelAct: self.parent.deleteStudent()
-            if action == deleteAct: self.parent.clearLine() 
+            if action == cancelAct: self.parent.clearLine()
+            if action == deleteAct: self.parent.deleteStudent()  
 
             if action in listActs:
                 for i in range(len(listActs)):

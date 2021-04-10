@@ -12,12 +12,16 @@ import jplag_preprocessor
 import jplag_runner
 import moodle_downloader
 from project_config_editor import ProjectConfigDialog
+from match_viewer import MatchViewerDialog
 
 CurrentProjectPath = None # initially no project file is loaded
 
 #### MP ####
 def сall_me_whatever_you_like(studentID_1, studentID_2):
-    print(studentID_1, studentID_2)
+
+    isOk = MatchViewerDialog.show(_getMainWin(), studentID_1, studentID_2)
+    if isOk:
+        print("Yay!")
     # do whatever you want
 
 

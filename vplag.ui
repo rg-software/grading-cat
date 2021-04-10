@@ -39,6 +39,16 @@ QDialog{
 	background-color: rgba(138, 140, 152, 255);
 }
 
+QDialog QTextBrowser{
+	border-width: 1px; border-radius: 2px;
+	border-color: rgba(50, 65, 80, 180);
+	border-style: inset;
+	color: #656270;
+    background-color: #faf1ec;
+	selection-background-color: rgb(187, 187, 187);
+	selection-color: rgb(55, 70, 90);
+}
+
 QDialog QComboBox {
     border: 1px solid #f5eae9;
     border-radius: 3px;

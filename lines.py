@@ -73,12 +73,19 @@ class LinesScene(QGraphicsScene):
 
         self.quantity = 9
 
-        self.color_1 = (QBrush(QColor(254, 154, 154, 245)), QPen(QColor(240, 230, 250, 250), 2))
-        self.color_2 = (QBrush(QColor(254, 229, 154, 245)), QPen(QColor(240, 230, 250, 250), 2))
-        self.color_3 = (QBrush(QColor(204, 254, 154, 245)), QPen(QColor(240, 230, 250, 250), 2))
-        self.color_4 = (QBrush(QColor(154, 254, 229, 245)), QPen(QColor(240, 230, 250, 250), 2))
-        self.color_5 = (QBrush(QColor(154, 179, 254, 245)), QPen(QColor(240, 230, 250, 250), 2))
-        self.color_6 = (QBrush(QColor(230, 153, 255, 245)), QPen(QColor(240, 230, 250, 250), 2))
+        #self.color_1 = (QBrush(QColor(254, 154, 154, 245)), QPen(QColor(240, 230, 250, 250), 2))
+        #self.color_2 = (QBrush(QColor(254, 229, 154, 245)), QPen(QColor(240, 230, 250, 250), 2))
+        #self.color_3 = (QBrush(QColor(204, 254, 154, 245)), QPen(QColor(240, 230, 250, 250), 2))
+        #self.color_4 = (QBrush(QColor(154, 254, 229, 245)), QPen(QColor(240, 230, 250, 250), 2))
+        #self.color_5 = (QBrush(QColor(154, 179, 254, 245)), QPen(QColor(240, 230, 250, 250), 2))
+        #self.color_6 = (QBrush(QColor(230, 153, 255, 245)), QPen(QColor(240, 230, 250, 250), 2))
+
+        self.color_1 = (QBrush(QColor(253, 28, 28, 255)), QPen(QColor(240, 230, 250, 250), 2))
+        self.color_2 = (QBrush(QColor(253, 253, 28, 255)), QPen(QColor(240, 230, 250, 250), 2))
+        self.color_3 = (QBrush(QColor(84, 253, 28, 255)), QPen(QColor(240, 230, 250, 250), 2))
+        self.color_4 = (QBrush(QColor(28, 253, 253, 255)), QPen(QColor(240, 230, 250, 250), 2))
+        self.color_5 = (QBrush(QColor(28, 28, 253, 255)), QPen(QColor(240, 230, 250, 250), 2))
+        self.color_6 = (QBrush(QColor(253, 28, 253, 255)), QPen(QColor(240, 230, 250, 250), 2))
         self.colors = []
         self.colors.extend([self.color_1, self.color_2, self.color_3, self.color_4, self.color_5, self.color_6])
         self.color_chosen_one = (QBrush(QColor(255, 255, 250, 255)), QPen(QColor(255, 190, 180, 255), 3))
