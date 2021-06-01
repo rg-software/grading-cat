@@ -15,6 +15,7 @@ class ProjectConfigDialog(QDialog):
         self._addLineEditWithLabel(layout, 'Assignment regex:', 'assignment_regex')
         self._addLineEditWithLabel(layout, 'Username conversions:', 'username_conversions')
         self._addLineEditWithLabel(layout, 'Assignment conversions:', 'assignment_conversions')
+        self._addLineEditWithLabel(layout, 'Java path:', 'java_path')
         self._addLineEditWithLabel(layout, 'JPlag arguments:', 'jplag_args')
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)

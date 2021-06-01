@@ -93,7 +93,7 @@ def detect():
         if not os.path.exists(f'jpl_out_{r}.log'):
             dirs = [prj_config["moodle_submissions_dir"]] + prj_config["archive_dirs"]
             jplag_preprocessor.preprocess_dirs(dirs, prj_config['assignment_regex'], r)
-            jplag_runner.run(prj_config['jplag_args'], r)
+            jplag_runner.run(prj_config['java_path'], prj_config['jplag_args'], r)
         
         # must be in a format "<user1>-<user2>: <sim_ratio>\n<user1>-<user3>: <sim_ratio>\n..."
         with open(f'jpl_out_{r}.log') as f:
