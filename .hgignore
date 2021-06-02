@@ -1,3 +1,4 @@
 syntax: glob
 __pycache__/**
 ui_mainwindow.py
+se06/**
