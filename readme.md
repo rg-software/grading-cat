@@ -56,6 +56,7 @@ Here is a sample:
     "assignment_regex": ".+\\.zip",
     "username_conversions": [["(.+)@.+", "\\1"]],
     "assignment_conversions": [[".+(\\d\\d).+", "\\1"], [".+(\\d).+", "0\\1"]],
+    "java_path": "%JAVA_HOME%/bin/java.exe",
     "jplag_args": ["-s", "-l", "java19"]
 }
 ```

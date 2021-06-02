@@ -15,24 +15,28 @@ from pyunpack import Archive
 
 
 # NOTE: we should be inside the project dir here
-def preprocess_dirs(dirs, re_pattern, assignment_name):
+def preprocess_dirs(submissions_dir, archive_dirs, re_pattern, assignment_name):
 	output_dir = 'jpl_in_' + assignment_name
 	if os.path.exists(output_dir):
 		shutil.rmtree(output_dir)
 	os.makedirs(output_dir)
 	
-	for base_input_dir in dirs:
+	final_dirs = [(submissions_dir, "")]
+	for dir in archive_dirs:
+		final_dirs.append((dir, os.path.basename(os.path.normpath(dir)) + "_"))
+
+	for base_input_dir, prefix in final_dirs:
 		week_dir = os.path.join(base_input_dir, assignment_name)
 		print(f"Processing assignments from {week_dir}")
-		preprocess(re_pattern, week_dir, output_dir)
+		preprocess(re_pattern, week_dir, output_dir, prefix)
 
 
-def preprocess(re_pattern, week_dir, output_dir):
+def preprocess(re_pattern, week_dir, output_dir, prefix):
 	user_dirs = [name for name in os.listdir(week_dir)]
 
 	for user_dir in user_dirs:
 		input_user_dir = os.path.join(week_dir, user_dir)
-		output_user_dir = os.path.join(output_dir, user_dir)
+		output_user_dir = os.path.join(output_dir, f"{prefix}{user_dir}")
 
 		if not os.path.exists(output_user_dir):
 			os.makedirs(output_user_dir)
@@ -56,6 +60,5 @@ if __name__ == "__main__":
 	os.chdir(sys.argv[1])
 	with open('config.json') as f:
 		config = json.load(f)
-	dirs = [config["moodle_submissions_dir"]] + config["archive_dirs"]
-	preprocess_dirs(dirs, config['assignment_regex'], sys.argv[2])
+	preprocess_dirs(config["moodle_submissions_dir"], config["archive_dirs"], config['assignment_regex'], sys.argv[2])
 	os.chdir(dir)
