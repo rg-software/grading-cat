@@ -4,7 +4,7 @@
 
 ```shell
 poetry install
-poetry run pyside6-uic vplag.ui > ui_mainwindow.py
+poetry run pyside6-uic vplag.ui > gui/ui_mainwindow.py
 ```
 
 ## Working Process

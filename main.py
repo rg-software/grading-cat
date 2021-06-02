@@ -10,12 +10,12 @@ from operator import *
 import config
 import webbrowser
 import project
-from diagrams import *
-from main_window import MainWindow
-from diagrams import findMaxPlag
-from about_cat import AboutCatDialog
-from new_diagram_dialog import NewDiagramDialog
-from number_of_nodes import NumberOfNodesDialog
+from gui.diagrams import *
+from gui.main_window import MainWindow
+from gui.diagrams import findMaxPlag
+from gui.about_cat import AboutCatDialog
+from gui.new_diagram_dialog import NewDiagramDialog
+from gui.number_of_nodes import NumberOfNodesDialog
 
 
 def openNewSession():

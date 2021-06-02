@@ -11,6 +11,21 @@ import json
 import re
 import ast
 
+
+class StubProgressObject():
+	def setMaximum(self, _):
+		pass
+	
+	def setValue(self, _):
+		pass
+
+	def processAppEvents(self, _):
+		pass
+
+	def wasCanceled(self):
+		return False
+
+
 def regex_rename(conv_list, str):
 	for pattern, repl in conv_list:
 		if re.fullmatch(pattern, str):
@@ -67,7 +82,7 @@ def process_assignment(server_url, assignment, working_dir, users, token, progre
 		process_submission(submission, os.path.join(working_dir, assignment['name']), users, token)
 
 # NOTE: we should be inside the project dir here
-def download(config, progressObject):
+def download(config, progressObject=StubProgressObject()):
 	token = get_token(config['username'], config['password'], config['server_url'])
 	courses = call_service(config['server_url'], token, 'core_course_get_courses_by_field', {'field': 'shortname', 'value': config['course_shortname']}) # list of all matching courses
 	course_id = courses['courses'][0]['id'] # we presume that only one course matches the given shortname
@@ -93,29 +108,3 @@ def download(config, progressObject):
 			process_assignment(config['server_url'], assignment, config['moodle_submissions_dir'], users, token, progressObject)
 	except RuntimeError:
 		print("Download process canceled")
-
-
-class StubProgressObject():
-	def setMaximum(self, _):
-		pass
-	
-	def setValue(self, _):
-		pass
-
-	def processAppEvents(self, _):
-		pass
-
-	def wasCanceled(self):
-		return False
-
-
-if __name__ == "__main__":
-	if len(sys.argv) != 2:
-		print("Usage: moodle_downloader.py <project-dir>")
-		sys.exit(1)
-	dir = os.getcwd()
-	os.chdir(sys.argv[1])
-	with open('config.json') as f:
-		config = json.load(f)
-	download(config, StubProgressObject())
-	os.chdir(dir)

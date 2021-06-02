@@ -8,11 +8,11 @@ from PySide6 import QtCore
 from PySide6.QtWidgets import *
 
 import config
-import jplag_preprocessor
-import jplag_runner
-import moodle_downloader
-from project_config_editor import ProjectConfigDialog
-from match_viewer import MatchViewerDialog
+import interop.jplag_preprocessor as jplag_preprocessor
+import interop.jplag_runner as jplag_runner
+import interop.moodle_downloader as moodle_downloader
+from gui.project_config_editor import ProjectConfigDialog
+from gui.match_viewer import MatchViewerDialog
 
 CurrentProjectPath = None # initially no project file is loaded
 CurrentAssignment = None
@@ -105,7 +105,7 @@ def newProject():
     if r:
         global CurrentProjectPath
         CurrentProjectPath = r
-        shutil.copyfile(os.path.join(_getDefaultDir(), 'project_config_template.json'), os.path.join(CurrentProjectPath, 'config.json'))
+        shutil.copyfile(os.path.join(_getDefaultDir(), 'config_template.json'), os.path.join(CurrentProjectPath, 'config.json'))
         updateMainWinTitle()
         setSettings()
         _updateMenuStatus(_PROJECT_OPENED_ITEMS)

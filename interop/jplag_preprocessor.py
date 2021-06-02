@@ -50,15 +50,3 @@ def preprocess(re_pattern, week_dir, output_dir, prefix):
 	# note: seems like a necessary cleanup
 	for p in pathlib.Path(output_dir).rglob('__macosx'):
 		shutil.rmtree(p)
-
-
-if __name__ == "__main__":
-	if len(sys.argv) != 3:
-		print("Usage: jplag_preprocessor <project-dir> <assignment-name>")
-		sys.exit(1)
-	dir = os.getcwd()
-	os.chdir(sys.argv[1])
-	with open('config.json') as f:
-		config = json.load(f)
-	preprocess_dirs(config["moodle_submissions_dir"], config["archive_dirs"], config['assignment_regex'], sys.argv[2])
-	os.chdir(dir)

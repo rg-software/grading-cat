@@ -5,9 +5,9 @@ from PySide6.QtCore import *
 from PySide6 import QtGui
 from PySide6.QtGui import *
 from operator import *
-from ui_mainwindow import Ui_MainWindow
-from diagrams import *
-from lines import LinesView
+from gui.ui_mainwindow import Ui_MainWindow
+from gui.diagrams import *
+from gui.lines import LinesView
 
 class MainWindow(QMainWindow):
     def __init__(self):

@@ -37,14 +37,3 @@ def run(java_path, jplag_args, assignment_name):
 
 	with open(out_log, 'wb') as f:
 		f.writelines(output_lines_filtered)
-
-if __name__ == "__main__":
-	if len(sys.argv) != 3:
-		print("Usage: jplag_runner <project-dir> <assignment-name>")
-		sys.exit(1)
-	dir = os.getcwd()
-	os.chdir(sys.argv[1])
-	with open('config.json') as f:
-		config = json.load(f)
-	run(config['java_path'], config['jplag_args'], sys.argv[2])
-	os.chdir(dir)
