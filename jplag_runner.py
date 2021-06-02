@@ -26,9 +26,14 @@ def run(java_path, jplag_args, assignment_name):
 	jplag_runcmd = [java_exe, '-jar', os.path.join(jplag_dir, 'jplag-2.12.1.jar')]
 	cmd = jplag_runcmd + ast.literal_eval(jplag_args) + ['-r', out_dir, in_dir]
 	output = subprocess.run(cmd, capture_output=True)
+
 	# TODO: process errors found in output
 	cmp_prefix = b'Comparing ' # will strip it
 	output_lines_filtered = [line[len(cmp_prefix):] for line in output.stdout.splitlines(True) if line.startswith(cmp_prefix)]
+
+	# also will strip all "archive-archive" matches
+	# TODO: maybe in the future we will only keep the best archive matches rather than all of them
+	output_lines_filtered = [line for line in output_lines_filtered if line.count(b'arc_') != 2]
 
 	with open(out_log, 'wb') as f:
 		f.writelines(output_lines_filtered)

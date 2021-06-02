@@ -23,7 +23,7 @@ def preprocess_dirs(submissions_dir, archive_dirs, re_pattern, assignment_name):
 	
 	final_dirs = [(submissions_dir, "")]
 	for dir in archive_dirs:
-		final_dirs.append((dir, os.path.basename(os.path.normpath(dir)) + "_"))
+		final_dirs.append((dir, f"arc_{os.path.basename(os.path.normpath(dir))}_"))
 
 	for base_input_dir, prefix in final_dirs:
 		week_dir = os.path.join(base_input_dir, assignment_name)
