@@ -173,7 +173,6 @@ class Assignment:
 
 # NOTE: we should be inside the project dir here
 def download(cfg, progressObject=StubProgressObject()):
-    cfg = DotMap(cfg)  # TODO: move DotMap() call to the outer module
     s = MoodleSession(cfg)
 
     assignments = s.course_assignments(cfg.course_shortname)

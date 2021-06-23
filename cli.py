@@ -4,13 +4,14 @@ import json
 import interop.jplag_preprocessor
 import interop.jplag_runner
 import interop.moodle_downloader
+from dotmap import DotMap
 
 
 def jplag_preprocessor(config, assignment_name):
     interop.jplag_preprocessor.preprocess_dirs(
-        config["moodle_submissions_dir"],
-        config["archive_dirs"],
-        config["assignment_regex"],
+        config.moodle_submissions_dir,
+        config.archive_dirs,
+        config.assignment_regex,
         assignment_name,
     )
 
@@ -34,7 +35,7 @@ if __name__ == "__main__":
     dir = os.getcwd()
     os.chdir(sys.argv[2])  # project dir
     with open("config.json") as f:
-        config = json.load(f)
+        config = DotMap(json.load(f))
 
     args = sys.argv[3:] + [""]  # remaining args
     locals()[sys.argv[1]](config, args[0])
