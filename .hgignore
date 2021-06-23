@@ -3,3 +3,4 @@ __pycache__/**
 ui_mainwindow.py
 se06/**
 .venv/**
+.vscode/**

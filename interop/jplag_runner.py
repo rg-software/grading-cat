@@ -1,39 +1,55 @@
 # CHECK Jplag documentation: https://github.com/jplag/jplag
 # Command line output can be used to generate a full similarity matrix.
-# Matches can be ranked according to average or max similarity (the latter is useful if programs are different in size)
 
 # options to check:
-# -t <n>          (Token) Tune the sensitivity of the comparison. A smaller <n> increases the sensitivity. ("min_token_match", default 10)
+# -t <n>          (Token) Tune the sensitivity of the comparison.
+#                 A smaller <n> increases the sensitivity.
 # -bc <dir>       Name of the directory which contains the basecode (common framework)
-# -m  <p>%         All matches with more than <p>% similarity will be saved.
+# -m  <p>         Matches with more than <p> percent similarity will be saved (default: 0).
+# -l <lang>       Language to parse (default: java9)
 
-# -m might be needed to analyze specific file/file similarity reports
-
-import sys
 import os
-import json
 import subprocess
 import ast
 
+
+class JPlagReport:
+    def __init__(self, java_path, jplag_args, assignment_name):
+        in_dir = f"jpl_in_{assignment_name}"
+        out_dir = f"jpl_out_{assignment_name}"
+
+        jplag_dir = os.path.dirname(os.path.realpath(__file__))
+        java_exe = os.path.expandvars(java_path)
+        jplag_runcmd = [java_exe, "-jar", os.path.join(jplag_dir, "jplag-3.0.0-al.jar")]
+        cmd = jplag_runcmd + ast.literal_eval(jplag_args) + ["-r", out_dir, in_dir]
+        print(f"Running: {cmd}")
+        output = subprocess.run(cmd, capture_output=True)
+
+        # RFE: maybe in the future we will only keep the best archive matches
+        # RFE: process errors found in output
+        # print(output.stderr) # do something about error log
+        self.report_data = self._filtered_output(output)
+
+    def _filtered_output(self, output):
+        # take only "Comparing... " lines but without "comparing" prefix
+        # also filter out arc_ vs arc_ matches
+        match_prefix = b"Comparing "
+        arc_prefix = b"arc_"
+
+        return [
+            line[len(match_prefix) :]
+            for line in output.stdout.splitlines(True)
+            if line.startswith(match_prefix) and line.count(arc_prefix) != 2
+        ]
+
+    def report_lines(self):
+        return self.report_data
+
+
 # NOTE: we should be inside the project dir here
 def run(java_path, jplag_args, assignment_name):
-	in_dir = 'jpl_in_' + assignment_name
-	out_dir = 'jpl_out_' + assignment_name
-	out_log = 'jpl_out_' + assignment_name + '.log'
+    report = JPlagReport(java_path, jplag_args, assignment_name)
 
-	jplag_dir = os.path.dirname(os.path.realpath(__file__))
-	java_exe = os.path.expandvars(java_path)
-	jplag_runcmd = [java_exe, '-jar', os.path.join(jplag_dir, 'jplag-2.12.1.jar')]
-	cmd = jplag_runcmd + ast.literal_eval(jplag_args) + ['-r', out_dir, in_dir]
-	output = subprocess.run(cmd, capture_output=True)
-
-	# TODO: process errors found in output
-	cmp_prefix = b'Comparing ' # will strip it
-	output_lines_filtered = [line[len(cmp_prefix):] for line in output.stdout.splitlines(True) if line.startswith(cmp_prefix)]
-
-	# also will strip all "archive-archive" matches
-	# TODO: maybe in the future we will only keep the best archive matches rather than all of them
-	output_lines_filtered = [line for line in output_lines_filtered if line.count(b'arc_') != 2]
-
-	with open(out_log, 'wb') as f:
-		f.writelines(output_lines_filtered)
+    out_log = f"jpl_out_{assignment_name}.log"
+    with open(out_log, "wb") as f:
+        f.writelines(report.report_lines())

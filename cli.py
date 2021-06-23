@@ -17,7 +17,7 @@ def jplag_preprocessor(config, assignment_name):
 
 
 def jplag_runner(config, assignment_name):
-    interop.jplag_runner.run(config["java_path"], config["jplag_args"], assignment_name)
+    interop.jplag_runner.run(config.java_path, config.jplag_args, assignment_name)
 
 
 def moodle_downloader(config, _):
