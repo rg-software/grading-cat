@@ -48,8 +48,8 @@ class MoodleSession:
         userdata = self._course_users(course_shortname)
         users = {}  # id -> email-based username
         for user in [DotMap(u) for u in userdata]:
-            conv = ast.literal_eval(conversions)  # TODO: invent something better
-            # '-' is bad for JPlag files
+            conv = ast.literal_eval(conversions)
+            # '-' in files is bad for analyzing JPlag output
             new_uname = _regex_rename(conv, user.email).replace("-", "_")
             print(f"Renaming user: {user.email} -> {new_uname}")
             users[user.id] = new_uname
@@ -63,8 +63,7 @@ class MoodleSession:
                 "moodlewsrestformat": "json",
             }
         )
-        r = requests.get(self.rest_url, params=p)
-        return r.json()
+        return requests.get(self.rest_url, params=p).json()
 
     def _get_token(self, username, password):
         p = {
@@ -72,29 +71,25 @@ class MoodleSession:
             "password": password,
             "service": "moodle_mobile_app",
         }
-        r = requests.get(self.login_url, params=p)
-        return r.json()["token"]
+        return requests.get(self.login_url, params=p).json()["token"]
 
     def _course_by_shortname(self, shortname):  # list of all matching courses
         courses = self._call(
             "core_course_get_courses_by_field",
             {"field": "shortname", "value": shortname},
         )
-        # we presume that only one course matches the given shortname
-        return courses["courses"][0]
 
-    def userdir(self, user_id):
-        return self.user_dirs[user_id]
+        return courses["courses"][0]  # only one course matches the given name
 
     def _course_users(self, course_shortname):
-        print(course_shortname)
         course_id = self._course_by_shortname(course_shortname)["id"]
-        r = self._call(
+        return self._call(
             "core_enrol_get_enrolled_users",
             {"courseid": course_id},
         )
-        print(len(r))
-        return r
+
+    def userdir(self, user_id):
+        return self.user_dirs[user_id]
 
     def course_assignments(self, course_shortname):
         course_id = self._course_by_shortname(course_shortname)["id"]
@@ -129,11 +124,10 @@ class SubmittedFile:
         if not os.path.exists(working_dir):
             os.makedirs(working_dir)
 
-        # TODO: checksum testing (?) -- no need to redownload already downloaded files
-        # TODO: perhaps, this script should 'sync' rather than download files:
-        # so we download new files and delete extra files
+        # RFE: maybe check if some files got updated?
+        # RFE: maybe download new/delete old files instead?
         target_path = os.path.join(working_dir, self.file.filename)
-        if not os.path.exists(target_path):
+        if not os.path.exists(target_path):  # skip existing files
             print(f"\t\tDownloading file: {self.file.filename}")
             self.session.download_file(self.file.fileurl, target_path)
 
@@ -145,10 +139,9 @@ class Submission:
 
     def process(self, working_dir):
         user_dir = self.session.userdir(self.submission.userid)
-        print(f"\tProcessing user: {user_dir}")
-
         full_dir = os.path.join(working_dir, user_dir)
 
+        print(f"\tProcessing user: {user_dir}")
         for plugin in self.submission.plugins:  # need to find attached files
             if "fileareas" in plugin:
                 # perhaps, can be several areas, let's take the first one
@@ -164,18 +157,18 @@ class Assignment:
         conv = ast.literal_eval(session.assignment_conversions)
         self.new_name = _regex_rename(conv, self.assignment.name)
         print(f"Renaming asignment: {self.assignment.name} -> {self.new_name}")
-        # sel.assignment.name = new_aname
 
     def process(self, working_dir, progressObject):
         # such as "Exercises for Week 1"
         print(f"Saving assignment '{self.assignment.name}' data")
         submissions = self.session.course_submissions(self.assignment.id)
+        full_dir = os.path.join(working_dir, self.new_name)
 
         for submission in submissions:
             progressObject.processAppEvents()
             if progressObject.wasCanceled():
                 raise RuntimeError()
-            submission.process(os.path.join(working_dir, self.new_name))
+            submission.process(full_dir)
 
 
 # NOTE: we should be inside the project dir here
