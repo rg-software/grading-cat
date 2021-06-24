@@ -188,6 +188,17 @@ security = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)"]
 socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 
 [[package]]
+name = "rope"
+version = "0.19.0"
+description = "a python refactoring library..."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.extras]
+dev = ["pytest"]
+
+[[package]]
 name = "shiboken6"
 version = "6.0.2"
 description = "Python / C++ bindings helper module"
@@ -247,7 +258,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7, <3.10"
-content-hash = "894932b0492dfe67a69020febf122fc50b768637515dcf5c9e5b51ef6edb2e34"
+content-hash = "a6137759ae6ac4b7ba2068183f7105dcc194fc3e5fbeeaffb9ae9cdda2c903c1"
 
 [metadata.files]
 appdirs = [
@@ -362,6 +373,9 @@ regex = [
 requests = [
     {file = "requests-2.25.1-py2.py3-none-any.whl", hash = "sha256:c210084e36a42ae6b9219e00e48287def368a26d03a048ddad7bfee44f75871e"},
     {file = "requests-2.25.1.tar.gz", hash = "sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804"},
+]
+rope = [
+    {file = "rope-0.19.0.tar.gz", hash = "sha256:64e6d747532e1f5c8009ec5aae3e5523a5bcedf516f39a750d57d8ed749d90da"},
 ]
 shiboken6 = [
     {file = "shiboken6-6.0.2-6.0.2-cp36.cp37.cp38.cp39-abi3-macosx_10_14_x86_64.whl", hash = "sha256:51ef62edde0304916e9fa0a2104d96bb65bcb8d8a5b656ff5438e112dc8aeaec"},

@@ -1,13 +1,12 @@
-from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QHBoxLayout, QLineEdit, QDialogButtonBox, QWidget
-from PySide6.QtCore import Qt, QDateTime
-from PySide6.QtCore import *
-from PySide6.QtGui import *
-from PySide6.QtWidgets import *
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout
+from PySide6.QtCore import QRect
 import config
+
 
 class AboutCatDialog(QDialog):
     def __init__(self, parent):
-        super(AboutCatDialog, self).__init__(parent)
+        super().__init__(parent)
 
         self.resize(470, 360)
         layout = QVBoxLayout(self)
@@ -19,18 +18,7 @@ class AboutCatDialog(QDialog):
         self.label.setPixmap(QPixmap(aboutPath))
         self.label.setText("")
         layout.addWidget(self.label)
-        self.setWindowTitle('About Grading Cat')
-
-        #self.retranslateUi(self)
-        #QMetaObject.connectSlotsByName(self)
-
-    # setupUi
-    #def retranslateUi(self, Dialog):
-        #Dialog.setWindowTitle(QCoreApplication.translate("About_Grading_Cat", "About Grading Cat", None))
-        #self.label.setText("")
-    # retranslateUi    
-
-   # def showImage(self):        
+        self.setWindowTitle("About Grading Cat")
 
     @staticmethod
     def show(parent):

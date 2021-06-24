@@ -1,3 +1,5 @@
+import types
+from gui.project_config_editor import ProjectConfigDialog
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import *
 from PySide6 import QtCore, QtGui
@@ -8,13 +10,15 @@ from operator import *
 from gui.ui_mainwindow import Ui_MainWindow
 from gui.diagrams import *
 from gui.lines import LinesView
+from main_utils import newSessionDiagram
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
-        
-        self.ui.setupUi(self) 
+
+        self.ui.setupUi(self)
         self.setWindowIcon(QIcon("icons/cat.png"))
 
         self.ui.actionSettings.setEnabled(True)
@@ -23,7 +27,7 @@ class MainWindow(QMainWindow):
         self.ui.actionSettings.setEnabled(False)
         self.ui.actionSync_with_Data_Source.setEnabled(False)
         self.ui.actionDetect.setEnabled(False)
-                
+
         self.ui.actionQuit.setEnabled(True)
 
         self.tabChord = QWidget()
@@ -56,22 +60,30 @@ class MainWindow(QMainWindow):
         self.gridLayout_network.setContentsMargins(10, 10, 10, 12)
         self.ui.tabWidget.addTab(self.tabNetwork, "")
 
-        self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabChord), QCoreApplication.translate("MainWindow", "Chord diagram", None))
-        self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabChord2), QCoreApplication.translate("MainWindow", "Chord diagram 2", None))
-        self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabNetwork), QCoreApplication.translate("MainWindow", "Network", None))
-         
+        self.ui.tabWidget.setTabText(
+            self.ui.tabWidget.indexOf(self.tabChord),
+            QCoreApplication.translate("MainWindow", "Chord diagram", None),
+        )
+        self.ui.tabWidget.setTabText(
+            self.ui.tabWidget.indexOf(self.tabChord2),
+            QCoreApplication.translate("MainWindow", "Chord diagram 2", None),
+        )
+        self.ui.tabWidget.setTabText(
+            self.ui.tabWidget.indexOf(self.tabNetwork),
+            QCoreApplication.translate("MainWindow", "Network", None),
+        )
+
         self.chordDiagramScene = GraphicsSceneChordDiagram()
         self.chordDiagram2Scene = GraphicsSceneChordDiagram2()
         self.networkScene = GraphicsSceneNetwork()
-                
-        self.ChordDiagramView = GraphicsView(self, self.chordDiagramScene)        
-        self.ChordDiagram2View = GraphicsView(self, self.chordDiagram2Scene)        
-        self.NetworkDiagramView = GraphicsView(self, self.networkScene)        
+
+        self.ChordDiagramView = GraphicsView(self, self.chordDiagramScene)
+        self.ChordDiagram2View = GraphicsView(self, self.chordDiagram2Scene)
+        self.NetworkDiagramView = GraphicsView(self, self.networkScene)
 
         self.gridLayout_chord.addWidget(self.ChordDiagramView, 10, 10)
         self.gridLayout_chord2.addWidget(self.ChordDiagram2View, 10, 10)
         self.gridLayout_network.addWidget(self.NetworkDiagramView, 10, 10)
-
 
         #### LINES ####
 
@@ -84,46 +96,79 @@ class MainWindow(QMainWindow):
         self.gridLayout_lines.setContentsMargins(10, 10, 10, 12)
         self.ui.tabWidget.addTab(self.tabLines, "")
 
-        self.ui.tabWidget.setTabText(self.ui.tabWidget.indexOf(self.tabLines), QCoreApplication.translate("MainWindow", "Lines", None))
+        self.ui.tabWidget.setTabText(
+            self.ui.tabWidget.indexOf(self.tabLines),
+            QCoreApplication.translate("MainWindow", "Lines", None),
+        )
 
         self.linesView = LinesView(self)
         self.gridLayout_lines.addWidget(self.linesView, 10, 10)
 
-    def updateList(self, student):   
-    #rate = findMaxPlag()
-    #if config.SORT: rate = sorted(rate, key=itemgetter(1), reverse=True)
+        self._PROJECT_OPENED_ITEMS = [
+            ("actionSettings", True),
+            ("actionSync_with_Data_Source", True),
+            ("actionDetect", True),
+        ]
+        #### CONNECTORS
+        self.ui.actionNew_Project_2.triggered.connect(self.newProject)
+        self.ui.actionOpen_Project_2.triggered.connect(self.openProject)
+        self.ui.actionSettings.triggered.connect(self.editSettings)
+        self.ui.actionSync_with_Data_Source.triggered.connect(self.syncWithDataSource)
+        self.ui.actionDetect.triggered.connect(self.openNewSession)
+
+        self._updateTitle(None)  # no project loaded
+
+    def updateList(self, student):
+        # rate = findMaxPlag()
+        # if config.SORT: rate = sorted(rate, key=itemgetter(1), reverse=True)
         if student in config.STUDENTS_LIST:
             currentIndex = config.STUDENTS_LIST.index(student)
-            config.SELECTED_STUDENT = config.STUDENTS_LIST[currentIndex]       
+            config.SELECTED_STUDENT = config.STUDENTS_LIST[currentIndex]
             maxPlag = max(config.RESULT_MATRIX[currentIndex])
             students = []
             for i in range(len(config.STUDENTS_LIST)):
                 if currentIndex != i:
                     students.append([config.RESULT_MATRIX[currentIndex][i], i])
-                else: students.append([maxPlag, i])
-        
-            if config.SORT: 
+                else:
+                    students.append([maxPlag, i])
+
+            if config.SORT:
                 del students[currentIndex]
-                students = sorted(students, key=itemgetter(0), reverse=True)            
-                students.insert(0,[maxPlag, currentIndex])            
+                students = sorted(students, key=itemgetter(0), reverse=True)
+                students.insert(0, [maxPlag, currentIndex])
                 currentIndex = 0
 
             for i in range(len(config.STUDENTS_LIST)):
-                self.ui.listStudents.item(i).setBackground(QColor(250, 247, 247)) #!   
+                self.ui.listStudents.item(i).setBackground(QColor(250, 247, 247))  #!
                 if i == currentIndex:
-                    #window.listStudents.item(i).setBackground(QColor(248, 155, 141))
+                    # window.listStudents.item(i).setBackground(QColor(248, 155, 141))
                     self.ui.listStudents.item(i).setSelected(True)
                     newRow = student + "\t- " + str(maxPlag) + "%"
-                    self.ui.listStudents.item(i).setText(newRow)   
+                    self.ui.listStudents.item(i).setText(newRow)
                 else:
                     if int(students[i][0]) >= config.RANGE_PLAG:
                         if students[i][0] == maxPlag:
-                            self.ui.listStudents.item(i).setForeground(QColor(235, 50, 50))
-                        else: self.ui.listStudents.item(i).setForeground(QColor(250, 130, 130))
-                        self.ui.listStudents.item(i).setBackground(QColor(231, 214, 212))   
-                    else: self.ui.listStudents.item(i).setForeground(QColor(119, 110, 107))                     
-                    text = config.STUDENTS_LIST[students[i][1]] + "\t- " + str(students[i][0]) + "%"
-                    self.ui.listStudents.item(i).setText(text)  
+                            self.ui.listStudents.item(i).setForeground(
+                                QColor(235, 50, 50)
+                            )
+                        else:
+                            self.ui.listStudents.item(i).setForeground(
+                                QColor(250, 130, 130)
+                            )
+                        self.ui.listStudents.item(i).setBackground(
+                            QColor(231, 214, 212)
+                        )
+                    else:
+                        self.ui.listStudents.item(i).setForeground(
+                            QColor(119, 110, 107)
+                        )
+                    text = (
+                        config.STUDENTS_LIST[students[i][1]]
+                        + "\t- "
+                        + str(students[i][0])
+                        + "%"
+                    )
+                    self.ui.listStudents.item(i).setText(text)
 
     def drawDiagrams(self):
         self.ChordDiagramView.scene.drawDiagram()
@@ -144,25 +189,25 @@ class MainWindow(QMainWindow):
         if config.COUPLE != "":
             project.сall_me_whatever_you_like(config.WAITING_FOR_, config.COUPLE)
             config.SELECTED_STUDENT = config.WAITING_FOR_
-             #config.WAITING_FOR_ = ""
+            # config.WAITING_FOR_ = ""
             config.COUPLE = ""
 
         if config.SELECTED_STUDENT != "":
             self.ui.lineEdit.clear
             self.ui.lineEdit.setText(str(config.SELECTED_STUDENT))
-            self.ui.lineEdit.setToolTip('Selected student')
-            self.ui.ShowButton.setToolTip('Show selected student')
+            self.ui.lineEdit.setToolTip("Selected student")
+            self.ui.ShowButton.setToolTip("Show selected student")
 
-            #if config.SELECTED_STUDENT not in config.HIDED_STUDENTS:
-                #self.ui.toolButton_openEye.clicked.connect(self.hideStudent)            
-                #self.ui.toolButton_openEye.setToolTip('Hide')
-                #iconPath = config.APPLICATION_DIRNAME + "/icons/closeEye.png"
-                #self.ui.toolButton_openEye.setIcon(QIcon(iconPath))
-            #else:
-                #self.ui.toolButton_openEye.clicked.connect(self.exposeStudent)
-                #self.ui.toolButton_openEye.setToolTip('Expose')
-                #iconPath = config.APPLICATION_DIRNAME + "/icons/openEye.png"
-                #self.ui.toolButton_openEye.setIcon(QIcon(iconPath))
+            # if config.SELECTED_STUDENT not in config.HIDED_STUDENTS:
+            # self.ui.toolButton_openEye.clicked.connect(self.hideStudent)
+            # self.ui.toolButton_openEye.setToolTip('Hide')
+            # iconPath = config.APPLICATION_DIRNAME + "/icons/closeEye.png"
+            # self.ui.toolButton_openEye.setIcon(QIcon(iconPath))
+            # else:
+            # self.ui.toolButton_openEye.clicked.connect(self.exposeStudent)
+            # self.ui.toolButton_openEye.setToolTip('Expose')
+            # iconPath = config.APPLICATION_DIRNAME + "/icons/openEye.png"
+            # self.ui.toolButton_openEye.setIcon(QIcon(iconPath))
 
         if len(config.STUDENTS_LIST) > 0:
             self.studentList()
@@ -173,44 +218,49 @@ class MainWindow(QMainWindow):
 
     def studentList(self):
         self.ui.listStudents.clear()
-        #window.listRate.clear()
+        # window.listRate.clear()
         rate = findMaxPlag()
         for i in range(len(config.STUDENTS_LIST)):
-            if config.SORT: rate = sorted(rate, key=itemgetter(1), reverse=True) 
+            if config.SORT:
+                rate = sorted(rate, key=itemgetter(1), reverse=True)
 
             text = config.STUDENTS_LIST[rate[i][2]] + "\t- " + str(rate[i][1]) + "%"
             self.ui.listStudents.addItem(text)
-            #window.listStudents.addItem(config.STUDENTS_LIST[i])
-            #text = str(rate[i][1]) + "%"
-            #window.listRate.addItem(text)
+            # window.listStudents.addItem(config.STUDENTS_LIST[i])
+            # text = str(rate[i][1]) + "%"
+            # window.listRate.addItem(text)
         pass
-    def selectedStudent(self, item):    
+
+    def selectedStudent(self, item):
         node = item.text().split()[0]
 
-        if node != "" and node in config.STUDENTS_LIST:       
+        if node != "" and node in config.STUDENTS_LIST:
             if config.SELECTED_STUDENT == node and config.WAITING_FOR_ == "":
                 config.WAITING_FOR_ = node
             elif config.SELECTED_STUDENT == node and config.WAITING_FOR_ == node:
                 config.WAITING_FOR_ = ""
             elif config.SELECTED_STUDENT != "" and config.WAITING_FOR_ != "":
-                if node in config.SELECTED_STUDENTS: 
+                if node in config.SELECTED_STUDENTS:
                     config.COUPLE = node
-                else: 
+                else:
                     config.WAITING_FOR_ = ""
-        
-            config.SELECTED_STUDENT = node   
+
+            config.SELECTED_STUDENT = node
 
             self.ui.lineEdit.setText(node)
-            self.ui.lineEdit.setToolTip('Selected student') 
-            self.ui.ShowButton.setToolTip('Show selected student')
+            self.ui.lineEdit.setToolTip("Selected student")
+            self.ui.ShowButton.setToolTip("Show selected student")
             self.updateDiagram()
 
     def updateLinkedStudents(self, student):
         config.SELECTED_STUDENTS.clear()
         if student in config.STUDENTS_LIST:
             currentIndex = config.STUDENTS_LIST.index(student)
-            for i in range(len(config.STUDENTS_LIST)): 
-                if currentIndex != i and int(config.RESULT_MATRIX[currentIndex][i]) >= config.RANGE_PLAG:
+            for i in range(len(config.STUDENTS_LIST)):
+                if (
+                    currentIndex != i
+                    and int(config.RESULT_MATRIX[currentIndex][i]) >= config.RANGE_PLAG
+                ):
                     config.SELECTED_STUDENTS.append(config.STUDENTS_LIST[i])
 
     def clearLine(self):
@@ -218,12 +268,12 @@ class MainWindow(QMainWindow):
         config.COUPLE = ""
         config.SELECTED_STUDENT = ""
         config.SELECTED_STUDENTS.clear()
-        self.ui.lineEdit.clear()        
-        self.ui.lineEdit.setToolTip('Enter student ID to select')
-        self.ui.ShowButton.setToolTip('No one selected')
+        self.ui.lineEdit.clear()
+        self.ui.lineEdit.setToolTip("Enter student ID to select")
+        self.ui.ShowButton.setToolTip("No one selected")
         self.updateList("")
         self.updateDiagram()
-    
+
     def resetSettings(self):
 
         self.ui.showNames.setChecked(True)
@@ -240,14 +290,17 @@ class MainWindow(QMainWindow):
         config.RANGE_PLAG = 25
 
     def deleteStudent(self):
-        if  config.SELECTED_STUDENT != "" and config.SELECTED_STUDENT in config.STUDENTS_LIST:
-            index = config.STUDENTS_LIST.index(config.SELECTED_STUDENT)        
+        if (
+            config.SELECTED_STUDENT != ""
+            and config.SELECTED_STUDENT in config.STUDENTS_LIST
+        ):
+            index = config.STUDENTS_LIST.index(config.SELECTED_STUDENT)
             config.STUDENTS_LIST.remove(config.SELECTED_STUDENT)
-        
+
             del config.RESULT_MATRIX[index]
             for i in range(len(config.RESULT_MATRIX)):
                 del config.RESULT_MATRIX[i][index]
-      
+
             if config.SELECTED_STUDENT in config.HIDED_STUDENTS:
                 config.HIDED_STUDENTS.remove(config.SELECTED_STUDENT)
 
@@ -257,12 +310,16 @@ class MainWindow(QMainWindow):
             self.updateList("")
             self.updateDiagram()
         pass
+
     def hideStudent(self):
-        if  config.SELECTED_STUDENT != "" and config.SELECTED_STUDENT in config.STUDENTS_LIST:
+        if (
+            config.SELECTED_STUDENT != ""
+            and config.SELECTED_STUDENT in config.STUDENTS_LIST
+        ):
             if config.SELECTED_STUDENT not in config.HIDED_STUDENTS:
                 config.HIDED_STUDENTS.append(config.SELECTED_STUDENT)
 
-            config.WAITING_FOR_ = "" 
+            config.WAITING_FOR_ = ""
             config.COUPLE = ""
             config.SELECTED_STUDENT = ""
             config.SELECTED_STUDENTS.clear()
@@ -270,16 +327,77 @@ class MainWindow(QMainWindow):
             self.updateList("")
             self.updateDiagram()
         pass
+
     def exposeStudent(self):
-        if  config.SELECTED_STUDENT != "" and config.SELECTED_STUDENT in config.STUDENTS_LIST and config.SELECTED_STUDENT in config.HIDED_STUDENTS:
+        if (
+            config.SELECTED_STUDENT != ""
+            and config.SELECTED_STUDENT in config.STUDENTS_LIST
+            and config.SELECTED_STUDENT in config.HIDED_STUDENTS
+        ):
             config.HIDED_STUDENTS.remove(config.SELECTED_STUDENT)
 
             self.updateList(config.SELECTED_STUDENT)
             self.updateDiagram()
-  
+
     def findStudent(self):
         student = self.ui.lineEdit.text()
         if student != "":
             student = student.split()[0]
             config.SELECTED_STUDENT = student
-            self.updateDiagram()    
+            self.updateDiagram()
+
+    ## NOTE: here my functions start (MM); TODO: process code above
+    def _updateTitle(self, project_path):
+        self.setWindowTitle(f"{config.APPLICATION_TITLE}: {project_path}")
+
+    def _updateMenuStatus(self, items):
+        for item, status in items:
+            getattr(self.ui, item).setEnabled(status)
+
+    def editSettings(self):
+        isOk, config = ProjectConfigDialog.show(self, project.settings())
+        if isOk:
+            project.save_settings(config)
+
+    def newProject(self):
+        if r := QFileDialog.getExistingDirectory(
+            self,
+            "Choose project folder",
+            sys.path[0],  # starting folder may be revised
+            QFileDialog.ShowDirsOnly,
+        ):
+            project.newProject(r)
+            self._updateTitle(r)
+            self._updateMenuStatus(self._PROJECT_OPENED_ITEMS)
+            self.editSettings()
+
+    def openProject(self):
+        if r := QFileDialog.getExistingDirectory(
+            self,
+            "Choose project folder",
+            sys.path[0],  # starting folder may be revised
+            QFileDialog.ShowDirsOnly,
+        ):
+            project.openProject(r)
+            self._updateTitle(r)
+            self._updateMenuStatus(self._PROJECT_OPENED_ITEMS)
+
+    def syncWithDataSource(self):
+        progress = QProgressDialog("Downloading files...", "Cancel", 0, 1, self)
+        progress.setMinimumDuration(0)
+        progress.setWindowModality(QtCore.Qt.WindowModal)
+        progress.processAppEvents = types.MethodType(
+            lambda x: QtCore.QCoreApplication.instance().processEvents(), progress
+        )
+        project.syncWithDataSource(progress)
+
+    def openNewSession(self):
+        item, isOk = QInputDialog.getItem(
+            self,
+            config.APPLICATION_TITLE,
+            "Choose assignment",
+            project.assignments(),
+            editable=False,
+        )
+        if isOk and newSessionDiagram(project.detect(item)):
+            self.updateDiagram()
