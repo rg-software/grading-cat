@@ -1,16 +1,26 @@
 import types
+import sys
+from operator import itemgetter
+
+from PySide6 import QtWidgets
+from PySide6.QtGui import QColor, QIcon
+from PySide6.QtWidgets import QFileDialog, QGridLayout, QInputDialog
+from PySide6.QtWidgets import QMainWindow, QProgressDialog, QSizePolicy, QWidget
+from PySide6 import QtCore
+from PySide6.QtCore import QCoreApplication
+
+from gui.diagrams import GraphicsSceneChordDiagram, GraphicsSceneChordDiagram2
+from gui.diagrams import GraphicsSceneNetwork, GraphicsView, findMaxPlag
 from gui.project_config_editor import ProjectConfigDialog
-from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import *
-from PySide6 import QtCore, QtGui
-from PySide6.QtCore import *
-from PySide6 import QtGui
-from PySide6.QtGui import *
-from operator import *
+from gui.new_diagram_dialog import NewDiagramDialog
+from gui.number_of_nodes import NumberOfNodesDialog
 from gui.ui_mainwindow import Ui_MainWindow
-from gui.diagrams import *
+from gui.about_cat import AboutCatDialog
 from gui.lines import LinesView
-from main_utils import newSessionDiagram
+from main_utils import newSessionDiagram, expandMatrix, saveMatrix, appPath
+
+import config
+import project
 
 
 class MainWindow(QMainWindow):
@@ -115,8 +125,155 @@ class MainWindow(QMainWindow):
         self.ui.actionSettings.triggered.connect(self.editSettings)
         self.ui.actionSync_with_Data_Source.triggered.connect(self.syncWithDataSource)
         self.ui.actionDetect.triggered.connect(self.openNewSession)
+        self.ui.actionQuit.triggered.connect(self.close)
+        self.ui.actionAbout_Grading_Cat.triggered.connect(self.aboutGradingCat)
+
+        self.ui.showNames.stateChanged.connect(self.updateDiagram)
+        self.ui.showLinkless.stateChanged.connect(self.updateDiagram)
+        self.ui.showRate.stateChanged.connect(self.updateDiagram)
+        self.ui.chess.stateChanged.connect(self.updateDiagram)
+        self.ui.sort.stateChanged.connect(self.updateDiagram)
+
+        self.ui.listStudents.itemClicked.connect(self.selectedStudent)
+        self.ui.lineEdit.setToolTip("Enter student ID to select")
+        self.ui.ShowButton.clicked.connect(self.findStudent)
+        self.ui.ShowButton.setToolTip("No one selected")
+        self.ui.toolButton_cancel.clicked.connect(self.clearLine)
+        self.ui.toolButton_cancel.setToolTip("Cancel")
+        self.ui.toolButton_delete.clicked.connect(self.deleteStudent)
+        self.ui.toolButton_delete.setToolTip("Delete")
+
+        self.ui.toolButton_openEye.clicked.connect(self.exposeStudent)
+        self.ui.toolButton_openEye.setToolTip("Expose")
+
+        openEyePath = f"{appPath()}/icons/openEye.png"
+        self.ui.toolButton_openEye.setIcon(QIcon(openEyePath))
+
+        self.ui.toolButton_closeEye.clicked.connect(self.hideStudent)
+        self.ui.toolButton_closeEye.setToolTip("Hide")
+        closeEyePath = f"{appPath()}/icons/closeEye.png"
+        self.ui.toolButton_closeEye.setIcon(QIcon(closeEyePath))
+
+        self.ui.resetButton.clicked.connect(self.resetSettings)
+        self.ui.resetButton.setToolTip("Reset settings")
+
+        self.ui.rangeSlider.valueChanged.connect(self.updateDiagram)
+        rangeLabel = f"Range:  > {self.ui.rangeSlider.value()}%"
+        self.ui.label_Range.setText(rangeLabel)
+
+        self.chordDiagramScene.signal.update.connect(self.updateDiagram)
+        self.chordDiagramScene.signal.clear.connect(self.clearLine)
+
+        self.chordDiagram2Scene.signal.update.connect(self.updateDiagram)
+        self.chordDiagram2Scene.signal.clear.connect(self.clearLine)
+
+        self.networkScene.signal.update.connect(self.updateDiagram)
+        self.networkScene.signal.clear.connect(self.clearLine)
+
+        self.ui.actionNew.triggered.connect(self.newDiagram)
+        self.ui.actionOpen.triggered.connect(self.openDiagram)
+        self.ui.actionSave.triggered.connect(self.saveDiagram)
+        self.ui.actionSave_as.triggered.connect(self.save_asDiagram)
+        self.ui.actionClose.triggered.connect(self.closeDiagram)
 
         self._updateTitle(None)  # no project loaded
+
+    def newDiagram(self):
+        isOk, n = NumberOfNodesDialog.show(self)
+        if isOk:
+            isOk, matrix, names = NewDiagramDialog.show(self, n)
+            if isOk:
+                if len(matrix) > 0:
+                    config.STUDENTS_LIST = names
+                    config.RESULT_MATRIX = matrix
+
+                    if (
+                        len(config.STUDENTS_LIST) > 1
+                        and len(config.STUDENTS_LIST) == len(config.RESULT_MATRIX)
+                        and len(config.RESULT_MATRIX) == len(config.RESULT_MATRIX[0])
+                    ):
+                        config.SELECTED_STUDENT = ""
+                        config.SELECTED_STUDENTS = []
+                        config.HIDED_STUDENTS = []
+                        self.updateDiagram()
+                        self.ui.actionSave.setEnabled(True)
+                        self.ui.actionSave_as.setEnabled(True)
+                        self.ui.actionClose.setEnabled(True)
+
+    def openDiagram(self):
+        config.FILE_NAME = QFileDialog.getOpenFileName(
+            None, "Load File", "", "Text (*.txt);;All Files (*)"
+        )[0]
+        if config.FILE_NAME != "":
+            file = open(config.FILE_NAME)
+            try:
+                results = file.read().replace("\n", "").split(";")
+                self.ui.lineEdit.clear
+                nodes, matrix = expandMatrix(results)
+                if len(nodes) > 1 and len(matrix) == len(nodes):
+                    saveMatrix(nodes, matrix)
+            finally:
+                file.close()
+
+            if (
+                len(config.STUDENTS_LIST) > 1
+                and len(config.STUDENTS_LIST) == len(config.RESULT_MATRIX)
+                and len(config.RESULT_MATRIX) == len(config.RESULT_MATRIX[0])
+            ):
+                config.SELECTED_STUDENT = ""
+                config.SELECTED_STUDENTS = []
+                config.HIDED_STUDENTS = []
+                self.updateDiagram()
+                self.ui.actionSave.setEnabled(True)
+                self.ui.actionSave_as.setEnabled(True)
+                self.ui.actionClose.setEnabled(True)
+
+    def saveDiagram(self):
+        if len(config.STUDENTS_LIST) > 0:
+            if config.FILE_NAME != "":
+                string = ",".join(config.STUDENTS_LIST)
+                for i in range(len(config.STUDENTS_LIST)):
+                    string_ints = [str(int) for int in config.RESULT_MATRIX[i]]
+                    line = ",".join(string_ints)
+                    # line = ','.join(config.RESULT_MATRIX[i])
+                    string = string + ";\n" + line
+
+                file = open(config.FILE_NAME, "w+")
+                try:
+                    file.write(string)
+                finally:
+                    file.close()
+            else:
+                self.saveAsDiagram()
+
+    def save_asDiagram(self):
+        if len(config.STUDENTS_LIST) > 0:
+            config.FILE_NAME = QFileDialog.getSaveFileName(
+                None, "Load File", "", "Text (*.txt);;All Files (*)"
+            )[0]
+            # print(config.FILE_NAME)
+            if config.FILE_NAME != "":
+                self.saveDiagram()
+
+    def closeDiagram(self):
+        config.FILE_NAME = ""
+        config.STUDENTS_LIST.clear()
+        config.RESULT_MATRIX.clear()
+        config.HIDED_STUDENTS.clear()
+        config.SELECTED_STUDENT = ""
+        config.SELECTED_STUDENTS.clear()
+
+        self.ui.actionSave.setEnabled(False)
+        self.ui.actionSave_as.setEnabled(False)
+        self.ui.actionClose.setEnabled(False)
+
+        self.ui.lineEdit.clear()
+        self.updateList("")
+        self.ui.listStudents.clear()
+        self.drawDiagrams()
+
+    def aboutGradingCat(self):
+        AboutCatDialog.show(self)
 
     def updateList(self, student):
         # rate = findMaxPlag()
@@ -357,7 +514,7 @@ class MainWindow(QMainWindow):
     def editSettings(self):
         isOk, config = ProjectConfigDialog.show(self, project.settings())
         if isOk:
-            project.save_settings(config)
+            project.saveSettings(config)
 
     def newProject(self):
         if r := QFileDialog.getExistingDirectory(

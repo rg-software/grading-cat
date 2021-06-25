@@ -11,7 +11,7 @@ import config
 import collections
 import random
 import time
-
+from main_utils import appPath
 
 class LinesView(QGraphicsView):
     def __init__(self, parent):
@@ -367,7 +367,7 @@ class LinesScene(QGraphicsScene):
         score.setDefaultTextColor(self.scoreColor)
 
         if self.GAME:
-            catPath = config.APPLICATION_DIRNAME + "/icons/cat_ss.png"
+            catPath = f"{appPath()}/icons/cat_ss.png"
             pixmap = QPixmap.fromImage(catPath).scaled(scale + scale/3, scale + scale/3, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
             pixmapItem = QGraphicsPixmapItem(pixmap)        
             #pixmapItem.setScale(pixmapSize, Qt.IgnoreAspectRatio,Qt.SmoothTransformation)
@@ -397,7 +397,7 @@ class LinesScene(QGraphicsScene):
             gameOver.setPos(gameOverX + 1, gameOverY + 1)          
             gameOver.setDefaultTextColor(self.scoreColor)
 
-            goCatPath = config.APPLICATION_DIRNAME + "/icons/cat_ssevl.png"
+            goCatPath = f"{appPath()}/icons/cat_ssevl.png"
             pixmap = QPixmap.fromImage(goCatPath).scaled(scale + scale/3, scale + scale/3, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
             pixmapItem = QGraphicsPixmapItem(pixmap)        
             #pixmapItem.setScale(pixmapSize, Qt.IgnoreAspectRatio,Qt.SmoothTransformation)

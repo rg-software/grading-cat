@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import sys
+from main_utils import appPath
 from dotmap import DotMap
 
 import interop.jplag_preprocessor as jplag_preprocessor
@@ -12,11 +13,11 @@ import interop.moodle_downloader as moodle_downloader
 
 
 _CurrentProjectPath = None  # initially no project file is loaded
-_CurrentAssignment = None
+_CurrentAssignment = None  # TODO: to remove
 
 
 def _templatesDir():
-    return sys.path[0]  # may be revised
+    return appPath()  # may be revised
 
 
 def settings():
@@ -26,7 +27,7 @@ def settings():
         return DotMap(json.load(f))
 
 
-def save_settings(config):
+def saveSettings(config):
     json_path = os.path.join(_CurrentProjectPath, "config.json")
     with open(json_path, "w") as f:
         json.dump(config, f)

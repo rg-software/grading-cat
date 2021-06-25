@@ -1,5 +1,4 @@
 APPLICATION_TITLE = "Grading Cat"
-APPLICATION_DIRNAME = ""
 
 ##### diagram data #####
 FILE_NAME = ""

@@ -1,7 +1,10 @@
 # TODO: this is a temporary "function collection" module, to be reorganized
 
 import config
+import sys
 
+def appPath():
+    return sys.path[0]
 
 def newDiagramFromJPlag(text):
     # text = "s1252001-s1260009: 32.753624\ns1252001-s1260017: 21.987314\ns1252001-s1260027: 41.365463"
@@ -64,3 +67,18 @@ def newSessionDiagram(text):
                 return True
 
     return False
+
+
+def expandMatrix(text):
+    students = []
+    rate = []
+    students.extend(text[0].split(","))
+
+    matrix = text[1:]
+    for i in range(len(matrix)):
+        line = matrix[i].split(",")
+        rate.append(line)
+        for j in range(len(rate[i])):
+            rate[i][j] = int(rate[i][j])
+
+    return students, rate
