@@ -2,7 +2,6 @@ import types
 import sys
 from operator import itemgetter
 
-from PySide6 import QtWidgets
 from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import QFileDialog, QGridLayout, QInputDialog
 from PySide6.QtWidgets import QMainWindow, QProgressDialog, QSizePolicy, QWidget
@@ -344,7 +343,7 @@ class MainWindow(QMainWindow):
         self.ui.label_Range.setText(rangeLabel)
 
         if config.COUPLE != "":
-            project.сall_me_whatever_you_like(config.WAITING_FOR_, config.COUPLE)
+            project.viewMatchReport(config.WAITING_FOR_, config.COUPLE)
             config.SELECTED_STUDENT = config.WAITING_FOR_
             # config.WAITING_FOR_ = ""
             config.COUPLE = ""
@@ -503,7 +502,6 @@ class MainWindow(QMainWindow):
             config.SELECTED_STUDENT = student
             self.updateDiagram()
 
-    ## NOTE: here my functions start (MM); TODO: process code above
     def _updateTitle(self, project_path):
         self.setWindowTitle(f"{config.APPLICATION_TITLE}: {project_path}")
 

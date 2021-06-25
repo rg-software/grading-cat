@@ -1,7 +1,8 @@
 # JPLAG needs the following folder structure: ROOT/user1/*.java, ROOT/user2/*.java, ...
 # We presume that each subdir in <week-dir> corresponds to an individual student.
 # We get all files matching the regex filter and depack them to a dir constructed as <output-dir>/<user-dir>
-# Archive dirs are handled separately. We prefix all older students with an "arc_" string
+# Archive dirs are handled separately.
+# We prefix all older students with an "arc[<directory>]" string
 
 import re
 import os
@@ -51,7 +52,7 @@ class JplInSubmission:
 class JplInAssignment:
     def __init__(self, re_pattern, in_dir, name, is_arc):
         self.re_pattern = re_pattern
-        self.prefix = f"arc_{_trailing_dir_name(in_dir)}_" if is_arc else ""
+        self.prefix = f"arc[{_trailing_dir_name(in_dir)}]" if is_arc else ""
         self.week_dir = os.path.join(in_dir, name)
         self.output_dir = _output_dir(name)
 

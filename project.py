@@ -1,9 +1,10 @@
 # Should be considered a singleton representing a currently loaded project.
 
 import json
+import re
 import os
 import shutil
-import sys
+from collections import namedtuple, defaultdict
 from main_utils import appPath
 from dotmap import DotMap
 
@@ -13,7 +14,6 @@ import interop.moodle_downloader as moodle_downloader
 
 
 _CurrentProjectPath = None  # initially no project file is loaded
-_CurrentAssignment = None  # TODO: to remove
 
 
 def _templatesDir():
@@ -53,9 +53,6 @@ def syncWithDataSource(progress_object):
     moodle_downloader.download(settings(), progress_object)
 
 
-#######
-
-
 def assignments():
     assert _CurrentProjectPath
     os.chdir(os.path.join(_CurrentProjectPath, settings().moodle_submissions_dir))
@@ -64,11 +61,44 @@ def assignments():
     return r
 
 
+def _filter_arc_records(log):
+    def is_arc_student(student):
+        return student.startswith("arc[")
+
+    def student_name(student_name):
+        m = re.match("(arc\[.+\]).+", student_name)
+        return m.group(1) if m else student_name
+
+    # log is in a format
+    # "<user1>-<user2>: <sim_ratio>\n<user1>-<user3>: <sim_ratio>\n..."
+    # archived users are "arc[dirname]user"
+
+    Match = namedtuple("Match", ["student1", "student2", "score"])
+
+    log_matches = []  # first, remove all archive-archive matches
+    for log_line in log.strip().split("\n"):
+        m = re.match("(.+)-(.+): (.+)", log_line)
+        log_matches.append(Match(m.group(1), m.group(2), float(m.group(3))))
+
+    # next, combine all students of the same archive
+    # use max score over the archive
+    log_filtered = defaultdict(float)
+    for m in log_matches:
+        if not (is_arc_student(m.student1) and is_arc_student(m.student2)):
+            key = (student_name(m.student1), student_name(m.student2))
+
+            if key not in log_filtered:
+                key = tuple(reversed(key))
+
+            log_filtered[key] = max(log_filtered[key], m.score)
+
+    # TODO: use dictionary as an input format for the matrix
+    return "\n".join([f"{n1}-{n2}: {v}" for (n1, n2), v in log_filtered.items()])
+
+
 def detect(asgn):
     assert _CurrentProjectPath
-    global _CurrentAssignment
 
-    _CurrentAssignment = asgn
     cfg = settings()
     os.chdir(_CurrentProjectPath)
 
@@ -82,21 +112,22 @@ def detect(asgn):
         )
         jplag_runner.run(cfg.java_path, cfg.jplag_args, asgn)
 
-    # must be in a format
-    # "<user1>-<user2>: <sim_ratio>\n<user1>-<user3>: <sim_ratio>\n..."
     with open(f"jpl_out_{asgn}.log") as f:
-        return f.read()
+        return _filter_arc_records(f.read())
 
 
 #### MP ####
-def сall_me_whatever_you_like(studentID_1, studentID_2):
-    # TODO: always shows 'match0.html' -- for testing
-    html_path = os.path.join(
-        _CurrentProjectPath, f"jpl_out_{_CurrentAssignment}", "match0.html"
-    )
-    isOk = MatchViewerDialog.show(_getMainWin(), studentID_1, studentID_2, html_path)
-    if isOk:
-        print("Yay!")
+def viewMatchReport(studentID_1, studentID_2):
+    # TODO: should be in main window
+    pass
+
+    # # TODO: always shows 'match0.html' -- for testing
+    # html_path = os.path.join(
+    #     _CurrentProjectPath, f"jpl_out_{_CurrentAssignment}", "match0.html"
+    # )
+    # isOk = MatchViewerDialog.show(_getMainWin(), studentID_1, studentID_2, html_path)
+    # if isOk:
+    #     print("Yay!")
     # CurrentAssignment
     # do whatever you want
 

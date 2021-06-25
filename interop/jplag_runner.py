@@ -32,14 +32,12 @@ class JPlagReport:
 
     def _filtered_output(self, output):
         # take only "Comparing... " lines but without "comparing" prefix
-        # also filter out arc_ vs arc_ matches
         match_prefix = b"Comparing "
-        arc_prefix = b"arc_"
 
         return [
             line[len(match_prefix) :]
             for line in output.stdout.splitlines(True)
-            if line.startswith(match_prefix) and line.count(arc_prefix) != 2
+            if line.startswith(match_prefix)
         ]
 
     def report_lines(self):
