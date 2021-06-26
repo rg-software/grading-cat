@@ -4,10 +4,9 @@ from PySide6.QtCore import QRect, Qt
 from main_utils import appPath
 
 
-class AboutCatDialog(QDialog):
+class AboutCatDialogUi(QDialog):
     def __init__(self, parent):
         super().__init__(parent)
-
         self.resize(470, 360)
         layout = QVBoxLayout(self)
         self.label = QLabel(self)
@@ -24,6 +23,11 @@ class AboutCatDialog(QDialog):
         layout.addWidget(buttons)
 
         self.setWindowTitle("About Grading Cat")
+
+
+class AboutCatDialog(AboutCatDialogUi):
+    def __init__(self, parent):
+        super().__init__(parent)
 
     @staticmethod
     def show(parent):

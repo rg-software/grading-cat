@@ -120,7 +120,7 @@ class MainWindow(QMainWindow):
         ]
         #### CONNECTORS
         self.ui.actionNew_Project_2.triggered.connect(self.newProject)
-        self.ui.actionOpen_Project_2.triggered.connect(self.openProject)
+        # self.ui.actionOpen_Project_2.triggered.connect(self.openProject)
         self.ui.actionSettings.triggered.connect(self.editSettings)
         self.ui.actionSync_with_Data_Source.triggered.connect(self.syncWithDataSource)
         self.ui.actionDetect.triggered.connect(self.openNewSession)
@@ -527,7 +527,8 @@ class MainWindow(QMainWindow):
             self._updateMenuStatus(self._PROJECT_OPENED_ITEMS)
             self.editSettings()
 
-    def openProject(self):
+    @QtCore.Slot()
+    def on_actionOpen_Project_2_triggered(self):
         if r := QFileDialog.getExistingDirectory(
             self,
             "Choose project folder",
