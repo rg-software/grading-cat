@@ -125,7 +125,8 @@ class MainWindow(QMainWindow):
         self.ui.actionSync_with_Data_Source.triggered.connect(self.syncWithDataSource)
         self.ui.actionDetect.triggered.connect(self.openNewSession)
         self.ui.actionQuit.triggered.connect(self.close)
-        self.ui.actionAbout_Grading_Cat.triggered.connect(self.aboutGradingCat)
+
+        # self.ui.actionAbout_Grading_Cat.triggered.connect(self.aboutGradingCat)
 
         self.ui.showNames.stateChanged.connect(self.updateDiagram)
         self.ui.showLinkless.stateChanged.connect(self.updateDiagram)
@@ -271,7 +272,8 @@ class MainWindow(QMainWindow):
         self.ui.listStudents.clear()
         self.drawDiagrams()
 
-    def aboutGradingCat(self):
+    @QtCore.Slot()
+    def on_actionAbout_Grading_Cat_triggered(self):
         AboutCatDialog.show(self)
 
     def updateList(self, student):
@@ -431,7 +433,6 @@ class MainWindow(QMainWindow):
         self.updateDiagram()
 
     def resetSettings(self):
-
         self.ui.showNames.setChecked(True)
         self.ui.showLinkless.setChecked(True)
         self.ui.showRate.setChecked(False)

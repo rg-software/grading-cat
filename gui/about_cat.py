@@ -1,6 +1,6 @@
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout
-from PySide6.QtCore import QRect
+from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLabel, QVBoxLayout
+from PySide6.QtCore import QRect, Qt
 from main_utils import appPath
 
 
@@ -17,6 +17,12 @@ class AboutCatDialog(QDialog):
         self.label.setPixmap(QPixmap(f"{appPath()}/icons/about.jpg"))
         self.label.setText("")
         layout.addWidget(self.label)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok, Qt.Horizontal, self)
+        buttons.setCenterButtons(True)
+        buttons.accepted.connect(self.accept)
+        layout.addWidget(buttons)
+
         self.setWindowTitle("About Grading Cat")
 
     @staticmethod
