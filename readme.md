@@ -54,10 +54,10 @@ Here is a sample:
     "moodle_submissions_dir": "moodle_submissions",
     "archive_dirs": ["s:\\Teaching\\DistrComp\\submissions\\2019", "s:\\Teaching\\DistrComp\\submissions\\2018"],
     "assignment_regex": ".+\\.zip",
-    "username_conversions": [["(.+)@.+", "\\1"]],
-    "assignment_conversions": [[".+(\\d\\d).+", "\\1"], [".+(\\d).+", "0\\1"]],
+    "username_conversions": "[['(.+)@.+', '\\1']]",
+    "assignment_conversions": "[['.+(\\d\\d).+', '\\1'], ['.+(\\d).+', '0\\1']]",
     "java_path": "%JAVA_HOME%/bin/java.exe",
-    "jplag_args": ["-s", "-l", "java19"]
+    "jplag_args": "['-l', 'java9']"
 }
 ```
 
