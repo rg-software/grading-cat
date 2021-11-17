@@ -14,7 +14,7 @@ poetry run pyside6-uic vplag.ui > gui/ui_mainwindow.py
 1. Download/sync student submissions:
 
     ```shell
-    poetry run python moodle_downloader.py <ProjectDir>
+    poetry run python cli.py moodle_downloader <ProjectDir>
     ```
 
 1. To work with a specific assignment, prepare it for JPlag processing:

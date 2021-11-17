@@ -69,7 +69,7 @@ class MoodleSession:
         p = {
             "username": username,
             "password": password,
-            "service": "moodle_mobile_app",
+            "service": "core_enrol_get_enrolled_users",  # "moodle_mobile_app",
         }
         return requests.get(self.login_url, params=p).json()["token"]
 
