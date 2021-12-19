@@ -1,5 +1,6 @@
 import types
 import sys
+import os
 from operator import itemgetter
 
 from PySide6.QtGui import QColor, QIcon
@@ -17,7 +18,7 @@ from gui.ui_mainwindow import Ui_MainWindow
 from gui.about_cat import AboutCatDialog
 from gui.lines import LinesView
 from main_utils import newSessionDiagram, expandMatrix, saveMatrix, appPath
-
+from .match_viewer import MatchViewerDialog
 import config
 import project
 
@@ -332,6 +333,12 @@ class MainWindow(QMainWindow):
         self.ChordDiagramView.scene.drawDiagram()
         self.ChordDiagram2View.scene.drawDiagram()
         self.NetworkDiagramView.scene.drawDiagram()
+
+    def viewMatchReport(self, studentID_1, studentID_2):
+        html_path = project.htmlReportPath(studentID_1, studentID_2)
+        isOk = MatchViewerDialog.show(self, studentID_1, studentID_2, html_path)
+        # if isOk:
+        #     print("Yay!")
 
     def updateDiagram(self):
         config.SHOW_NAMES = self.ui.showNames.isChecked()

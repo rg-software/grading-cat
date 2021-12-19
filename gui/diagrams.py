@@ -1185,7 +1185,7 @@ class GraphicsView(QGraphicsView):
             if action in listActs:
                 for i in range(len(listActs)):
                     if action == listActs[i]:
-                        project.viewMatchReport(
+                        self.parent.viewMatchReport(
                             config.SELECTED_STUDENT, config.SELECTED_STUDENTS[i]
                         )
                         # config.SELECTED_STUDENT = config.WAITING_FOR_

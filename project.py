@@ -1,6 +1,7 @@
 # Should be considered a singleton representing a currently loaded project.
 
 import json
+import csv
 import re
 import os
 import shutil
@@ -14,6 +15,7 @@ import interop.moodle_downloader as moodle_downloader
 
 
 _CurrentProjectPath = None  # initially no project file is loaded
+_CurrentAssignment = None  # no detection performed
 
 
 def _templatesDir():
@@ -97,10 +99,12 @@ def _filter_arc_records(log):
 
 
 def detect(asgn):
+    global _CurrentAssignment
     assert _CurrentProjectPath
 
     cfg = settings()
     os.chdir(_CurrentProjectPath)
+    _CurrentAssignment = asgn
 
     # do not run if we already have results
     if not os.path.exists(f"jpl_out_{asgn}.log"):
@@ -116,7 +120,24 @@ def detect(asgn):
         return _filter_arc_records(f.read())
 
 
+def htmlReportPath(studentID_1, studentID_2):
+    assert _CurrentProjectPath
+    assert _CurrentAssignment
+
+    asgn_path = os.path.join(_CurrentProjectPath, f"jpl_out_{_CurrentAssignment}")
+    csv_path = os.path.join(asgn_path, "pair_report.csv")
+
+    with open(csv_path) as f:
+        reader = csv.reader(f, delimiter=";")
+        for row in reader:
+            if (studentID_1, studentID_2) in [(row[0], row[1]), (row[1], row[0])]:
+                return os.path.join(asgn_path, row[2])
+
+    assert False, "match not found"
+
+
 #### MP ####
+# NOTE(mm): obsolete function, but referenced in one place
 def viewMatchReport(studentID_1, studentID_2):
     # TODO: should be in main window
     pass
