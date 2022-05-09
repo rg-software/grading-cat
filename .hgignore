@@ -4,3 +4,4 @@ ui_mainwindow.py
 se06/**
 .venv/**
 .vscode/**
+.python-version
