@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Union
 from PySide6.QtWidgets import (
     QDialog,
     QLabel,
@@ -11,6 +12,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtWidgets import QLineEdit, QDialogButtonBox, QWidget
 from PySide6.QtCore import Qt
 from dotmap import DotMap
+from ast import literal_eval
 
 
 class MultiOptionWidget(QWidget):
@@ -130,6 +132,9 @@ class ProjectConfigDialog(QDialog):
         "archive_dirs": ConfigSetting(
             display="Archive directories: ", input="archive_dirs", has_multi_value=True
         ),
+        "template_dir": ConfigSetting(
+            display="Template directory: ", input="template_dir"
+        ),
         "java_path": ConfigSetting(display="Java path:", input="java_path"),
         "jplag_args": ConfigSetting(display="JPlag arguments:", input="jplag_args"),
     }
@@ -180,12 +185,22 @@ class ProjectConfigDialog(QDialog):
         )
 
     def _loadConfigValues(self) -> None:
-        widgets_values = [
+        widgets_values: list[tuple[QLineEdit, Union[str, list[str]]]] = [
             (self.findChildren(QLineEdit, key), self._config[key])
             for key in self._config
         ]
         for line_edits, values in [(w, v) for (w, v) in widgets_values if w]:
             if len(line_edits) == 1 and isinstance(values, str):
+                if line_edits[0].objectName() == "jplag_args":
+                    jplag_args_list = literal_eval(values)
+                    try:
+                        bc_index = jplag_args_list.index("-bc")
+                    except ValueError:
+                        print("No template directory defined.")
+                    else:
+                        jplag_args_list.pop(bc_index)  # remove "-bc"
+                        jplag_args_list.pop(bc_index)  # remove template_dir
+                        values = repr(jplag_args_list) if jplag_args_list else ""
                 line_edits[0].setText(values)
                 continue
 
@@ -206,18 +221,34 @@ class ProjectConfigDialog(QDialog):
                 line_edit.setText(value)
 
     def _saveConfigValues(self) -> None:
-        test_config = {}
+        new_config = {}
         for line_edit in self.findChildren(QLineEdit):
             if not self.config_settings[line_edit.objectName()].has_multi_value:
-                test_config[line_edit.objectName()] = line_edit.text()
+                new_config[line_edit.objectName()] = line_edit.text()
                 continue
 
-            if line_edit.objectName() in test_config:
-                test_config[line_edit.objectName()].append(line_edit.text())
+            if line_edit.objectName() in new_config:
+                new_config[line_edit.objectName()].append(line_edit.text())
             else:
-                test_config[line_edit.objectName()] = [line_edit.text()]
+                new_config[line_edit.objectName()] = [line_edit.text()]
 
-        self._config = DotMap(test_config)
+        # post-process to map template_dir back into jplag_args
+        if new_config["template_dir"]:
+            if new_config["jplag_args"]:
+                try:
+                    jplag_args_list = literal_eval(new_config["jplag_args"])
+                    jplag_args_list.extend(["-bc", new_config["template_dir"]])
+                except (ValueError, SyntaxError, AttributeError):
+                    # ValueError and SyntaxError: sending malformed string into literal_eval
+                    # AttributeError: trying to use extend on a non-list object
+                    # ? is replacing the values the best solution here?
+                    jplag_args_list = ["-bc", new_config["template_dir"]]
+            else:
+                jplag_args_list = ["-bc", new_config["template_dir"]]
+
+            new_config["jplag_args"] = repr(jplag_args_list)
+
+        self._config = DotMap(new_config)
 
     @staticmethod
     def show(parent, config) -> tuple[bool, DotMap]:
