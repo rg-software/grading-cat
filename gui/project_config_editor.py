@@ -35,10 +35,10 @@ class MultiOptionWidget(QWidget):
 
     ROW_FIXED_HEIGHT = 20
 
-    def __init__(self, input_object_name: str, placeholder_text: str = "") -> QWidget:
+    def __init__(self, input_object_name: str, input_tooltip_text: str = "") -> QWidget:
         super().__init__()
         self.input_object_name = input_object_name
-        self.placeholder_text = placeholder_text
+        self.input_tooltip_text = input_tooltip_text
 
         self.grid_layout = QGridLayout(verticalSpacing=10)
         self.grid_layout.setColumnMinimumWidth(0, 100)
@@ -75,7 +75,7 @@ class MultiOptionWidget(QWidget):
 
         line = QLineEdit(
             objectName=self.input_object_name,
-            placeholderText=self.placeholder_text,
+            toolTip=self.input_tooltip_text,
             fixedHeight=self.ROW_FIXED_HEIGHT,
         )
         self.grid_layout.addWidget(line, rows, 0)
@@ -105,7 +105,7 @@ class ProjectConfigDialog(QDialog):
     class ConfigSetting:
         display: str
         input: str
-        placeholder: str = ""
+        tooltip: str = ""
         has_multi_value: bool = False
 
     config_settings = {
@@ -123,11 +123,14 @@ class ProjectConfigDialog(QDialog):
             display="Assignment regex:", input="assignment_regex"
         ),
         "username_conversions": ConfigSetting(
-            display="Username conversions:", input="username_conversions"
+            display="Username conversions:",
+            input="username_conversions",
+            tooltip="Format: [['from-pattern-1', 'to-pattern-1'], ...]",
         ),
         "assignment_conversions": ConfigSetting(
             display="Assignment conversions:",
             input="assignment_conversions",
+            tooltip="Format: [['from-pattern-1', 'to-pattern-1'], ...]",
         ),
         "archive_dirs": ConfigSetting(
             display="Archive directories: ", input="archive_dirs", has_multi_value=True
@@ -136,7 +139,11 @@ class ProjectConfigDialog(QDialog):
             display="Template directory: ", input="template_dir"
         ),
         "java_path": ConfigSetting(display="Java path:", input="java_path"),
-        "jplag_args": ConfigSetting(display="JPlag arguments:", input="jplag_args"),
+        "jplag_args": ConfigSetting(
+            display="JPlag arguments:",
+            input="jplag_args",
+            tooltip="Format: ['arg-1', 'arg-2', ...]",
+        ),
     }
 
     def __init__(self, parent: QWidget, config: DotMap) -> None:
@@ -171,7 +178,7 @@ class ProjectConfigDialog(QDialog):
         line_edit = QLineEdit(
             self,
             objectName=setting.input,
-            placeholderText=setting.placeholder,
+            toolTip=setting.tooltip,
         )
         self.form_layout.addRow(QLabel(setting.display), line_edit)
 
@@ -180,7 +187,7 @@ class ProjectConfigDialog(QDialog):
             QLabel(setting.display),
             MultiOptionWidget(
                 setting.input,
-                setting.placeholder,
+                setting.tooltip,
             ),
         )
 
