@@ -8,22 +8,27 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QVBoxLayout,
     QPushButton,
+    QComboBox,
 )
 from PySide6.QtWidgets import QLineEdit, QDialogButtonBox, QWidget
 from PySide6.QtCore import Qt
 from dotmap import DotMap
 from ast import literal_eval
 
+from abc import abstractmethod
+from typing import TypeVar
 
-class MultiOptionWidget(QWidget):
+InputWidget = TypeVar("InputWidget", QLineEdit, QComboBox)
 
+
+class MultiOptionWidgetBase(QWidget):
     """
     Structure:
     - MultiOptionWidget
         - QScrollArea
             - QWidget
                 - QGridLayout
-                    - QLineEdit
+                    - NEEDS TO BE IMPLEMENTED
                     - QPushButton
     """
 
@@ -35,10 +40,8 @@ class MultiOptionWidget(QWidget):
 
     ROW_FIXED_HEIGHT = 20
 
-    def __init__(self, input_object_name: str, input_tooltip_text: str = "") -> QWidget:
+    def __init__(self) -> None:
         super().__init__()
-        self.input_object_name = input_object_name
-        self.input_tooltip_text = input_tooltip_text
 
         self.grid_layout = QGridLayout(verticalSpacing=10)
         self.grid_layout.setColumnMinimumWidth(0, 100)
@@ -58,8 +61,11 @@ class MultiOptionWidget(QWidget):
 
         self.setLayout(main_layout)
 
-    # adding and deleting rows: https://stackoverflow.com/a/21222826/5517838
-    def add_row(self) -> QLineEdit:
+    @abstractmethod
+    def create_input(self) -> InputWidget:
+        ...
+
+    def add_row(self) -> InputWidget:
         rows = self.grid_layout.rowCount()
         columns = self.grid_layout.columnCount()
 
@@ -73,11 +79,7 @@ class MultiOptionWidget(QWidget):
                     # ref: https://stackoverflow.com/a/20334117/5517838
                     widget.clicked.connect(lambda: self.delete_row(widget))
 
-        line = QLineEdit(
-            objectName=self.input_object_name,
-            toolTip=self.input_tooltip_text,
-            fixedHeight=self.ROW_FIXED_HEIGHT,
-        )
+        line = self.create_input()
         self.grid_layout.addWidget(line, rows, 0)
 
         button = QPushButton(
@@ -98,6 +100,20 @@ class MultiOptionWidget(QWidget):
             if layout := self.grid_layout.itemAtPosition(row, column):
                 layout.widget().deleteLater()
                 self.grid_layout.removeItem(layout)
+
+
+class MultiTextInputWidget(MultiOptionWidgetBase):
+    def __init__(self, input_object_name: str, input_tooltip_text: str) -> None:
+        self.input_object_name = input_object_name
+        self.input_tooltip_text = input_tooltip_text
+        super().__init__()
+
+    def create_input(self) -> QLineEdit:
+        return QLineEdit(
+            objectName=self.input_object_name,
+            toolTip=self.input_tooltip_text,
+            fixedHeight=self.ROW_FIXED_HEIGHT,
+        )
 
 
 class ProjectConfigDialog(QDialog):
@@ -185,7 +201,7 @@ class ProjectConfigDialog(QDialog):
     def add_multi_input_row(self, setting: ConfigSetting):
         self.form_layout.addRow(
             QLabel(setting.display),
-            MultiOptionWidget(
+            MultiTextInputWidget(
                 setting.input,
                 setting.tooltip,
             ),
@@ -219,7 +235,7 @@ class ProjectConfigDialog(QDialog):
                     .parent()
                     .parent()
                     .parent(),
-                    MultiOptionWidget,
+                    MultiOptionWidgetBase,
                 )
                 # ? is there a better way than calling parent() many times?
                 line_edits.append(multi_option_widget.add_row())
