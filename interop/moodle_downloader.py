@@ -8,10 +8,11 @@
 # admin submenu located at:
 # site administration > Plugins > Web services > API Documentation
 
-import requests
+import ast
 import os
 import re
-import ast
+
+import requests
 from dotmap import DotMap
 
 
@@ -48,7 +49,10 @@ class MoodleSession:
         userdata = self._course_users(course_shortname)
         users = {}  # id -> email-based username
         for user in [DotMap(u) for u in userdata]:
-            conv = ast.literal_eval(conversions)
+            if isinstance(conversions, list):
+                conv = [ast.literal_eval(conversion) for conversion in conversions]
+            else:
+                conv = ast.literal_eval(conversions)
             # '-' in files is bad for analyzing JPlag output
             new_uname = _regex_rename(conv, user.email).replace("-", "_")
             print(f"Renaming user: {user.email} -> {new_uname}")
@@ -154,7 +158,13 @@ class Assignment:
     def __init__(self, session, dict):
         self.session = session
         self.assignment = DotMap(dict)
-        conv = ast.literal_eval(session.assignment_conversions)
+        if isinstance(session.assignment_conversions, list):
+            conv = [
+                ast.literal_eval(asm_conv)
+                for asm_conv in session.assignment_conversions
+            ]
+        else:
+            conv = ast.literal_eval(session.assignment_conversions)
         self.new_name = _regex_rename(conv, self.assignment.name)
         print(f"Renaming asignment: {self.assignment.name} -> {self.new_name}")
 
