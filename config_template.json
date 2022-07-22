@@ -1,13 +1,22 @@
 {
-	"username": "", 
-	"password": "", 
-	"server_url": "", 
+	"username": "",
+	"password": "",
+	"server_url": "",
 	"course_shortname": "",
 	"moodle_submissions_dir": "submissions",
-	"archive_dirs": ["s:\\Teaching\\DistrComp\\submissions\\2019", "s:\\Teaching\\DistrComp\\submissions\\2018"],
+	"archive_dirs": [
+		"s:\\Teaching\\DistrComp\\submissions\\2019",
+		"s:\\Teaching\\DistrComp\\submissions\\2018"
+	],
 	"assignment_regex": ".+\\.zip",
-	"username_conversions": "[['(.+)@.+', '\\\\1']]",
-	"assignment_conversions": "[['.+(\\\\d\\\\d).+', '\\\\1'], ['.+(\\\\d).+', '0\\\\1']]",
+	"username_conversions": [
+		"['(.+)@.+', '\\\\1']"
+	],
+	"assignment_conversions": [
+		"['.+(\\\\d\\\\d).+', '\\\\1']",
+		"['.+(\\\\d).+', '0\\\\1']"
+	],
 	"java_path": "%JAVA_HOME%/bin/java.exe",
-	"jplag_args": "['-l', 'java9']"
+	"jplag_args": "['-l', 'java9']",
+	"template_dir": ""
 }
