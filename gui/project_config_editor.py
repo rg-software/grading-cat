@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
     QFormLayout,
     QGridLayout,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
     QPushButton,
@@ -84,7 +85,7 @@ class MultilineWidget(UserInputWidget):
                     - QPushButton
     """
 
-    BUTTON_ADD_TEXT = "+"
+    BUTTON_ADD_TEXT = "Add"
     BUTTON_ADD_TOOLTIP = "Add new line"
     BUTTON_REMOVE_TEXT = "-"
     BUTTON_REMOVE_TOOLTIP = "Remove line"
@@ -95,13 +96,29 @@ class MultilineWidget(UserInputWidget):
     def __init__(self, object_name: str) -> None:
         super().__init__(object_name=object_name)
 
+        add_button = QPushButton(
+            text=self.BUTTON_ADD_TEXT,
+            toolTip=self.BUTTON_ADD_TOOLTIP,
+            fixedHeight=self.ROW_FIXED_HEIGHT + 10,
+            maximumWidth=self.BUTTON_MAX_WIDTH + 15,
+        )
+        add_button.clicked.connect(self.add_row)
+        # not sure if this is the best way to align the button to right
+        button_layout = QHBoxLayout()
+        button_layout.addStretch()
+        button_layout.addWidget(add_button)
+
         self.grid_layout = QGridLayout(verticalSpacing=10)
         self.grid_layout.setColumnMinimumWidth(0, 100)
         self.grid_layout.setColumnMinimumWidth(1, 25)
         self.add_row()
 
+        vbox_layout = QVBoxLayout()
+        vbox_layout.addLayout(self.grid_layout)
+        vbox_layout.addLayout(button_layout)
+
         scrollable_widget = QScrollArea(
-            widget=QWidget(layout=self.grid_layout),
+            widget=QWidget(layout=vbox_layout),
             widgetResizable=True,
             verticalScrollBarPolicy=Qt.ScrollBarAlwaysOn,
             horizontalScrollBarPolicy=Qt.ScrollBarAlwaysOff,
@@ -121,26 +138,19 @@ class MultilineWidget(UserInputWidget):
         rows = self.grid_layout.rowCount()
         columns = self.grid_layout.columnCount()
 
-        for column in range(columns):
-            if layout := self.grid_layout.itemAtPosition(rows - 1, column):
-                if isinstance(widget := layout.widget(), QPushButton):
-                    widget.setText(self.BUTTON_REMOVE_TEXT)
-                    widget.setToolTip(self.BUTTON_REMOVE_TOOLTIP)
-                    widget.clicked.disconnect(self.add_row)
-                    # to specify which button is clicked
-                    # ref: https://stackoverflow.com/a/20334117/5517838
-                    widget.clicked.connect(lambda: self.delete_row(widget))
-
         line = self.create_input()
         self.grid_layout.addWidget(line, rows, 0)
 
         button = QPushButton(
-            text=self.BUTTON_ADD_TEXT,
-            toolTip=self.BUTTON_ADD_TOOLTIP,
+            text=self.BUTTON_REMOVE_TEXT,
+            toolTip=self.BUTTON_REMOVE_TEXT,
             fixedHeight=self.ROW_FIXED_HEIGHT,
             maximumWidth=self.BUTTON_MAX_WIDTH,
         )
-        button.clicked.connect(self.add_row)
+        # to specify which button is clicked
+        # ref: https://stackoverflow.com/a/20334117/5517838
+        button.clicked.connect(lambda: self.delete_row(button))
+
         self.grid_layout.addWidget(button, rows, columns - 1)
 
     def delete_row(self, button_clicked: QPushButton) -> None:
