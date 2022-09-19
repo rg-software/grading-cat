@@ -8,15 +8,23 @@
 		"s:\\Teaching\\DistrComp\\submissions\\2019",
 		"s:\\Teaching\\DistrComp\\submissions\\2018"
 	],
-	"assignment_regex": ".+\\.zip",
+	"assignment_regexes": ["Zip archives :: .+\\.zip"],
 	"username_conversions": [
-		"['(.+)@.+', '\\\\1']"
+		"Username from email :: (.+)@.+ :: \\1"
 	],
 	"assignment_conversions": [
-		"['.+(\\\\d\\\\d).+', '\\\\1']",
-		"['.+(\\\\d).+', '0\\\\1']"
+		"Assignment no. (two digits) :: .+(\\d\\d).+ :: \\1",
+		"Assignment no. (one digit) :: .+(\\d).+ :: 0\\1"
 	],
 	"java_path": "%JAVA_HOME%/bin/java.exe",
 	"jplag_args": "['-l', 'java9']",
-	"template_dir": ""
+	"template_dir": "",
+	"assignment_regexes_presets": ["Zip archives :: .+\\.zip"],
+	"username_conversions_presets": [
+		"Username from email :: (.+)@.+ :: \\1"
+	],
+	"assignment_conversions_presets": [
+		"Assignment no. (two digits) :: .+(\\d\\d).+ :: \\1",
+		"Assignment no. (one digit) :: .+(\\d).+ :: 0\\1"
+	]
 }

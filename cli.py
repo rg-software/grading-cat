@@ -11,7 +11,7 @@ def jplag_preprocessor(config, assignment_name):
     interop.jplag_preprocessor.preprocess_dirs(
         config.moodle_submissions_dir,
         config.archive_dirs,
-        config.assignment_regex,
+        config.assignment_regexes,
         assignment_name,
     )
 

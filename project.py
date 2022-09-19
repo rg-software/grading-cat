@@ -32,7 +32,7 @@ def settings():
 def saveSettings(config):
     json_path = os.path.join(_CurrentProjectPath, "config.json")
     with open(json_path, "w") as f:
-        json.dump(config, f)
+        json.dump(config, f, indent=4)
 
 
 def newProject(project_path):  # initialize project at given path
@@ -111,7 +111,7 @@ def detect(asgn):
         jplag_preprocessor.preprocess_dirs(
             cfg.moodle_submissions_dir,
             cfg.archive_dirs,
-            cfg.assignment_regex,
+            cfg.assignment_regexes,
             asgn,
         )
         jplag_runner.run(cfg.java_path, cfg.jplag_args, asgn)

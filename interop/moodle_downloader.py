@@ -15,6 +15,8 @@ import re
 import requests
 from dotmap import DotMap
 
+MOODLE_SERVICE_NAME = "core_enrol_get_enrolled_users"  # "moodle_mobile_app"
+
 
 class StubProgressObject:  # for CLI (in GUI we use the real one)
     def setMaximum(self, _):
@@ -28,6 +30,10 @@ class StubProgressObject:  # for CLI (in GUI we use the real one)
 
     def wasCanceled(self):
         return False
+
+
+def _regex_extract(config_line):  # don't include an optional comment
+    return [chunk.strip() for chunk in config_line.split("::")[-2:]]
 
 
 def _regex_rename(conv_list, str):
@@ -49,10 +55,12 @@ class MoodleSession:
         userdata = self._course_users(course_shortname)
         users = {}  # id -> email-based username
         for user in [DotMap(u) for u in userdata]:
-            if isinstance(conversions, list):
-                conv = [ast.literal_eval(conversion) for conversion in conversions]
-            else:
-                conv = ast.literal_eval(conversions)
+            conv = [_regex_extract(c) for c in conversions]
+            # always a list is OK
+            # if isinstance(conversions, list):
+            #     conv = [ast.literal_eval(conversion) for conversion in conversions]
+            # else:
+            #     conv = ast.literal_eval(conversions)
             # '-' in files is bad for analyzing JPlag output
             new_uname = _regex_rename(conv, user.email).replace("-", "_")
             print(f"Renaming user: {user.email} -> {new_uname}")
@@ -70,11 +78,7 @@ class MoodleSession:
         return requests.get(self.rest_url, params=p).json()
 
     def _get_token(self, username, password):
-        p = {
-            "username": username,
-            "password": password,
-            "service": "core_enrol_get_enrolled_users",  # "moodle_mobile_app",
-        }
+        p = {"username": username, "password": password, "service": MOODLE_SERVICE_NAME}
         return requests.get(self.login_url, params=p).json()["token"]
 
     def _course_by_shortname(self, shortname):  # list of all matching courses
@@ -158,13 +162,16 @@ class Assignment:
     def __init__(self, session, dict):
         self.session = session
         self.assignment = DotMap(dict)
-        if isinstance(session.assignment_conversions, list):
-            conv = [
-                ast.literal_eval(asm_conv)
-                for asm_conv in session.assignment_conversions
-            ]
-        else:
-            conv = ast.literal_eval(session.assignment_conversions)
+        conv = [_regex_extract(c) for c in session.assignment_conversions]
+
+        # list should be always ok
+        # if isinstance(session.assignment_conversions, list):
+        #     conv = [
+        #         ast.literal_eval(asm_conv)
+        #         for asm_conv in session.assignment_conversions
+        #     ]
+        # else:
+        #     conv = ast.literal_eval(session.assignment_conversions)
         self.new_name = _regex_rename(conv, self.assignment.name)
         print(f"Renaming asignment: {self.assignment.name} -> {self.new_name}")
 

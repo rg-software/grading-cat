@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from ast import literal_eval
 from dataclasses import dataclass, field
 from typing import Union
 
@@ -20,14 +19,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-# Note on regexp -> JSON: Add double backslashes to escape backslashes in regexp
-USERNAME_CONVERSION_PRESETS = {"Keep email username only": "['(.+)@.+', '\\\\1']"}
-
-ASSIGNMENT_CONVERSION_PRESETS = {
-    "Extract assignment number (two digits)": "['.+(\\\\d\\\\d).+', '\\\\1']",
-    "Extract assignment number (one digit)": "['.+(\\\\d).+', '0\\\\1']",
-}
-
 
 @dataclass
 class ConfigSetting:
@@ -35,9 +26,7 @@ class ConfigSetting:
     object_name: str
     tooltip: str = ""
     has_multi_value: bool = False
-    options: dict[str, str] = field(
-        default_factory=dict
-    )  # {"regexp preset label": "regexp preset values"}
+    options: list[str] = field(default_factory=list)
 
 
 class UserInputWidget(QWidget):
@@ -47,11 +36,11 @@ class UserInputWidget(QWidget):
         super().__init__(objectName=object_name)
 
     @abstractmethod
-    def display_config(self, config_values: Union[str, list[str]]) -> None:
+    def display_value(self, value: Union[str, list[str]]) -> None:
         ...
 
     @abstractmethod
-    def get_config(self) -> Union[str, list[str]]:
+    def get_value(self) -> Union[str, list[str]]:
         ...
 
 
@@ -61,16 +50,14 @@ class SingleLineInputWidget(UserInputWidget):
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        # self._line_edit = QLineEdit(self, objectName=object_name, toolTip=tooltip)
         self._line_edit = QLineEdit(self, toolTip=tooltip)
         layout.addWidget(self._line_edit)
-
         self.setLayout(layout)
 
-    def display_config(self, config_values: str) -> None:
-        self._line_edit.setText(config_values)
+    def display_value(self, value: str) -> None:
+        self._line_edit.setText(value)
 
-    def get_config(self) -> Union[str, list[str]]:
+    def get_value(self) -> Union[str, list[str]]:
         return self._line_edit.text()
 
 
@@ -90,7 +77,7 @@ class MultilineWidget(UserInputWidget):
     BUTTON_REMOVE_TEXT = "-"
     BUTTON_REMOVE_TOOLTIP = "Remove line"
     BUTTON_MAX_WIDTH = 50
-
+    REMOVE_BUTTON_MAX_WIDTH = 20
     ROW_FIXED_HEIGHT = 20
 
     def __init__(self, object_name: str) -> None:
@@ -99,17 +86,16 @@ class MultilineWidget(UserInputWidget):
         add_button = QPushButton(
             text=self.BUTTON_ADD_TEXT,
             toolTip=self.BUTTON_ADD_TOOLTIP,
-            fixedHeight=self.ROW_FIXED_HEIGHT + 10,
-            maximumWidth=self.BUTTON_MAX_WIDTH + 15,
+            fixedHeight=self.ROW_FIXED_HEIGHT,
+            maximumWidth=self.BUTTON_MAX_WIDTH,
         )
         add_button.clicked.connect(self.add_row)
-        # not sure if this is the best way to align the button to right
         button_layout = QHBoxLayout()
-        button_layout.addStretch()
         button_layout.addWidget(add_button)
+        button_layout.addStretch()  # left-align
 
         self.grid_layout = QGridLayout(verticalSpacing=10)
-        self.grid_layout.setColumnMinimumWidth(0, 100)
+        self.grid_layout.setColumnMinimumWidth(0, 110)
         self.grid_layout.setColumnMinimumWidth(1, 25)
         self.add_row()
 
@@ -143,9 +129,9 @@ class MultilineWidget(UserInputWidget):
 
         button = QPushButton(
             text=self.BUTTON_REMOVE_TEXT,
-            toolTip=self.BUTTON_REMOVE_TEXT,
+            toolTip=self.BUTTON_REMOVE_TOOLTIP,
             fixedHeight=self.ROW_FIXED_HEIGHT,
-            maximumWidth=self.BUTTON_MAX_WIDTH,
+            maximumWidth=self.REMOVE_BUTTON_MAX_WIDTH,
         )
         # to specify which button is clicked
         # ref: https://stackoverflow.com/a/20334117/5517838
@@ -169,137 +155,118 @@ class MultilineInputWidget(MultilineWidget):
         super().__init__(object_name=object_name)
 
     def create_input(self) -> QLineEdit:
-        self.lines.append(
-            QLineEdit(
-                toolTip=self.tooltip,
-                fixedHeight=self.ROW_FIXED_HEIGHT,
-            )
+        e = QLineEdit(
+            toolTip=self.tooltip,
+            fixedHeight=self.ROW_FIXED_HEIGHT,
         )
-        return self.lines[-1]
 
-    def display_config(self, config_values: list[str]) -> None:
-        while len(self.lines) < len(config_values):
+        self.lines.append(e)
+        return e
+
+    def display_value(self, values: list[str]) -> None:
+        while len(self.lines) < len(values):
             self.add_row()
 
-        for line, value in zip(self.lines, config_values):
-            line.setText(value)
+        for line, values in zip(self.lines, values):
+            line.setText(values)
 
-    def get_config(self) -> list[str]:
+    def get_value(self) -> list[str]:
         return list({line.text() for line in self.lines})  # prevent duplicates
 
 
 class MultiDropdownWidget(MultilineWidget):
-    def __init__(self, object_name: str, tooltip: str, options: dict) -> None:
+    def __init__(self, object_name: str, tooltip: str, options: list) -> None:
         self.tooltip = tooltip
         self.options = options
         self.dropdowns: list[QComboBox] = []
         super().__init__(object_name=object_name)
 
     def create_input(self) -> QComboBox:
-        self.dropdowns.append(
-            QComboBox(
-                toolTip=self.tooltip,
-            )
-        )
-        self.dropdowns[-1].addItems(self.options.keys())
-        return self.dropdowns[-1]
+        cb = QComboBox(toolTip=self.tooltip, editable=True)
+        cb.addItems(self.options)
+        cb.setEditText("")
+        self.dropdowns.append(cb)
+        return cb
 
-    def display_config(self, config_values: list[str]) -> None:
-        while len(self.dropdowns) < len(config_values):
+    def display_value(self, values: list[str]) -> None:
+        while len(self.dropdowns) < len(values):
             self.add_row()
 
-        for dropdown, value in zip(self.dropdowns, config_values):
-            dropdown.setCurrentIndex(list(self.options.values()).index(value))
+        for dropdown, value in zip(self.dropdowns, values):
+            dropdown.setCurrentIndex(self.options.index(value))
 
-    def get_config(self) -> list[str]:
-        return [
-            self.options[key]
-            for key in {dropdown.currentText() for dropdown in self.dropdowns}
-        ]
+    def get_value(self) -> list[str]:
+        return [dropdown.currentText() for dropdown in self.dropdowns]
 
 
 class ProjectConfigDialog(QDialog):
-
-    config_settings = {
-        "username": ConfigSetting(
-            display_name="Moodle username:", object_name="username"
-        ),
-        "password": ConfigSetting(
-            display_name="Moodle password:", object_name="password"
-        ),
-        "server_url": ConfigSetting(
-            display_name="Moodle server URL:", object_name="server_url"
-        ),
-        "course_shortname": ConfigSetting(
+    config_settings = [
+        ConfigSetting(display_name="Moodle username:", object_name="username"),
+        ConfigSetting(display_name="Moodle password:", object_name="password"),
+        ConfigSetting(display_name="Moodle server URL:", object_name="server_url"),
+        ConfigSetting(
             display_name="Moodle course shortname:", object_name="course_shortname"
         ),
-        "moodle_submissions_dir": ConfigSetting(
-            display_name="Moodle submissions directory:",
-            object_name="moodle_submissions_dir",
+        ConfigSetting(
+            display_name="Assignment regexes:",
+            object_name="assignment_regexes",
+            tooltip="Info :: pattern",
+            has_multi_value=True,
+            options="assignment_regexes_presets",
         ),
-        "assignment_regex": ConfigSetting(
-            display_name="Assignment regex:", object_name="assignment_regex"
-        ),
-        "username_conversions": ConfigSetting(
+        ConfigSetting(
             display_name="Username conversions:",
             object_name="username_conversions",
-            tooltip="Format: [['from-pattern-1', 'to-pattern-1'], ...]",
+            tooltip="Info :: from-pattern :: to-pattern",
             has_multi_value=True,
-            options=USERNAME_CONVERSION_PRESETS,
+            options="username_conversions_presets",
         ),
-        "assignment_conversions": ConfigSetting(
+        ConfigSetting(
             display_name="Assignment conversions:",
             object_name="assignment_conversions",
-            tooltip="Format: [['from-pattern-1', 'to-pattern-1'], ...]",
+            tooltip="Info :: from-pattern :: to-pattern",
             has_multi_value=True,
-            options=ASSIGNMENT_CONVERSION_PRESETS,
+            options="assignment_conversions_presets",
         ),
-        "archive_dirs": ConfigSetting(
-            display_name="Archive directories: ",
+        ConfigSetting(
+            display_name="Archive directories:",
             object_name="archive_dirs",
             has_multi_value=True,
         ),
-        "template_dir": ConfigSetting(
-            display_name="Template directory: ", object_name="template_dir"
-        ),
-        "java_path": ConfigSetting(display_name="Java path:", object_name="java_path"),
-        "jplag_args": ConfigSetting(
-            display_name="JPlag arguments:",
+        ConfigSetting(display_name="Template directory:", object_name="template_dir"),
+        ConfigSetting(display_name="Java path:", object_name="java_path"),
+        ConfigSetting(
+            display_name="Extra JPlag arguments:",
             object_name="jplag_args",
-            tooltip="Format: ['arg-1', 'arg-2', ...]",
+            tooltip="['arg-1', 'arg-2', ...]",
         ),
-    }
+    ]
 
     def __init__(self, parent: QWidget, config: DotMap) -> None:
         super().__init__(parent)
 
-        # TODO: better editing options for:
-        # - regular expressions
-        # - presets
-
         self._config = config
         self.setWindowTitle("Project Settings")
-
         self.form_layout = QFormLayout(verticalSpacing=15)
 
-        for setting in self.config_settings.values():
-            if setting.options:
+        for setting in self.config_settings:
+            if setting.options:  # a group of combo boxes
                 self.form_layout.addRow(
                     QLabel(setting.display_name),
                     MultiDropdownWidget(
                         object_name=setting.object_name,
                         tooltip=setting.tooltip,
-                        options=setting.options,
+                        options=self._config[setting.options],
                     ),
                 )
-            elif setting.has_multi_value:
+            elif setting.has_multi_value:  # a group of single-line inputs
                 self.form_layout.addRow(
                     QLabel(setting.display_name),
                     MultilineInputWidget(
                         object_name=setting.object_name, tooltip=setting.tooltip
                     ),
                 )
-            else:
+            else:  # a single-line input box
                 self.form_layout.addRow(
                     QLabel(setting.display_name),
                     SingleLineInputWidget(
@@ -324,50 +291,17 @@ class ProjectConfigDialog(QDialog):
             for (key, value) in self._config.items()
         ]
 
-        user_input: UserInputWidget
         for user_input, values in [(w, v) for (w, v) in widgets_values if w]:
-            if user_input.objectName() == "jplag_args":
-                jplag_args_list = literal_eval(values)
-                try:
-                    bc_index = jplag_args_list.index("-bc")
-                except ValueError:
-                    print("No template directory defined.")
-                else:
-                    jplag_args_list.pop(bc_index)  # remove "-bc"
-                    jplag_args_list.pop(bc_index)  # remove template_dir
-                    values = repr(jplag_args_list)
-
-            user_input.display_config(values)
+            user_input.display_value(values)
 
     def _saveConfigValues(self) -> None:
-        new_config = {}
-
-        user_input: UserInputWidget
         for user_input in self.findChildren(UserInputWidget):
-            new_config[user_input.objectName()] = user_input.get_config()
-
-        # post-process to map template_dir back into jplag_args
-        if new_config["template_dir"]:
-            if new_config["jplag_args"]:
-                try:
-                    jplag_args_list = literal_eval(new_config["jplag_args"])
-                    jplag_args_list.extend(["-bc", new_config["template_dir"]])
-                except (ValueError, SyntaxError, AttributeError):
-                    # ValueError and SyntaxError: sending malformed string into literal_eval
-                    # AttributeError: trying to use extend on a non-list object
-                    # ? is replacing the values the best solution here?
-                    jplag_args_list = ["-bc", new_config["template_dir"]]
-            else:
-                jplag_args_list = ["-bc", new_config["template_dir"]]
-
-            new_config["jplag_args"] = repr(jplag_args_list)
-
-        self._config = DotMap(new_config)
+            self._config[user_input.objectName()] = user_input.get_value()
 
     @staticmethod
     def show(parent, config) -> tuple[bool, DotMap]:
         dialog = ProjectConfigDialog(parent, config)
-        result = dialog.exec_()
+        result = dialog.exec()
         if result == QDialog.Accepted:
             dialog._saveConfigValues()
         return result == QDialog.Accepted, dialog._config
