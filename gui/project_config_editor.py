@@ -62,6 +62,27 @@ class SingleLineInputWidget(UserInputWidget):
         return self._line_edit.text()
 
 
+class SingleDropdownWidget(UserInputWidget):
+    def __init__(self, object_name: str, tooltip: str, options: list) -> None:
+        super().__init__(object_name=object_name)
+
+        self.tooltip = tooltip
+        self.options = options
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        cb = QComboBox(self, toolTip=tooltip, editable=True)
+        cb.addItems(self.options)
+        self._line_edit = cb
+        layout.addWidget(self._line_edit)
+        self.setLayout(layout)
+
+    def display_value(self, value: str) -> None:
+        self._line_edit.setEditText(value)
+
+    def get_value(self) -> Union[str, list[str]]:
+        return self._line_edit.currentText()
+
+
 class MultilineWidget(UserInputWidget):
     """
     Structure:
@@ -237,29 +258,35 @@ class ProjectConfigDialog(QDialog):
             has_multi_value=True,
         ),
         ConfigSetting(display_name="Template directory:", object_name="template_dir"),
-        ConfigSetting(display_name="Java path:", object_name="java_path"),
         ConfigSetting(
-            display_name="Extra JPlag arguments:",
-            object_name="jplag_args",
-            tooltip="['arg-1', 'arg-2', ...]",
+            display_name="Language parser:",
+            object_name="language",
+            has_multi_value=False,
+            options="language_presets",
         ),
+        ConfigSetting(display_name="Java path:", object_name="java_path"),
+        # ConfigSetting(
+        #     display_name="Extra JPlag arguments:",
+        #     object_name="jplag_args",
+        #     tooltip="['arg-1', 'arg-2', ...]",
+        # ),
     ]
 
     def _makeWidget(self, setting):
-        if setting.options:  # a group of combo boxes
-            return MultiDropdownWidget(
-                object_name=setting.object_name,
-                tooltip=setting.tooltip,
-                options=self._config[setting.options],
-            )
-        elif setting.has_multi_value:  # a group of single-line inputs
-            return MultilineInputWidget(
-                object_name=setting.object_name, tooltip=setting.tooltip
-            )
+        multivalue = setting.has_multi_value
+        options = setting.options
+        obj = setting.object_name
+        hint = setting.tooltip
+        opts = [] if not setting.options else self._config[setting.options]
+
+        if multivalue and options:  # a group of combo boxes
+            return MultiDropdownWidget(object_name=obj, tooltip=hint, options=opts)
+        elif not multivalue and options:  # a single combo box
+            return SingleDropdownWidget(object_name=obj, tooltip=hint, options=opts)
+        elif multivalue:  # a group of single-line inputs
+            return MultilineInputWidget(object_name=obj, tooltip=hint)
         else:  # a single-line input box
-            return SingleLineInputWidget(
-                object_name=setting.object_name, tooltip=setting.tooltip
-            )
+            return SingleLineInputWidget(object_name=obj, tooltip=hint)
 
     def __init__(self, parent: QWidget, config: DotMap) -> None:
         super().__init__(parent)

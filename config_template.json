@@ -16,6 +16,7 @@
 		"Assignment no. (two digits) :: .+(\\d\\d).+ :: \\1",
 		"Assignment no. (one digit) :: .+(\\d).+ :: 0\\1"
 	],
+	"language": "java",
 	"java_path": "%JAVA_HOME%/bin/java.exe",
 	"jplag_args": "['-l', 'java9']",
 	"template_dir": "",
@@ -26,5 +27,6 @@
 	"assignment_conversions_presets": [
 		"Assignment no. (two digits) :: .+(\\d\\d).+ :: \\1",
 		"Assignment no. (one digit) :: .+(\\d).+ :: 0\\1"
-	]
+	],
+	"language_presets":["java", "cpp","csharp"]
 }
