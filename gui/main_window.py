@@ -11,7 +11,7 @@ from PySide6.QtCore import QCoreApplication
 
 from gui.diagrams import GraphicsSceneChordDiagram, GraphicsSceneChordDiagram2
 from gui.diagrams import GraphicsSceneNetwork, GraphicsView, findMaxPlag
-from gui.project_config_editor import ProjectConfigDialog
+from gui.config_editor import ProjectConfigDialog
 from gui.new_diagram_dialog import NewDiagramDialog
 from gui.number_of_nodes import NumberOfNodesDialog
 from gui.ui_mainwindow import Ui_MainWindow

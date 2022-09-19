@@ -18,7 +18,7 @@
 	],
 	"language": "java",
 	"java_path": "%JAVA_HOME%/bin/java.exe",
-	"jplag_args": "['-l', 'java9']",
+	"jplag_args": "[]",
 	"template_dir": "",
 	"assignment_regexes_presets": ["Zip archives :: .+\\.zip"],
 	"username_conversions_presets": [
@@ -28,5 +28,8 @@
 		"Assignment no. (two digits) :: .+(\\d\\d).+ :: \\1",
 		"Assignment no. (one digit) :: .+(\\d).+ :: 0\\1"
 	],
-	"language_presets":["java", "cpp","csharp"]
+	"language_presets": [
+		"java", "cpp", "csharp", "golang", "kotlin", 
+		"python3", "rlang", "rust", "scala", "scheme","emf-metamodel", "text"
+	]
 }

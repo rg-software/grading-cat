@@ -14,14 +14,16 @@ import ast
 
 
 class JPlagReport:
-    def __init__(self, java_path, basecode_dir, extra_args, assignment_name):
+    def __init__(self, java_path, basecode_dir, language, extra_args, assignment_name):
         in_dir = f"jpl_in_{assignment_name}"
         out_dir = f"jpl_out_{assignment_name}"
 
         jplag_dir = os.path.dirname(os.path.realpath(__file__))
         java_exe = os.path.expandvars(java_path)
         bc_arg = ["-bc", basecode_dir] if basecode_dir else []
-        args = bc_arg + ast.literal_eval(extra_args) + ["-r", out_dir, in_dir]
+        lang_arg = ["-l", language]
+        output_arg = ["-r", out_dir, in_dir]
+        args = bc_arg + lang_arg + ast.literal_eval(extra_args) + output_arg
         jplag_runcmd = [java_exe, "-jar", os.path.join(jplag_dir, "jplag-3.0.0-al.jar")]
         cmd = jplag_runcmd + args
         print(f"Running: {cmd}")
@@ -47,8 +49,8 @@ class JPlagReport:
 
 
 # NOTE: we should be inside the project dir here
-def run(java_path, basecode_dir, extra_args, assignment_name):
-    report = JPlagReport(java_path, basecode_dir, extra_args, assignment_name)
+def run(java_path, basecode_dir, language, extra_args, assignment_name):
+    report = JPlagReport(java_path, basecode_dir, language, extra_args, assignment_name)
 
     out_log = f"jpl_out_{assignment_name}.log"
     with open(out_log, "wb") as f:
