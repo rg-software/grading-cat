@@ -3,6 +3,11 @@ from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLabel, QVBoxLayout
 from PySide6.QtCore import QRect, Qt
 from main_utils import appPath
 
+# Cat picture source:
+# http://blogs.reuters.com/oddly-enough/2007/10/11/just-too-obvious-cat-and-mouse/
+# Zoe, a domestic shorthair cat, touches the mouse of a computer during a media
+# preview for The Cat Fanciers’ Association’s championship in New York October 10, 2007.
+
 
 class AboutCatDialogUi(QDialog):
     def __init__(self, parent):

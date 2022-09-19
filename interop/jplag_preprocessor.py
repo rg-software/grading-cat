@@ -10,7 +10,7 @@ import pathlib
 import shutil
 from pyunpack import Archive
 
-ARCHIVE_FILE_MASK = ".+\\.(zip|rar)"  # supported archive types
+ARCHIVE_FILE_MASK = ".+\\.(zip|rar)"  # supported archive types (to be depacked)
 
 
 def _output_dir(name):
@@ -28,8 +28,8 @@ def _trailing_dir_name(full_path):
 
 
 class JplInSubmission:
-    def __init__(self, re_pattern, in_user_dir, output_dir):
-        self.re_pattern = re_pattern
+    def __init__(self, re_patterns, in_user_dir, output_dir):
+        self.re_patterns = re_patterns
         self.in_user_dir = in_user_dir
         self.output_dir = output_dir
 
@@ -37,10 +37,15 @@ class JplInSubmission:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
+        re_extracted = [self._regex_extract(r) for r in self.re_patterns]
         for file in os.listdir(self.in_user_dir):
-            if re.fullmatch(self.re_pattern, file):
+            matches = [bool(re.fullmatch(r, file)) for r in re_extracted]
+            if True in matches:
                 print(f"Processing file {file}")
                 self._process_file(os.path.join(self.in_user_dir, file))
+
+    def _regex_extract(self, line):  # the last chunk only in this case
+        return line.split("::")[-1].strip()
 
     def _process_file(self, in_path):
         if re.fullmatch(ARCHIVE_FILE_MASK, in_path):
@@ -50,8 +55,8 @@ class JplInSubmission:
 
 
 class JplInAssignment:
-    def __init__(self, re_pattern, in_dir, name, is_arc):
-        self.re_pattern = re_pattern
+    def __init__(self, re_patterns, in_dir, name, is_arc):
+        self.re_patterns = re_patterns
         self.prefix = f"arc[{_trailing_dir_name(in_dir)}]" if is_arc else ""
         self.week_dir = os.path.join(in_dir, name)
         self.output_dir = _output_dir(name)
@@ -63,16 +68,16 @@ class JplInAssignment:
             print(f"Processing user {user_dir}")
             in_dir = os.path.join(self.week_dir, user_dir)
             out_dir = os.path.join(self.output_dir, f"{self.prefix}{user_dir}")
-            JplInSubmission(self.re_pattern, in_dir, out_dir).process()
+            JplInSubmission(self.re_patterns, in_dir, out_dir).process()
 
         for p in pathlib.Path(self.output_dir).rglob("__macosx"):  # cleanup
             shutil.rmtree(p)
 
 
 # NOTE: we should be inside the project dir here
-def preprocess_dirs(submissions_dir, archive_dirs, re_pattern, assignment_name):
+def preprocess_dirs(submissions_dir, archive_dirs, re_patterns, assignment_name):
     _cleanup_dir(_output_dir(assignment_name))
 
-    JplInAssignment(re_pattern, submissions_dir, assignment_name, False).process()
+    JplInAssignment(re_patterns, submissions_dir, assignment_name, False).process()
     for dir in archive_dirs:
-        JplInAssignment(re_pattern, dir, assignment_name, True).process()
+        JplInAssignment(re_patterns, dir, assignment_name, True).process()
