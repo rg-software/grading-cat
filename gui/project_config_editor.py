@@ -27,6 +27,7 @@ class ConfigSetting:
     tooltip: str = ""
     has_multi_value: bool = False
     options: list[str] = field(default_factory=list)
+    widget: object = None
 
 
 class UserInputWidget(QWidget):
@@ -82,6 +83,7 @@ class MultilineWidget(UserInputWidget):
 
     def __init__(self, object_name: str) -> None:
         super().__init__(object_name=object_name)
+        self.elements = []
 
         add_button = QPushButton(
             text=self.BUTTON_ADD_TEXT,
@@ -97,7 +99,7 @@ class MultilineWidget(UserInputWidget):
         self.grid_layout = QGridLayout(verticalSpacing=10)
         self.grid_layout.setColumnMinimumWidth(0, 110)
         self.grid_layout.setColumnMinimumWidth(1, 25)
-        self.add_row()
+        # self.add_row()
 
         vbox_layout = QVBoxLayout()
         vbox_layout.addLayout(self.grid_layout)
@@ -119,6 +121,10 @@ class MultilineWidget(UserInputWidget):
     @abstractmethod
     def create_input(self) -> QWidget:
         ...
+
+    def destroy_input(self, widget) -> None:
+        if widget in self.elements:
+            self.elements.pop(self.elements.index(widget))
 
     def add_row(self) -> None:
         rows = self.grid_layout.rowCount()
@@ -144,6 +150,7 @@ class MultilineWidget(UserInputWidget):
         row = self.grid_layout.getItemPosition(index)[0]
         for column in range(self.grid_layout.columnCount()):
             if layout := self.grid_layout.itemAtPosition(row, column):
+                self.destroy_input(layout.widget())
                 layout.widget().deleteLater()
                 self.grid_layout.removeItem(layout)
 
@@ -151,52 +158,48 @@ class MultilineWidget(UserInputWidget):
 class MultilineInputWidget(MultilineWidget):
     def __init__(self, object_name: str, tooltip: str) -> None:
         self.tooltip = tooltip
-        self.lines: list[QLineEdit] = []
+        self.elements = []
         super().__init__(object_name=object_name)
 
     def create_input(self) -> QLineEdit:
-        e = QLineEdit(
-            toolTip=self.tooltip,
-            fixedHeight=self.ROW_FIXED_HEIGHT,
-        )
-
-        self.lines.append(e)
+        e = QLineEdit(toolTip=self.tooltip, fixedHeight=self.ROW_FIXED_HEIGHT)
+        self.elements.append(e)
         return e
 
     def display_value(self, values: list[str]) -> None:
-        while len(self.lines) < len(values):
+        while len(self.elements) < len(values):
             self.add_row()
 
-        for line, values in zip(self.lines, values):
+        for line, values in zip(self.elements, values):
             line.setText(values)
 
     def get_value(self) -> list[str]:
-        return list({line.text() for line in self.lines})  # prevent duplicates
+        return list({line.text() for line in self.elements})  # prevent duplicates
 
 
 class MultiDropdownWidget(MultilineWidget):
     def __init__(self, object_name: str, tooltip: str, options: list) -> None:
         self.tooltip = tooltip
         self.options = options
-        self.dropdowns: list[QComboBox] = []
+        self.elements = []
         super().__init__(object_name=object_name)
 
     def create_input(self) -> QComboBox:
         cb = QComboBox(toolTip=self.tooltip, editable=True)
         cb.addItems(self.options)
         cb.setEditText("")
-        self.dropdowns.append(cb)
+        self.elements.append(cb)
         return cb
 
     def display_value(self, values: list[str]) -> None:
-        while len(self.dropdowns) < len(values):
+        while len(self.elements) < len(values):
             self.add_row()
 
-        for dropdown, value in zip(self.dropdowns, values):
+        for dropdown, value in zip(self.elements, values):
             dropdown.setCurrentIndex(self.options.index(value))
 
     def get_value(self) -> list[str]:
-        return [dropdown.currentText() for dropdown in self.dropdowns]
+        return [dropdown.currentText() for dropdown in self.elements]
 
 
 class ProjectConfigDialog(QDialog):
@@ -242,6 +245,22 @@ class ProjectConfigDialog(QDialog):
         ),
     ]
 
+    def _makeWidget(self, setting):
+        if setting.options:  # a group of combo boxes
+            return MultiDropdownWidget(
+                object_name=setting.object_name,
+                tooltip=setting.tooltip,
+                options=self._config[setting.options],
+            )
+        elif setting.has_multi_value:  # a group of single-line inputs
+            return MultilineInputWidget(
+                object_name=setting.object_name, tooltip=setting.tooltip
+            )
+        else:  # a single-line input box
+            return SingleLineInputWidget(
+                object_name=setting.object_name, tooltip=setting.tooltip
+            )
+
     def __init__(self, parent: QWidget, config: DotMap) -> None:
         super().__init__(parent)
 
@@ -250,29 +269,9 @@ class ProjectConfigDialog(QDialog):
         self.form_layout = QFormLayout(verticalSpacing=15)
 
         for setting in self.config_settings:
-            if setting.options:  # a group of combo boxes
-                self.form_layout.addRow(
-                    QLabel(setting.display_name),
-                    MultiDropdownWidget(
-                        object_name=setting.object_name,
-                        tooltip=setting.tooltip,
-                        options=self._config[setting.options],
-                    ),
-                )
-            elif setting.has_multi_value:  # a group of single-line inputs
-                self.form_layout.addRow(
-                    QLabel(setting.display_name),
-                    MultilineInputWidget(
-                        object_name=setting.object_name, tooltip=setting.tooltip
-                    ),
-                )
-            else:  # a single-line input box
-                self.form_layout.addRow(
-                    QLabel(setting.display_name),
-                    SingleLineInputWidget(
-                        object_name=setting.object_name, tooltip=setting.tooltip
-                    ),
-                )
+            label = QLabel(setting.display_name)
+            setting.widget = self._makeWidget(setting)
+            self.form_layout.addRow(label, setting.widget)
 
         buttons = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self
@@ -286,13 +285,8 @@ class ProjectConfigDialog(QDialog):
         self._loadConfigValues()
 
     def _loadConfigValues(self) -> None:
-        widgets_values = [
-            (self.findChild(UserInputWidget, key), value)
-            for (key, value) in self._config.items()
-        ]
-
-        for user_input, values in [(w, v) for (w, v) in widgets_values if w]:
-            user_input.display_value(values)
+        for widget, value in [(s.widget, s.object_name) for s in self.config_settings]:
+            widget.display_value(self._config[value])
 
     def _saveConfigValues(self) -> None:
         for user_input in self.findChildren(UserInputWidget):
