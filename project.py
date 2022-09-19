@@ -114,7 +114,7 @@ def detect(asgn):
             cfg.assignment_regexes,
             asgn,
         )
-        jplag_runner.run(cfg.java_path, cfg.jplag_args, asgn)
+        jplag_runner.run(cfg.java_path, cfg.template_dir, cfg.jplag_args, asgn)
 
     with open(f"jpl_out_{asgn}.log") as f:
         return _filter_arc_records(f.read())
