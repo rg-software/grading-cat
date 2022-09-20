@@ -10,7 +10,7 @@ import pathlib
 import shutil
 from pyunpack import Archive
 
-ARCHIVE_FILE_MASK = ".+\\.(zip|rar)"  # supported archive types (to be depacked)
+ARCHIVE_FILE_MASK = ".+\\.(zip|rar|7z|bz2|gz|tar)"  # supported types to be depacked
 
 
 def _output_dir(name):

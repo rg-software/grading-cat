@@ -5,22 +5,18 @@
 	"course_shortname": "",
 	"moodle_submissions_dir": "submissions",
 	"archive_dirs": [
-		"s:\\Teaching\\DistrComp\\submissions\\2019",
-		"s:\\Teaching\\DistrComp\\submissions\\2018"
 	],
-	"assignment_regexes": ["Zip archives :: .+\\.zip"],
+	"assignment_regexes": ["Archives :: .+\\.(zip|7z|bz2|gz|tar)"],
 	"username_conversions": [
 		"Username from email :: (.+)@.+ :: \\1"
 	],
 	"assignment_conversions": [
-		"Assignment no. (two digits) :: .+(\\d\\d).+ :: \\1",
-		"Assignment no. (one digit) :: .+(\\d).+ :: 0\\1"
 	],
-	"language": "java",
+	"language": "java9",
 	"java_path": "%JAVA_HOME%/bin/java.exe",
 	"jplag_args": "[]",
 	"template_dir": "",
-	"assignment_regexes_presets": ["Zip archives :: .+\\.zip"],
+	"assignment_regexes_presets": ["Archives :: .+\\.(zip|7z|bz2|gz|tar)"],
 	"username_conversions_presets": [
 		"Username from email :: (.+)@.+ :: \\1"
 	],
@@ -29,7 +25,6 @@
 		"Assignment no. (one digit) :: .+(\\d).+ :: 0\\1"
 	],
 	"language_presets": [
-		"java", "cpp", "csharp", "golang", "kotlin", 
-		"python3", "rlang", "rust", "scala", "scheme","emf-metamodel", "text"
+		"java9", "cpp", "csharp", "python3", "scheme", "text"
 	]
 }

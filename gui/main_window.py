@@ -76,7 +76,7 @@ class MainWindow(QMainWindow):
         )
         self.ui.tabWidget.setTabText(
             self.ui.tabWidget.indexOf(self.tabChord2),
-            QCoreApplication.translate("MainWindow", "Chord diagram 2", None),
+            QCoreApplication.translate("MainWindow", "Fancy diagram", None),
         )
         self.ui.tabWidget.setTabText(
             self.ui.tabWidget.indexOf(self.tabNetwork),
@@ -178,6 +178,10 @@ class MainWindow(QMainWindow):
         self.ui.actionClose.triggered.connect(self.closeDiagram)
 
         self._updateTitle(None)  # no project loaded
+
+        # TODO: switch on inactive elements when they are ready
+        self.ui.menuTest_Menu.menuAction().setVisible(False)
+        self.ui.tabWidget.removeTab(self.ui.tabWidget.indexOf(self.tabNetwork))
 
     def newDiagram(self):
         isOk, n = NumberOfNodesDialog.show(self)
