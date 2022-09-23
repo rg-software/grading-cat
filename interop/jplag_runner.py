@@ -49,8 +49,8 @@ class JPlagReport:
 
 
 # NOTE: we should be inside the project dir here
-def run(java_path, basecode_dir, language, extra_args, assignment_name):
-    report = JPlagReport(java_path, basecode_dir, language, extra_args, assignment_name)
+def run(java_path, language, extra_args, assignment_name):
+    report = JPlagReport(java_path, "templates", language, extra_args, assignment_name)
 
     out_log = f"jpl_out_{assignment_name}.log"
     with open(out_log, "wb") as f:

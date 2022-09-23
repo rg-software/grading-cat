@@ -111,12 +111,11 @@ def detect(asgn):
         jplag_preprocessor.preprocess_dirs(
             cfg.moodle_submissions_dir,
             cfg.archive_dirs,
+            cfg.template_dir,
             cfg.assignment_regexes,
             asgn,
         )
-        jplag_runner.run(
-            cfg.java_path, cfg.template_dir, cfg.language, cfg.jplag_args, asgn
-        )
+        jplag_runner.run(cfg.java_path, cfg.language, cfg.jplag_args, asgn)
 
     with open(f"jpl_out_{asgn}.log") as f:
         return _filter_arc_records(f.read())

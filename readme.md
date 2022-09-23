@@ -101,14 +101,16 @@ Archive directories should be organized in a similar manner: each archive direct
 
 ## Detecting Plagiarism
 
-Select `Project`, `Detect` menu item to prepare a plagiarism detection report for the given assignment. Grading Cat will copy input files into a temporary location, rearrange them as required by JPlag, and unpack all archives. Then JPlag will be invoked to prepare a report. Next, report data will be used to show a detection diagram. Subsequent `Detect` calls will reuse this existing report.
+Select `Project`, `Detect` menu item to prepare a plagiarism detection report for the given assignment. Grading Cat will copy input files into a temporary location, rearrange them as required by JPlag, unpack all archives, and invoke JPlag. Next, report data will be used to show a detection diagram. Subsequent `Detect` calls will reuse this existing report.
 
 Currently it is not possible to force the system to re-download files or re-generate reports. As a workaround, you can manually delete them before running detection.
 
+The diagram will show all student submissions and connect similar items according to a user-specified threshold. Each archive directory will be shown as a single pseudo-submission (with `arc` prefix) rather than a collection of real submissions. The rationale is to avoid clutter by removing redundant links: we are typically interested to reveal similarities between current submissions and our archive, but similarities _within_ the archive are not important anymore.
 
-## --------
+By right-clicking on a submission, you can access `Compare with` menu item and open a detailed comparison with similar submissions. Once a certain submission is processed, it can be hidden or even removed from the report. When comparing with an archive pseudo-submission, the top match is chosen.
 
-## Working Process
+## Command-line Interface
+
 
 1. Prepare a project directory `<ProjectDir>` and place there a configuration file `config.json`.
 
@@ -130,43 +132,8 @@ Currently it is not possible to force the system to re-download files or re-gene
     poetry run python jplag_runner.py <ProjectDir> <AssignmentName>
     ```
 
-## Technical Notes
-
-1. GradingCat activities are structured into "projects". A project corresponds to a single course with a number of activities, requiring user submissions. Thus, a project is configured once per course. All project data is stored in a single directory and its subdirectories with a configuration file `config.json` at the root. Configuration can be done manually, but some GUI assistance is planned.
-
-1. Moodle downloader will save all submissions of the specified Moodle course into a certain subdirectory of the given project. Previously downloaded files will not be overwritten, so it is possible to run Moodle downloader to update local course submission files.
-
-    Users and activities will be renamed according to `username_conversions` and `assignment_conversions` regular expressions. They can be empty if no conversion is necessary. The system analyzes the list sequentially and applies the first possible conversion. A dash sign in user names will be replaced with an underscore to avoid issues in further steps.
-
-1. JPlag preprocessor will prepare files, related to an individual student activity, for further processing by JPlag. Technically it means ensuring `<root>/student/assignment` structure of directories and depacking of all archives. The preprocessor will also copy files from the archive of previous submissions. It is expected that the archive uses the same directory structure as prepared by Moodle downloader. Only files matching `assignment_regex` will be copied. We also plan "collate" functionality when all archive submissions will be represented as a result of a single virtual student.
-
-1. JPlag runner will run a JPlag session for the given assignment. A log file with file pair similarity values and a full JPlag output directory will be created. 
-
-## Project Config File Attributes
-
-Here is a sample:
-
-```json
-{
-    "username": "my_moodle_user", 
-    "password": "my_moodle_password", 
-    "server_url": "https://moodle.university.edu", 
-    "course_shortname": "SA06_20154128",
-    "moodle_submissions_dir": "moodle_submissions",
-    "archive_dirs": ["s:\\Teaching\\DistrComp\\submissions\\2019", "s:\\Teaching\\DistrComp\\submissions\\2018"],
-    "assignment_regex": ".+\\.zip",
-    "username_conversions": "[['(.+)@.+', '\\1']]",
-    "assignment_conversions": "[['.+(\\d\\d).+', '\\1'], ['.+(\\d).+', '0\\1']]",
-    "java_path": "%JAVA_HOME%/bin/java.exe",
-    "jplag_args": "['-l', 'java9']"
-}
-```
-
-TODO.
-Sessions
- is a single plagiarism detection activity over a list of user submissions.
-
-A session can be saved and resumed later, but it is expected that once grading is done, there will be no need to return to it. 
 
 
-https://github.com/jplag/JPlag
+## Notes
+
+Granularity: weekly tasks

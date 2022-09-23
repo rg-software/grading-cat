@@ -3,6 +3,7 @@
 # We get all files matching the regex filter and depack them to a dir constructed as <output-dir>/<user-dir>
 # Archive dirs are handled separately.
 # We prefix all older students with an "arc[<directory>]" string
+# and delete all "__macosx" folders
 
 import re
 import os
@@ -75,9 +76,16 @@ class JplInAssignment:
 
 
 # NOTE: we should be inside the project dir here
-def preprocess_dirs(submissions_dir, archive_dirs, re_patterns, assignment_name):
-    _cleanup_dir(_output_dir(assignment_name))
+def preprocess_dirs(submissions_dir, arc_dirs, template_dir, re_patterns, asgn_name):
+    out_dir = _output_dir(asgn_name)
+    out_template_dir = os.path.join(out_dir, "templates")
+    _cleanup_dir(out_dir)
 
-    JplInAssignment(re_patterns, submissions_dir, assignment_name, False).process()
-    for dir in archive_dirs:
-        JplInAssignment(re_patterns, dir, assignment_name, True).process()
+    JplInAssignment(re_patterns, submissions_dir, asgn_name, False).process()
+    for dir in arc_dirs:
+        JplInAssignment(re_patterns, dir, asgn_name, True).process()
+
+    if template_dir:
+        shutil.copytree(template_dir, out_template_dir)
+    else:
+        os.makedirs(out_template_dir)  # let's have an empty folder at least
