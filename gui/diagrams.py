@@ -1127,6 +1127,7 @@ class GraphicsView(QGraphicsView):
         self.scene = scene
         self.scene.setSceneRect(0.0, 0.0, self.width() - 10, self.height() - 10)
         self.setScene(self.scene)
+        self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
 
         # self.property()
         # QColor(54, 64, 80, 255)

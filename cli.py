@@ -32,7 +32,8 @@ def moodle_downloader(config, _):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("Commands:")
+        print("Usage: cli.py <command> <arguments>")
+        print("Supported commands:")
         print("jplag_preprocessor <project-dir> <assignment-name>")
         print("jplag_runner <project-dir> <assignment-name>")
         print("moodle_downloader <project-dir>")

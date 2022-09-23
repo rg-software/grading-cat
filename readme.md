@@ -4,6 +4,8 @@
 
 Grading Cat is a source code plagiarism detection system, heavily emphasizing user convenience in specific, well-defined scenarios. Grading Cat is created to check student-submitted exercises within software engineering courses. The core detection functionality is provided by [JPlag](https://github.com/jplag/JPlag), while the rest of the system strives to provide smooth user experience. Note that Grading Cat is a work in progress.
 
+![Grading Cat](grading-cat.png)
+
 ## Setup
 
 Make sure you have [Java](https://adoptium.net) and [Python](https://www.python.org) installed. Install [Poetry](https://python-poetry.org), then run
@@ -109,31 +111,18 @@ The diagram will show all student submissions and connect similar items accordin
 
 By right-clicking on a submission, you can access `Compare with` menu item and open a detailed comparison with similar submissions. Once a certain submission is processed, it can be hidden or even removed from the report. When comparing with an archive pseudo-submission, the top match is chosen.
 
-## Command-line Interface
-
-
-1. Prepare a project directory `<ProjectDir>` and place there a configuration file `config.json`.
-
-1. Download/sync student submissions:
-
-    ```shell
-    poetry run python cli.py moodle_downloader <ProjectDir>
-    ```
-
-1. To work with a specific assignment, prepare it for JPlag processing:
-
-    ```shell
-    poetry run python jplag_preprocessor.py <ProjectDir> <AssignmentName>
-    ```
-
-1. Then process it with JPlag:
-
-    ```shell
-    poetry run python jplag_runner.py <ProjectDir> <AssignmentName>
-    ```
-
-
-
 ## Notes
 
-Granularity: weekly tasks
+File processing can also be done using command line interface. Run
+
+```shell
+poetry run python cli.py
+```
+
+for more information.
+
+When designing a course, one might ask what should be the right unit of work for a single assignment. For example, if a student has to solve four exercises every week, should each exercise be submitted as a separate zip file or they all should be archived together?
+
+Grading Cat will compare all the files in the student A's assignment archive with all the files in the student B's archive. If this assignment contains several independent exercises, files from _different_ exercises will be compared with each other. While it makes little sense, our experience nevertheless suggests taking this approach. Dealing with small units of work greatly increases the required effort (for the students as well) without much benefit for plagiarism detection quality.
+
+It also should be noted that Grading Cat cannot evaluate the correctness of submissions. Empty or nearly empty files, pictures, Word or PDF documents will not trigger any alarms.
