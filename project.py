@@ -63,10 +63,11 @@ def assignments():
     return r
 
 
-def _filter_arc_records(log):
-    def is_arc_student(student):
-        return student.startswith("arc[")
+def _is_arc_student(student):
+    return student.startswith("arc[")
 
+
+def _filter_arc_records(log):
     def student_name(student_name):
         m = re.match("(arc\[.+\]).+", student_name)
         return m.group(1) if m else student_name
@@ -86,11 +87,11 @@ def _filter_arc_records(log):
     # use max score over the archive
     log_filtered = defaultdict(float)
     for m in log_matches:
-        if not (is_arc_student(m.student1) and is_arc_student(m.student2)):
+        if not (_is_arc_student(m.student1) and _is_arc_student(m.student2)):
             key = (student_name(m.student1), student_name(m.student2))
 
-            if key not in log_filtered:
-                key = tuple(reversed(key))
+            if key not in log_filtered:  # name pair not found
+                key = tuple(reversed(key))  # swap names
 
             log_filtered[key] = max(log_filtered[key], m.score)
 
@@ -121,17 +122,41 @@ def detect(asgn):
         return _filter_arc_records(f.read())
 
 
-def htmlReportPath(studentID_1, studentID_2):
+def _find_archive_matches(student1, student2, asgn_path):
+    # if one of the students is arc, we need to rename
+    # it according to the best match from the log
+    # there is some intersection with code above
+
+    # here we simply have someone with archive prefix
+    maxsim = 0
+    r1 = r2 = ""
+    with open(f"{asgn_path}.log") as f:
+        for log_line in f.read().strip().split("\n"):
+            m = re.match("(.+)-(.+): (.+)", log_line)
+            name1, name2, sim = m.group(1), m.group(2), float(m.group(3))
+            opt1 = name1.startswith(student1) and name2.startswith(student2)
+            opt2 = name2.startswith(student1) and name1.startswith(student2)
+            if sim > maxsim and (opt1 or opt2):
+                maxsim, r1, r2 = sim, name1, name2
+
+    return r1, r2
+
+
+def htmlReportPath(student1, student2):
     assert _CurrentProjectPath
     assert _CurrentAssignment
 
     asgn_path = os.path.join(_CurrentProjectPath, f"jpl_out_{_CurrentAssignment}")
     csv_path = os.path.join(asgn_path, "pair_report.csv")
 
+    if _is_arc_student(student1) or _is_arc_student(student2):
+        student1, student2 = _find_archive_matches(student1, student2, asgn_path)
+
+    # student1; student2; html-report
     with open(csv_path) as f:
         reader = csv.reader(f, delimiter=";")
         for row in reader:
-            if (studentID_1, studentID_2) in [(row[0], row[1]), (row[1], row[0])]:
+            if (student1, student2) in [(row[0], row[1]), (row[1], row[0])]:
                 return os.path.join(asgn_path, row[2])
 
     assert False, "match not found"
