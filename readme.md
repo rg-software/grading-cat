@@ -113,6 +113,8 @@ By right-clicking on a submission, you can access `Compare with` menu item and o
 
 ## Notes
 
+### CLI
+
 File processing can also be done using command line interface. Run
 
 ```shell
@@ -120,6 +122,12 @@ poetry run python cli.py
 ```
 
 for more information.
+
+### JPlag Changes
+
+Grading Cat uses a [slightly modified](https://github.com/hrmck/jplag/tree/report_pairs) version of JPlag with additional logging capability. Newer JPlag builds have to be patched in a similar manner to be compatible with Grading cat.
+
+### Structuring Assignments
 
 When designing a course, one might ask what should be the right unit of work for a single assignment. For example, if a student has to solve four exercises every week, should each exercise be submitted as a separate zip file or they all should be archived together?
 
