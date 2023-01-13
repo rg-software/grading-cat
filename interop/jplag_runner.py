@@ -20,7 +20,8 @@ class JPlagReport:
 
         jplag_dir = os.path.dirname(os.path.realpath(__file__))
         java_exe = os.path.expandvars(java_path)
-        bc_arg = ["-bc", basecode_dir] if basecode_dir else []
+        bc_arg = []  # BUG: bc argument is IGNORED in this version due to Jplag bug
+        # bc_arg = ["-bc", basecode_dir] if basecode_dir else []
         lang_arg = ["-l", language]
         output_arg = ["-r", out_dir, in_dir]
         args = bc_arg + lang_arg + ast.literal_eval(extra_args) + output_arg
