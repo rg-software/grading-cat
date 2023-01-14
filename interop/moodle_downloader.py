@@ -15,8 +15,6 @@ import re
 import requests
 from dotmap import DotMap
 
-MOODLE_SERVICE_NAME = "core_enrol_get_enrolled_users"  # "moodle_mobile_app"
-
 
 class StubProgressObject:  # for CLI (in GUI we use the real one)
     def setMaximum(self, _):
@@ -47,6 +45,7 @@ class MoodleSession:
     def __init__(self, cfg):
         self.rest_url = f"{cfg.server_url}/webservice/rest/server.php"
         self.login_url = f"{cfg.server_url}/login/token.php"
+        self.moodle_service = cfg.moodle_service
         self.token = self._get_token(cfg.username, cfg.password)
         self.user_dirs = self._user_dirs(cfg.course_shortname, cfg.username_conversions)
         self.assignment_conversions = cfg.assignment_conversions
@@ -78,7 +77,7 @@ class MoodleSession:
         return requests.get(self.rest_url, params=p).json()
 
     def _get_token(self, username, password):
-        p = {"username": username, "password": password, "service": MOODLE_SERVICE_NAME}
+        p = {"username": username, "password": password, "service": self.moodle_service}
         return requests.get(self.login_url, params=p).json()["token"]
 
     def _course_by_shortname(self, shortname):  # list of all matching courses

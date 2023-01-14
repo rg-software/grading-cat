@@ -4,6 +4,7 @@
 	"server_url": "",
 	"course_shortname": "",
 	"moodle_submissions_dir": "submissions",
+	"moodle_service": "moodle_mobile_app",
 	"archive_dirs": [
 	],
 	"assignment_regexes": ["Archives :: .+\\.(zip|7z|bz2|gz|tar)"],

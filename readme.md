@@ -52,6 +52,8 @@ The following information must be specified:
 
 * Moodle server URL (such as `https://moodle.my-uni.edu`; _not_ the course page).
 
+* Moodle service name used to access data (keep the default `moodle_mobile_app` unless changed by the Moodle administrator).
+
 * Course _shortname_ (shown, e.g, on the course page right under the course title next to `Dashboard / My courses`).
 
 * Assignment regexes: a list of regexes used to identify relevant submission files. For example, you might want to download attached zip archives only, and skip PDF reports.
@@ -66,7 +68,7 @@ All rename/conversion capabilities are optional. If no conversion rules can be a
 
 * Archive directories: a list of paths to "external" potential sources of plagiarism, such as past submissions.
 
-* Template directory: a path to the teacher-provided code template, excluded from plagiarism detection.
+* Template directory: a path to the teacher-provided code template, excluded from plagiarism detection. **Note**: this option currently has no effect as it causes crashes in JPlag 3.0.
 
 * Language parser: the "CLI name" of the programming language used in assignments (must be supported by JPlag).
 

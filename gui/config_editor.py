@@ -23,6 +23,7 @@ class ProjectConfigDialog(QDialog):
         ConfigSetting(display_name="Moodle username:", object_name="username"),
         ConfigSetting(display_name="Moodle password:", object_name="password"),
         ConfigSetting(display_name="Moodle server URL:", object_name="server_url"),
+        ConfigSetting(display_name="Moodle service:", object_name="moodle_service"),
         ConfigSetting(
             display_name="Moodle course shortname:", object_name="course_shortname"
         ),
