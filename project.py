@@ -116,7 +116,12 @@ def detect(asgn):
             asgn,
         )
         jplag_runner.run(
-            cfg.java_path, cfg.template_dir, cfg.language, cfg.jplag_args, asgn
+            cfg.java_path,
+            cfg.template_dir,
+            cfg.language,
+            cfg.min_sim,
+            cfg.jplag_args,
+            asgn,
         )
 
     with open(f"jpl_out_{asgn}.log") as f:

@@ -15,6 +15,7 @@
 	],
 	"language": "java",
 	"java_path": "%JAVA_HOME%/bin/java.exe",
+	"min_sim": "10",
 	"jplag_args": "[]",
 	"template_dir": "",
 	"assignment_regexes_presets": ["Archives :: .+\\.(zip|7z|bz2|gz|tar)"],

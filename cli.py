@@ -21,6 +21,7 @@ def jplag_runner(config, assignment_name):
         config.java_path,
         config.template_dir,
         config.language,
+        config.min_sim,
         config.jplag_args,
         assignment_name,
     )

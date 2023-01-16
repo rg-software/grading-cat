@@ -68,9 +68,11 @@ All rename/conversion capabilities are optional. If no conversion rules can be a
 
 * Archive directories: a list of paths to "external" potential sources of plagiarism, such as past submissions.
 
-* Template directory: a path to the teacher-provided code template, excluded from plagiarism detection.
+* Basecode directory: a path to the teacher-provided code template, excluded from plagiarism detection.
 
 * Language parser: the "CLI name" of the programming language used in assignments (must be supported by JPlag).
+
+* Min sim to report: minimal file similarity threshold to detect.
 
 * Java path: a path to the main Java executable.
 

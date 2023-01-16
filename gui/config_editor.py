@@ -53,13 +53,14 @@ class ProjectConfigDialog(QDialog):
             object_name="archive_dirs",
             has_multi_value=True,
         ),
-        ConfigSetting(display_name="Template directory:", object_name="template_dir"),
+        ConfigSetting(display_name="Basecode directory:", object_name="template_dir"),
         ConfigSetting(
             display_name="Language parser:",
             object_name="language",
             has_multi_value=False,
             options="language_presets",
         ),
+        ConfigSetting(display_name="Min sim to report:", object_name="min_sim"),
         ConfigSetting(display_name="Java path:", object_name="java_path"),
     ]
 
