@@ -20,13 +20,12 @@ class JPlagReport:
 
         jplag_dir = os.path.dirname(os.path.realpath(__file__))
         java_exe = os.path.expandvars(java_path)
-        bc_arg = []  # BUG: bc argument is IGNORED in this version due to Jplag bug
-        # bc_arg = ["-bc", basecode_dir] if basecode_dir else []
+        bc_arg = ["-bc", basecode_dir] if basecode_dir else []
         lang_arg = ["-l", language]
         output_arg = ["-r", out_dir, in_dir]
         args = bc_arg + lang_arg + ast.literal_eval(extra_args) + output_arg
-        jplag_runcmd = [java_exe, "-jar", os.path.join(jplag_dir, "jplag-3.0.0-al.jar")]
-        cmd = jplag_runcmd + args
+        jplag_runcmd = [java_exe, "-jar", os.path.join(jplag_dir, "jplag-3.1.0-m.jar")]
+        cmd = jplag_runcmd + ["-n", "-1"] + args
         print(f"Running: {cmd}")
         output = subprocess.run(cmd, capture_output=True)
 
@@ -50,8 +49,8 @@ class JPlagReport:
 
 
 # NOTE: we should be inside the project dir here
-def run(java_path, language, extra_args, assignment_name):
-    report = JPlagReport(java_path, "templates", language, extra_args, assignment_name)
+def run(java_path, template_dir, language, extra_args, assignment_name):
+    report = JPlagReport(java_path, template_dir, language, extra_args, assignment_name)
 
     out_log = f"jpl_out_{assignment_name}.log"
     with open(out_log, "wb") as f:

@@ -76,16 +76,10 @@ class JplInAssignment:
 
 
 # NOTE: we should be inside the project dir here
-def preprocess_dirs(submissions_dir, arc_dirs, template_dir, re_patterns, asgn_name):
+def preprocess_dirs(submissions_dir, arc_dirs, re_patterns, asgn_name):
     out_dir = _output_dir(asgn_name)
-    out_template_dir = os.path.join(out_dir, "templates")
     _cleanup_dir(out_dir)
 
     JplInAssignment(re_patterns, submissions_dir, asgn_name, False).process()
     for dir in arc_dirs:
         JplInAssignment(re_patterns, dir, asgn_name, True).process()
-
-    if template_dir:
-        shutil.copytree(template_dir, out_template_dir)
-    else:
-        os.makedirs(out_template_dir)  # let's have an empty folder at least

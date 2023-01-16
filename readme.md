@@ -68,7 +68,7 @@ All rename/conversion capabilities are optional. If no conversion rules can be a
 
 * Archive directories: a list of paths to "external" potential sources of plagiarism, such as past submissions.
 
-* Template directory: a path to the teacher-provided code template, excluded from plagiarism detection. **Note**: this option currently has no effect as it causes crashes in JPlag 3.0.
+* Template directory: a path to the teacher-provided code template, excluded from plagiarism detection.
 
 * Language parser: the "CLI name" of the programming language used in assignments (must be supported by JPlag).
 
@@ -127,7 +127,14 @@ for more information.
 
 ### JPlag Changes
 
-Grading Cat uses a [slightly modified](https://github.com/hrmck/jplag/tree/report_pairs) version of JPlag with additional logging capability. Newer JPlag builds have to be patched in a similar manner to be compatible with Grading cat.
+Grading Cat uses a [slightly modified](https://github.com/rg-software/JPlag) version of JPlag 3.1.0 with additional logging capability. It must be compiled with JDK 17 as a standalone JAR using Maven:
+
+```shell
+# will produce jplag-3.1.0-SNAPSHOT-jar-with-dependencies.jar
+# under jplag/target
+
+mvn clean package assembly:single
+```
 
 ### Structuring Assignments
 

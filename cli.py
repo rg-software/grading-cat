@@ -11,7 +11,6 @@ def jplag_preprocessor(config, assignment_name):
     interop.jplag_preprocessor.preprocess_dirs(
         config.moodle_submissions_dir,
         config.archive_dirs,
-        config.template_dir,
         config.assignment_regexes,
         assignment_name,
     )
@@ -20,6 +19,7 @@ def jplag_preprocessor(config, assignment_name):
 def jplag_runner(config, assignment_name):
     interop.jplag_runner.run(
         config.java_path,
+        config.template_dir,
         config.language,
         config.jplag_args,
         assignment_name,
