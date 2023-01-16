@@ -6,6 +6,7 @@
 #                 A smaller <n> increases the sensitivity.
 # -bc <dir>       Name of the directory which contains the basecode (common framework)
 # -m  <p>         Matches with more than <p> percent similarity will be saved (default: 0).
+# -n <cnt>        The maximal number of matches to be saved (-1 for unlimited)
 # -l <lang>       Language to parse (default: java9)
 
 import os
